@@ -1,0 +1,33 @@
+.etiquetas-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .etiquetas-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
+  
+  .etiqueta {
+    width: calc(100% / 3);
+    box-sizing: border-box;
+    display: inline-block;
+    margin-bottom: 5px;
+  }
+  
+  h3 {
+    font-weight: normal;
+    font-size: 16px; 
+  }
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  li::before {
+    content: "•";
+    margin-right: 5px;
+  }

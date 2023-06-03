@@ -1,0 +1,53 @@
+<div>
+    <h1>Página Principal</h1>
+    <!--
+    <form (ngSubmit)="enviarFiltros()">
+      <label for="filtro-input">Filtro:</label>
+      <input type="text" id="filtro-input" [(ngModel)]="filtros" name="filtro" placeholder="Ingresa un filtro">
+       Agregar filtros adicionales 
+      <button type="submit">Buscar</button>
+    </form>
+    <div *ngIf="resultados.length > 0">
+      <h2>Resultados:</h2>
+      <ul>
+        <li *ngFor="let resultado of resultados">{{ resultado }}</li>
+      </ul>
+    </div>
+    -->
+
+    <h2>Etiquetas posibles en los filtros:</h2>
+    <div class="etiquetas-container">
+      <ul class="etiquetas-list">
+        <li *ngFor="let etiqueta of etiquetas" class="etiqueta">{{ etiqueta }}</li>
+      </ul>
+    </div>
+    <hr>
+
+    <div>
+      <h3>Filtros:</h3>
+      <input type="text" [(ngModel)]="filtros" placeholder="Ingrese los filtros">
+      <button (click)="obtenerNodosFiltrados()">Filtrar</button>
+    </div>
+
+    <ul>
+      <li *ngFor="let titulo of titulosFiltrados">{{ titulo }}</li>
+    </ul>    
+    
+    <!--
+    <div class="dropdown">
+      <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+        Selecciona un nodo
+      </button>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" *ngFor="let nodo of nodos" (click)="seleccionarNodo(nodo)">{{ nodo }}</a>
+      </div>
+    </div>
+  
+    <div *ngIf="informacionNodo">
+      <h2>Información del nodo seleccionado:</h2>
+      <p>{{ informacionNodo }}</p>
+    </div>
+    -->
+</div>
+
+  
