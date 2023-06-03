@@ -46,7 +46,9 @@ export class HomeComponent implements OnInit {
   }
 
   obtenerNodosFiltrados() {
-    this.apiService.obtenerNodosFiltrados([this.filtros]).subscribe({
+    const filtros = this.filtros.split(',').map(filtro => filtro.trim());
+
+    this.apiService.obtenerNodosFiltrados(filtros).subscribe({
       next: (response: any[]) => {
         this.resultadosFiltrados = response.map(item => JSON.stringify(item));
         this.titulosFiltrados = response.map(item => JSON.parse(JSON.stringify(item)).title);
