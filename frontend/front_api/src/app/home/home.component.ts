@@ -13,10 +13,8 @@ export class HomeComponent implements OnInit {
   filtros: string = '';
   publicaciones: string[] = [];
   resultadosFiltrados: string[] = [];
-  titulosFiltrados: string[] = [];
+  titulosFiltrados: { title: string, objeto: any, selected: boolean }[] = [];
   etiquetas: string[] = []; // Lista de etiquetas posibles para filtrar 
-  nodosFiltrados: any; // Lista de nodos
-  informacionNodo: string = ''; // Información del nodo seleccionado
 
   private nodosSubscription: Subscription | undefined;
   private informacionNodoSubscription: Subscription | undefined;
@@ -51,7 +49,7 @@ export class HomeComponent implements OnInit {
     this.apiService.obtenerNodosFiltrados(filtros).subscribe({
       next: (response: any[]) => {
         this.resultadosFiltrados = response.map(item => JSON.stringify(item));
-        this.titulosFiltrados = response.map(item => JSON.parse(JSON.stringify(item)).title);
+        this.titulosFiltrados = response.map(item => ({title: JSON.parse(JSON.stringify(item)).title, objeto: JSON.stringify(item), selected: false}));
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);
@@ -59,6 +57,12 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  generarEstadisticas() {
+    const titulosSeleccionados = this.titulosFiltrados.filter(titulo => titulo.selected).map(titulo => titulo.objeto);
+    // Realiza las operaciones de estadísticas con los objetos seleccionados
+    // Puedes pasar los objetos a la página de estadísticas utilizando el servicio de enrutamiento como se mencionó anteriormente
+  }
+  
     /*
   enviarFiltros() {
     const filtros = this.filtros.split(',').map(filtro => filtro.trim());

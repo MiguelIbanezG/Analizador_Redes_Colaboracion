@@ -29,10 +29,19 @@
       <button (click)="obtenerNodosFiltrados()">Filtrar</button>
     </div>
 
+    <!-- 
     <ul>
       <li *ngFor="let titulo of titulosFiltrados">{{ titulo }}</li>
     </ul>    
-    
+    -->
+
+    <div *ngFor="let titulo of titulosFiltrados">
+      <label>
+        <input type="checkbox" [(ngModel)]="titulo.selected">
+        <span [ngClass]="{ 'selected': titulo.selected }">{{ titulo.title }}</span>
+      </label>
+    </div>
+
     <!--
     <div class="dropdown">
       <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">

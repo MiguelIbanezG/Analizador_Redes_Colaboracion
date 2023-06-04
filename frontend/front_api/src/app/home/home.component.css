@@ -22,12 +22,15 @@
     font-size: 16px; 
   }
   
+ 
   ul {
     list-style-type: none;
     padding: 0;
   }
   
+   /*
   li::before {
     content: "•";
     margin-right: 5px;
   }
+  */
