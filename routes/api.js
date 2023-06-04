@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const neo4j = require('neo4j-driver');
+const estadisticasController = require('../controllers/estadisticasController'); 
 
 const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', '4452762354'), {encrypted:'ENCRYPTION_OFF'});
 
@@ -60,23 +61,7 @@ router.get('/filtrar-resultados', async (req, res) => {
   }
 }); 
 
-/*
-router.post('/filtrar-resultados', async (req, res) => {
-  const session = driver.session({database:'neo4j'});
-  const filtros = req.body.filtros;
-  const query = `MATCH (n) WHERE ANY(label IN LABELS(n) WHERE label IN $filtros) RETURN n`;
-
-  try {
-    const result = await session.run(query, { filtros });
-    const resultados = result.records.map(record => record.get('n').properties);
-    res.json(resultados);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al obtener los resultados filtrados', details: error.message });
-  } finally {
-    session.close();
-  }
-});
-*/
+// Ruta para generar estadísticas
+router.get('/estadisticas', estadisticasController.generarEstadisticas);
 
 module.exports = router;

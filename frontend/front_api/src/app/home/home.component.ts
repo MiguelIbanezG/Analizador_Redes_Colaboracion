@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
+import { SeleccionService } from '../seleccion.service';
+
+
 
 @Component({
   selector: 'app-home',
@@ -15,11 +19,16 @@ export class HomeComponent implements OnInit {
   resultadosFiltrados: string[] = [];
   titulosFiltrados: { title: string, objeto: any, selected: boolean }[] = [];
   etiquetas: string[] = []; // Lista de etiquetas posibles para filtrar 
+  titulosSeleccionados: any[] = []; // Lista de titulos seleccionados para generar estadisticas
 
   private nodosSubscription: Subscription | undefined;
   private informacionNodoSubscription: Subscription | undefined;
 
-  constructor(private apiService: ApiService) { }
+  constructor(
+    private apiService: ApiService, 
+    private router: Router,
+    private seleccionService: SeleccionService
+  ) { }
   
   ngOnInit() {
     this.apiService.obtenerEtiquetas().subscribe({
@@ -57,11 +66,34 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  generarEstadisticas() {
-    const titulosSeleccionados = this.titulosFiltrados.filter(titulo => titulo.selected).map(titulo => titulo.objeto);
-    // Realiza las operaciones de estadísticas con los objetos seleccionados
-    // Puedes pasar los objetos a la página de estadísticas utilizando el servicio de enrutamiento como se mencionó anteriormente
+  hayTitulosSeleccionados(): boolean {
+    return this.titulosFiltrados.some(titulo => titulo.selected);
   }
+  
+  
+  seleccionarTitulo(titulo: string) {
+    if (this.titulosSeleccionados.includes(titulo)) {
+      // Eliminar el título de la lista de seleccionados
+      this.titulosSeleccionados = this.titulosSeleccionados.filter(t => t !== titulo);
+    } else {
+      // Agregar el título a la lista de seleccionados
+      this.titulosSeleccionados.push(titulo);
+    }
+  }
+
+  generarEstadisticas() {
+    // Filtra los títulos seleccionados
+    const titulosSeleccionados = this.titulosFiltrados
+    .filter(titulo => titulo.selected).map(titulo => titulo);
+    
+    // Almacena los títulos seleccionados en el servicio de selección
+    this.seleccionService.agregarTitulos(titulosSeleccionados);
+
+    // Redirige a la página de estadísticas
+    this.router.navigateByUrl('/estadisticas');
+  }
+
+
   
     /*
   enviarFiltros() {

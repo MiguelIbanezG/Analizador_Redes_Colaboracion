@@ -25,9 +25,14 @@ export class ApiService {
     return this.http.get<any[]>(`${this.baseUrl}/filtrar-resultados`, { params });
   }
 
-  generarEstadisticas(datos: any): Observable<any> {
-    // Realiza la solicitud POST a la API de Node.js para generar las estadísticas
-    return this.http.post(`${this.baseUrl}/generar-estadisticas`, datos);
+  // generarEstadisticas(titulosSeleccionados: any[]) {
+  //   const url = `${this.baseUrl}/estadisticas`;
+  //   return this.http.post(url, { titulosSeleccionados });
+  // }
+
+  generarEstadisticas(titulosSeleccionados: string[]) {
+    const params = { titulosSeleccionados: titulosSeleccionados.join(',') };
+    return this.http.get(`${this.baseUrl}/estadisticas`, { params });
   }
 
   obtenerEstadisticas(): Observable<any> {

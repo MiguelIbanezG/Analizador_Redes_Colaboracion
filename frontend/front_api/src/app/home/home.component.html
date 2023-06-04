@@ -29,11 +29,12 @@
       <button (click)="obtenerNodosFiltrados()">Filtrar</button>
     </div>
 
-    <!-- 
-    <ul>
-      <li *ngFor="let titulo of titulosFiltrados">{{ titulo }}</li>
-    </ul>    
-    -->
+    <div>
+      <!-- Resto del código -->
+      <!-- <button (click)="generarEstadisticas()" [disabled]="!titulosSeleccionados.length">Generar stats</button> -->
+      <button [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generar Stats</button>
+    </div>
+    
 
     <div *ngFor="let titulo of titulosFiltrados">
       <label>

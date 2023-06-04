@@ -2,13 +2,13 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { FormularioFiltrosComponent } from './formulario-filtros/formulario-filtros.component';
-import { PaginaEstadisticasComponent } from './pagina-estadisticas/pagina-estadisticas.component';
+import { EstadisticasComponent } from './estadisticas/estadisticas.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'formulario-filtros', component: FormularioFiltrosComponent },
-  { path: 'pagina-estadisticas', component: PaginaEstadisticasComponent },
+  { path: 'estadisticas', component: EstadisticasComponent },
 ];
 
 @NgModule({

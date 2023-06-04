@@ -7,8 +7,9 @@ import { AppComponent } from './app.component';
 import { ApiService } from './api.service';
 import { HomeComponent } from './home/home.component';
 import { FormularioFiltrosComponent } from './formulario-filtros/formulario-filtros.component';
-import { PaginaEstadisticasComponent } from './pagina-estadisticas/pagina-estadisticas.component';
 import { FormsModule } from '@angular/forms';
+import { EstadisticasComponent } from './estadisticas/estadisticas.component';
+import { SeleccionService } from './seleccion.service';
 
 
 @NgModule({
@@ -16,7 +17,7 @@ import { FormsModule } from '@angular/forms';
     AppComponent,
     HomeComponent,
     FormularioFiltrosComponent,
-    PaginaEstadisticasComponent
+    EstadisticasComponent
   ],
   imports: [
     BrowserModule,
@@ -25,7 +26,8 @@ import { FormsModule } from '@angular/forms';
     FormsModule
   ],
   providers: [
-    ApiService
+    ApiService,
+    SeleccionService
   ],
   bootstrap: [AppComponent]
 })
