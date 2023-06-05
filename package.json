@@ -4,6 +4,9 @@
   "main": "server.js",
   "author": "Elisa Rodriguez",
   "license": "MIT",
+  "scripts": {
+    "start": "node --max-old-space-size=4096 server.js"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",

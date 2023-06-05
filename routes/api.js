@@ -37,29 +37,70 @@ router.get('/etiquetas', async (req, res) => {
   }
 });
 
-router.get('/filtrar-resultados', async (req, res) => {
-  const session = driver.session({database:'neo4j'});
+// router.get('/filtrar-resultados', async (req, res) => {
+//   const session = driver.session({database:'neo4j'});
 
-  if (!req.query.filtros) {
-      res.status(400).json({ error: 'Filtros no especificados' });
-      return;
-  }
+//   if (!req.query.filtros) {
+//       res.status(400).json({ error: 'Filtros no especificados' });
+//       return;
+//   }
 
-  const filtros = req.query.filtros.split(',');
+//   const filtros = req.query.filtros.split(',');
 
-  // Lógica para filtrar los resultados utilizando los filtros y devolverlos
+//   // Lógica para filtrar los resultados utilizando los filtros y devolverlos
+//   try {
+//     const query = `MATCH (n) WHERE ANY(label IN LABELS(n) WHERE label IN $filtros) RETURN n`;
+//     const result = await session.run(query, { filtros });
+//     const nodos = result.records.map(record => record.get('n').properties);
+//     res.json(nodos);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Error al obtener los nodos filtrados', details: error.message });
+//   } finally{
+//     session.close();
+//   }
+// }); 
+
+
+router.get('/filtrar-resultados/:filterName', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+  const filterName = req.params.filterName;
+
   try {
-    const query = `MATCH (n) WHERE ANY(label IN LABELS(n) WHERE label IN $filtros) RETURN n`;
-    const result = await session.run(query, { filtros });
-    const nodos = result.records.map(record => record.get('n').properties);
-    res.json(nodos);
+    const query = `
+      MATCH (v:Venue)-[:CELEBRATED_IN]->(a:Year)
+      WHERE v.name = $filterName
+      RETURN a.name AS year
+    `;
+    const result = await session.run(query, { filterName });
+    const years = result.records.map(record => record.get('year'));
+    res.json(years);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener los nodos filtrados', details: error.message });
-  } finally{
+    res.status(500).json({ error: 'Error al obtener los años', details: error.message });
+  } finally {
     session.close();
   }
-}); 
+});
+
+router.post('/estadisticas', async (req, res) => {
+  const titulosSeleccionados = req.body.titulosSeleccionados;
+
+  try {
+    // Lógica para generar las estadísticas utilizando los titulosSeleccionados
+    // ...
+    
+    // Devuelve los resultados de las estadísticas en formato JSON
+    const estadisticas = {
+      // ...
+    };
+    res.json(estadisticas);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al generar las estadísticas', details: error.message });
+  }
+});
+
 
 // Ruta para generar estadísticas
 router.get('/estadisticas', estadisticasController.generarEstadisticas);

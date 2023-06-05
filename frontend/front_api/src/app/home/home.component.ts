@@ -31,34 +31,45 @@ export class HomeComponent implements OnInit {
   ) { }
   
   ngOnInit() {
-    this.apiService.obtenerEtiquetas().subscribe({
-      next: (response: any) => {
-        this.etiquetas = response.etiquetas;
-      },
-      error: (error: any) => {
-        console.error('Error al obtener las etiquetas:', error);
-      }
-    });
+    // this.apiService.obtenerEtiquetas().subscribe({
+    //   next: (response: any) => {
+    //     this.etiquetas = response.etiquetas;
+    //   },
+    //   error: (error: any) => {
+    //     console.error('Error al obtener las etiquetas:', error);
+    //   }
+    // });
   }
   
-  obtenerPublicaciones() {
-    this.apiService.getPublications().subscribe({
-      next: (response: any[]) => {
-        this.publicaciones = response;
-      },
-      error: (error: any) => {
-        console.error('Error al obtener las publicaciones:', error);
-      }
-    });
-  }
+  // obtenerPublicaciones() {
+  //   this.apiService.getPublications().subscribe({
+  //     next: (response: any[]) => {
+  //       this.publicaciones = response;
+  //     },
+  //     error: (error: any) => {
+  //       console.error('Error al obtener las publicaciones:', error);
+  //     }
+  //   });
+  // }
 
+  // obtenerNodosFiltrados() {
+  //   const filtros = this.filtros.split(',').map(filtro => filtro.trim());
+
+  //   this.apiService.obtenerNodosFiltrados(filtros).subscribe({
+  //     next: (response: any[]) => {
+  //       this.resultadosFiltrados = response.map(item => JSON.stringify(item));
+  //       this.titulosFiltrados = response.map(item => ({title: JSON.parse(JSON.stringify(item)).title, objeto: JSON.stringify(item), selected: false}));
+  //     },
+  //     error: (error: any) => {
+  //       console.error('Error al obtener los resultados filtrados:', error);
+  //     }
+  //   });
+  // }
   obtenerNodosFiltrados() {
-    const filtros = this.filtros.split(',').map(filtro => filtro.trim());
-
-    this.apiService.obtenerNodosFiltrados(filtros).subscribe({
+    this.apiService.obtenerNodosFiltrados(this.filtros).subscribe({
       next: (response: any[]) => {
         this.resultadosFiltrados = response.map(item => JSON.stringify(item));
-        this.titulosFiltrados = response.map(item => ({title: JSON.parse(JSON.stringify(item)).title, objeto: JSON.stringify(item), selected: false}));
+        this.titulosFiltrados = response.map(item => ({ title: item, objeto: JSON.stringify(item), selected: false }));
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);

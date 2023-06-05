@@ -28,26 +28,26 @@ app.get('/', (req, res) => {
   res.send('API de Node.js funcionando correctamente');
 });
 
-// Endpoint para filtrar resultados
-app.post('/filtrar-resultados', (req, res) => {
-  const filtros = req.body.filtros;
+// // Endpoint para filtrar resultados
+// app.post('/filtrar-resultados', (req, res) => {
+//   const filtros = req.body.filtros;
 
-  const session = driver.session();
-  const query = `MATCH (n) WHERE ANY(label IN LABELS(n) WHERE label IN $filtros) RETURN n`;
+//   const session = driver.session();
+//   const query = `MATCH (n) WHERE ANY(label IN LABELS(n) WHERE label IN $filtros) RETURN n`;
   
-  session.run(query, { filtros })
-    .then(result => {
-    const nodos = result.records.map(record => record.get('n').properties);
-    res.json(nodos); // Enviar los nodos encontrados como respuesta al cliente
-    })
-    .catch(error => {
-      console.error('Error al obtener los nodos:', error);
-      res.status(500).send('Error al obtener los nodos'); // Manejar el error y enviar una respuesta de error al cliente
-    })/*
-    .finally(() => {
-      session.close();
-    });*/
-});
+//   session.run(query, { filtros })
+//     .then(result => {
+//     const nodos = result.records.map(record => record.get('n').properties);
+//     res.json(nodos); // Enviar los nodos encontrados como respuesta al cliente
+//     })
+//     .catch(error => {
+//       console.error('Error al obtener los nodos:', error);
+//       res.status(500).send('Error al obtener los nodos'); // Manejar el error y enviar una respuesta de error al cliente
+//     })/*
+//     .finally(() => {
+//       session.close();
+//     });*/
+// });
 
 //Endpoint para obtener los nodos
 app.get('/nodos', (req, res) => {
@@ -75,6 +75,10 @@ app.get('/estadisticas', (req, res) => {
   // Enviar las estadísticas como respuesta
   res.json(estadisticas);
 });
+
+// Endpoint para filtrar resultados
+app.get('/filtrar-resultados', apiRoutes);
+app.post('/estadisticas', apiRoutes);
 
 // Configurar otros endpoints y lógica adicional aquí
 // ...

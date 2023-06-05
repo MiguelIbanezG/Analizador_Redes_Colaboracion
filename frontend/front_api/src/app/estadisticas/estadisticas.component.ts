@@ -34,5 +34,18 @@ export class EstadisticasComponent implements OnInit{
   //   });
   // }
     this.titulosSeleccionados = this.seleccionService.obtenerTitulosSeleccionados();
+    this.generarEstadisticas();
+  }
+
+  generarEstadisticas() {
+    const titulosSeleccionados = this.titulosSeleccionados.map(titulo => titulo.objeto);
+    this.apiService.generarEstadisticas(titulosSeleccionados).subscribe({
+      next: (response: any) => {
+        this.estadisticas = response;
+      },
+      error: (error: any) => {
+        console.error('Error al generar las estadísticas:', error);
+      }
+    });
   }
 }
