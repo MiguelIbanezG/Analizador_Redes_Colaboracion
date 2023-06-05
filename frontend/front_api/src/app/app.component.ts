@@ -14,9 +14,9 @@ export class AppComponent {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.http.get<any[]>('http://localhost:3000/api/publications')
-      .subscribe((response) => {
-        this.publications = response;
-      });
+    // this.http.get<any[]>('http://localhost:3000/api/publications')
+    //   .subscribe((response) => {
+    //     this.publications = response;
+    //   });
   }
 }

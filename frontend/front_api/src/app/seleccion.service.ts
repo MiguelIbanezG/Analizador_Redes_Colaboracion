@@ -8,7 +8,10 @@ export class SeleccionService {
   private titulosSeleccionados: string[] = [];
 
   agregarTitulos(titulos: any[]) {
-    this.titulosSeleccionados = titulos.map(titulo => JSON.parse(titulo.objeto));
+    this.titulosSeleccionados = titulos.reduce((arr, titulo) => {
+      arr.push(titulo.objeto);
+      return arr;
+    }, []);
   }
 
   obtenerTitulosSeleccionados() {

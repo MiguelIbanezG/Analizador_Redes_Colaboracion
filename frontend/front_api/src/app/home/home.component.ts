@@ -52,24 +52,26 @@ export class HomeComponent implements OnInit {
   //   });
   // }
 
-  // obtenerNodosFiltrados() {
-  //   const filtros = this.filtros.split(',').map(filtro => filtro.trim());
-
-  //   this.apiService.obtenerNodosFiltrados(filtros).subscribe({
-  //     next: (response: any[]) => {
-  //       this.resultadosFiltrados = response.map(item => JSON.stringify(item));
-  //       this.titulosFiltrados = response.map(item => ({title: JSON.parse(JSON.stringify(item)).title, objeto: JSON.stringify(item), selected: false}));
-  //     },
-  //     error: (error: any) => {
-  //       console.error('Error al obtener los resultados filtrados:', error);
-  //     }
-  //   });
-  // }
   obtenerNodosFiltrados() {
     this.apiService.obtenerNodosFiltrados(this.filtros).subscribe({
       next: (response: any[]) => {
-        this.resultadosFiltrados = response.map(item => JSON.stringify(item));
-        this.titulosFiltrados = response.map(item => ({ title: item, objeto: JSON.stringify(item), selected: false }));
+        // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
+        this.resultadosFiltrados = response.map(item => item);
+        console.log("resultados filtrados");
+        console.log(this.resultadosFiltrados);
+
+        this.titulosFiltrados = Object.values(response.reduce((obj, item) => {
+          const yearNode = item.properties;
+          obj[yearNode.name] = {
+            title: yearNode.name,
+            objeto: item,
+            selected: false
+          };
+          return obj;
+        }, {}));
+
+        console.log("titulosFiltrados");
+        console.log(this.titulosFiltrados);
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);
@@ -96,6 +98,8 @@ export class HomeComponent implements OnInit {
     // Filtra los títulos seleccionados
     const titulosSeleccionados = this.titulosFiltrados
     .filter(titulo => titulo.selected).map(titulo => titulo);
+    console.log("titulosSeleccionados");
+    console.log(titulosSeleccionados);
     
     // Almacena los títulos seleccionados en el servicio de selección
     this.seleccionService.agregarTitulos(titulosSeleccionados);
@@ -103,44 +107,5 @@ export class HomeComponent implements OnInit {
     // Redirige a la página de estadísticas
     this.router.navigateByUrl('/estadisticas');
   }
-
-
-  
-    /*
-  enviarFiltros() {
-    const filtros = this.filtros.split(',').map(filtro => filtro.trim());
-
-    // Realiza la llamada a la API para obtener los resultados filtrados
-    this.apiService.obtenerNodosFiltrados(filtros).subscribe({
-      next: response => {
-        this.resultados = response;
-      },
-      error: error => {
-        console.error(error);
-      }
-    });
-  }
-
-  seleccionarNodo(nodo: string) {
-    this.informacionNodoSubscription = this.apiService.getInformacionNodo(nodo).subscribe({
-      next: (response: any) => {
-        this.informacionNodo = response.informacion;
-      },
-      error: (error: any) => {
-        console.error('Error al obtener la información del nodo:', error);
-      }
-    });
-  }
-
-  ngOnDestroy() {
-    if (this.nodosSubscription) {
-      this.nodosSubscription.unsubscribe();
-    }
-    if (this.informacionNodoSubscription) {
-      this.informacionNodoSubscription.unsubscribe();
-    }
-  }
-  */
-
 
 }
