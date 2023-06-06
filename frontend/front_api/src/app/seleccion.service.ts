@@ -9,7 +9,7 @@ export class SeleccionService {
 
   agregarTitulos(titulos: any[]) {
     this.titulosSeleccionados = titulos.reduce((arr, titulo) => {
-      arr.push(titulo.objeto);
+      arr.push(titulo);
       return arr;
     }, []);
   }

@@ -17,9 +17,10 @@ export class HomeComponent implements OnInit {
   filtros: string = '';
   publicaciones: string[] = [];
   resultadosFiltrados: string[] = [];
-  titulosFiltrados: { title: string, objeto: any, selected: boolean }[] = [];
+  titulosFiltrados: { title: string, pr_objeto: any, selected: boolean }[] = [];
   etiquetas: string[] = []; // Lista de etiquetas posibles para filtrar 
   titulosSeleccionados: any[] = []; // Lista de titulos seleccionados para generar estadisticas
+  seleccionarTodos = false;
 
   private nodosSubscription: Subscription | undefined;
   private informacionNodoSubscription: Subscription | undefined;
@@ -57,21 +58,16 @@ export class HomeComponent implements OnInit {
       next: (response: any[]) => {
         // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
         this.resultadosFiltrados = response.map(item => item);
-        console.log("resultados filtrados");
-        console.log(this.resultadosFiltrados);
 
         this.titulosFiltrados = Object.values(response.reduce((obj, item) => {
           const yearNode = item.properties;
           obj[yearNode.name] = {
             title: yearNode.name,
-            objeto: item,
+            pr_objeto: item,
             selected: false
           };
           return obj;
         }, {}));
-
-        console.log("titulosFiltrados");
-        console.log(this.titulosFiltrados);
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);
@@ -94,12 +90,27 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  seleccionarTodosChanged() {
+    for (let titulo of this.titulosFiltrados) {
+      titulo.selected = this.seleccionarTodos;
+    }
+  }
+  
+  tituloChanged() {
+    let todosSeleccionados = true;
+    for (let titulo of this.titulosFiltrados) {
+      if (!titulo.selected) {
+        todosSeleccionados = false;
+        break;
+      }
+    }
+    this.seleccionarTodos = todosSeleccionados;
+  }
+
   generarEstadisticas() {
     // Filtra los títulos seleccionados
     const titulosSeleccionados = this.titulosFiltrados
-    .filter(titulo => titulo.selected).map(titulo => titulo);
-    console.log("titulosSeleccionados");
-    console.log(titulosSeleccionados);
+    .filter(titulo => titulo.selected).map(titulo => titulo.pr_objeto);
     
     // Almacena los títulos seleccionados en el servicio de selección
     this.seleccionService.agregarTitulos(titulosSeleccionados);

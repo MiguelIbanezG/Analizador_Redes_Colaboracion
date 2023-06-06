@@ -30,10 +30,13 @@ export class ApiService {
 
   obtenerEstadisticas(): Observable<any> {
     const url = `${this.baseUrl}/estadisticas`;
-  
     return this.http.get<any>(url);
   }
 
+  obtenerResearchers(titulosSeleccionados: any[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/researchers`, { titulosSeleccionados });
+  }
+  
   /*
   getInformacionNodo(nodo: string): Observable<string> {
     const endpoint = `${this.baseUrl}/nodo/${nodo}`;

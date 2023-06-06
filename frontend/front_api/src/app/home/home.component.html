@@ -24,7 +24,7 @@
     <hr> -->
 
     <div>
-      <input type="text" [(ngModel)]="filtros" placeholder="Ingrese la Conferencia">
+      <input type="text" [(ngModel)]="filtros" placeholder="Ingrese la Conferencia" (keyup.enter)="obtenerNodosFiltrados()">
       <button (click)="obtenerNodosFiltrados()">Filtrar</button>
     </div>
 
@@ -34,10 +34,16 @@
       <button [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generar Stats</button>
     </div>
     
+    <div *ngIf="titulosFiltrados.length > 0">
+      <label>
+        <input type="checkbox" [(ngModel)]="seleccionarTodos" (change)="seleccionarTodosChanged()">
+        <span>Seleccionar Todos</span>
+      </label>
+    </div>
 
     <div *ngFor="let titulo of titulosFiltrados">
       <label>
-        <input type="checkbox" [(ngModel)]="titulo.selected">
+        <input type="checkbox" [(ngModel)]="titulo.selected" (change)="tituloChanged()">
         <span [ngClass]="{ 'selected': titulo.selected }">{{ titulo.title }}</span>
       </label>
     </div>
