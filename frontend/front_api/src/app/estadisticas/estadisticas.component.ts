@@ -13,8 +13,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
 
   titulosSeleccionados: any[] = [];
-  estadisticas: any;
-  chart!: Chart;
+  estadisticas: any[] = [];
+  lineChart!: Chart;
   researchers: any[] = [];
 
   constructor(
@@ -24,21 +24,22 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    Chart.register(CategoryScale);
     this.titulosSeleccionados = this.seleccionService.obtenerTitulosSeleccionados();
     this.obtenerResearchers();
   }
 
   ngAfterViewInit() {
+    // Este método se ejecutará después de que Angular haya inicializado la vista
+    // Perfe para realizar cualquier manipulación adicional del DOM relacionada con el gráfico
+    // como ajustes de estilo, cambios dinámicos en los datos, etc.
   }
 
   obtenerResearchers() {
-    console.log("en obtener researchers");
-    console.log(this.titulosSeleccionados);
     this.apiService.obtenerResearchers(this.titulosSeleccionados).subscribe({
       next: (response: any) => {
         this.researchers = response;
         this.generarEstadisticas();
+        this.generarGrafico1();
       },
       error: (error: any) => {
         console.error('Error al obtener los researchers:', error);
@@ -47,72 +48,40 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   }
 
   generarEstadisticas() {
-    console.log("Researchers");
-    console.log(this.researchers);
     const numResearchers = this.researchers.length;
     const anios = this.titulosSeleccionados.map(titulo => titulo.properties.name);
-    console.log("años");
-    console.log(anios);
     const numResearchersPorAnio = anios.map(anio =>
       this.researchers.filter(researcher => researcher.years.includes(anio)).length
     );
-    console.log("numReserarcherxaño");
-    console.log(numResearchersPorAnio);
-
-    this.estadisticas = {
+    this.estadisticas[0] = {
       anios: anios,
       numResearchers: numResearchersPorAnio
     };
-
-    console.log("estadisticas");
-    console.log(this.estadisticas);
-    this.generarGrafico();
   }
 
-  generarGrafico() {
-    const canvas: HTMLCanvasElement | null = this.chartCanvas.nativeElement;
-    const ctx: CanvasRenderingContext2D | null = canvas ? canvas.getContext('2d') : null;
-    console.log("estadisticas dentro de geerar");
-    console.log(this.estadisticas);
-
-    if (ctx) {
-      this.chart = new Chart(ctx, {
-        type: 'scatter',
-        data: {
-          datasets: [
-            {
-              label: 'Número de Researchers',
-              data: this.estadisticas.anios.map((anio: string, index: number) => ({
-                x: anio,
-                y: this.estadisticas.numResearchers[index]
-              })),
-              backgroundColor: 'rgba(75, 192, 192, 0.6)',
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            x: {
-              type: 'category',
-              title: {
-                display: true,
-                text: 'Años'
-              }
-            },
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: 'Número de Researchers'
-              }
-            }
+  generarGrafico1() {
+    this.lineChart = new Chart('lineChart', {
+      type: 'line',
+      data: {
+        labels: this.estadisticas[0].anios,
+        datasets: [
+          {
+            label: 'Número de investigadores',
+            data: this.estadisticas[0].numResearchers,
+            fill: false,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        scales: {
+          y: {
+            display: true
           }
         }
-      });
-    }
+      }
+    });
   }
   
 }
