@@ -83,34 +83,6 @@ router.post('/estadisticas', async (req, res) => {
 // Ruta para generar estadísticas
 router.get('/estadisticas', estadisticasController.generarEstadisticas);
 
-// router.post('/researchers', async (req, res) => {
-//   const titulosSeleccionados = req.body.titulosSeleccionados;
-//   const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
-//   const session = driver.session({ database: 'neo4j' });
-
-//   try {
-//     const query = `
-//       MATCH (n:Year)-[:HAS_PROCEEDING]->(proceeding:Proceeding)-[:EDITED_BY]->(researcher:Researcher)
-//       WHERE ID(n) IN $yearIds
-//       RETURN DISTINCT researcher.name AS name, collect(n.name) AS years   
-//     `;
-//     const result = await session.run(query, { yearIds });
-//     const researchers = result.records.map(record => {
-//       return {
-//         name: record.get('name'),
-//         years: record.get('years')
-//       };
-//     });
-
-//     res.json(researchers);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });
-//   } finally {
-//     session.close();
-//   }
-// });
-
 router.post('/researchers', async (req, res) => {
   const titulosSeleccionados = req.body.titulosSeleccionados;
   const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
