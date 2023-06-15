@@ -13,6 +13,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
 
   titulosSeleccionados: any[] = [];
+  conferenceOption: string = "";
+  venueName: string = "";
   papers: any[] = [];
   estadisticas: any[] = [];
   lineChart!: Chart;
@@ -26,6 +28,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.titulosSeleccionados = this.seleccionService.obtenerTitulosSeleccionados();
+    this.conferenceOption = this.seleccionService.obtenerOpcionConferencia();
+    this.venueName = this.seleccionService.obtenerNombreVenue();
     this.obtenerResearchers();
     this.obtenerPapers();
   }
@@ -50,7 +54,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   }
 
   obtenerPapers() {
-    this.apiService.obtenerPapers(this.titulosSeleccionados).subscribe({
+    this.apiService.obtenerPapers(this.titulosSeleccionados, this.conferenceOption, this.venueName).subscribe({
       next: (response: any) => {
         this.papers = response;
         this.statsPapers();

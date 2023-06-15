@@ -21,6 +21,8 @@ export class HomeComponent implements OnInit {
   etiquetas: string[] = []; // Lista de etiquetas posibles para filtrar 
   titulosSeleccionados: any[] = []; // Lista de titulos seleccionados para generar estadisticas
   seleccionarTodos = false;
+  conferenceOption: string = "main";
+
 
   private nodosSubscription: Subscription | undefined;
   private informacionNodoSubscription: Subscription | undefined;
@@ -32,26 +34,18 @@ export class HomeComponent implements OnInit {
   ) { }
   
   ngOnInit() {
-    // this.apiService.obtenerEtiquetas().subscribe({
-    //   next: (response: any) => {
-    //     this.etiquetas = response.etiquetas;
-    //   },
-    //   error: (error: any) => {
-    //     console.error('Error al obtener las etiquetas:', error);
-    //   }
-    // });
+    //INICIAL
   }
   
-  // obtenerPublicaciones() {
-  //   this.apiService.getPublications().subscribe({
-  //     next: (response: any[]) => {
-  //       this.publicaciones = response;
-  //     },
-  //     error: (error: any) => {
-  //       console.error('Error al obtener las publicaciones:', error);
-  //     }
-  //   });
-  // }
+  handleSelection() {
+    // Lógica para manejar la opción seleccionada
+    if (this.conferenceOption === 'mainConference') {
+      this.conferenceOption = "main";
+    } else if (this.conferenceOption === 'mainAndWorkshops') {
+      this.conferenceOption = "all";
+    }
+    this.seleccionService.marcarOpcionConferencia(this.conferenceOption);
+  }
 
   obtenerNodosFiltrados() {
     this.apiService.obtenerNodosFiltrados(this.filtros).subscribe({
@@ -114,6 +108,7 @@ export class HomeComponent implements OnInit {
     
     // Almacena los títulos seleccionados en el servicio de selección
     this.seleccionService.agregarTitulos(titulosSeleccionados);
+    this.seleccionService.marcarNombreVenue(this.filtros);
 
     // Redirige a la página de estadísticas
     this.router.navigateByUrl('/estadisticas');

@@ -37,8 +37,8 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/researchers`, { titulosSeleccionados });
   }
 
-  obtenerPapers(titulosSeleccionados: any[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/papers`, { titulosSeleccionados });
+  obtenerPapers(titulosSeleccionados: any[], option: string, venue: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/papers`, { titulosSeleccionados, option, venue });
   }
   
   /*

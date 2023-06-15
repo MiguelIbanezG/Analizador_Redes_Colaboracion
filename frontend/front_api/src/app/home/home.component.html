@@ -9,6 +9,16 @@
     <div>
       <button [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generar Stats</button>
     </div>
+
+    <div>
+      <label>
+        Seleccione una opción:
+        <select [(ngModel)]="conferenceOption" (change)="handleSelection()">
+          <option value="mainConference" selected>Conferencia Principal</option>
+          <option value="mainAndWorkshops">Conferencia y Workshops</option>
+        </select>
+      </label>
+    </div>
     
     <div *ngIf="titulosFiltrados.length > 0">
       <label>

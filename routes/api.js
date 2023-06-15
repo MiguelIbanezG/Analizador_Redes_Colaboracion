@@ -118,21 +118,34 @@ router.post('/researchers', async (req, res) => {
 
 router.post('/papers', async (req, res) => {
   const titulosSeleccionados = req.body.titulosSeleccionados;
+  const option = req.body.option;
+  const venueName = req.body.venue;
   const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
   const session = driver.session({ database: 'neo4j' });
 
   try {
-    const query = `
-    MATCH (y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Inproceeding) WHERE id(y) IN $yearIds return toFloat(count(p)) AS numPapers, y.name AS yearName
-    `;
-    const result = await session.run(query, { yearIds });
+    let query = '';
+    if (option === 'all') {
+      query = `
+        MATCH (y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Inproceeding)
+        WHERE id(y) IN $yearIds
+        RETURN toFloat(count(p)) AS numPapers, y.name AS yearName
+      `;
+    } else if (option === 'main') {
+      query = `
+        MATCH (y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Inproceeding)
+        WHERE id(y) IN $yearIds AND p.bookTitle = $venueName
+        RETURN toFloat(count(p)) AS numPapers, y.name AS yearName
+      `;
+    } 
+    
+    const result = await session.run(query, { yearIds, venueName });
     const papers = result.records.map(record => {
       return {
         numPapers: record.get('numPapers'),
         year: record.get('yearName')
       };
     });
-    console.log(papers);
     res.json(papers);
   } catch (error) {
     console.error(error);

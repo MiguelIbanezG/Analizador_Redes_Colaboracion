@@ -6,6 +6,8 @@ import { map } from 'rxjs/operators';
 })
 export class SeleccionService {
   private titulosSeleccionados: string[] = [];
+  private conferenceOption = "";
+  private venueName = "";
 
   agregarTitulos(titulos: any[]) {
     this.titulosSeleccionados = titulos.reduce((arr, titulo) => {
@@ -21,5 +23,22 @@ export class SeleccionService {
   limpiarTitulosSeleccionados() {
     this.titulosSeleccionados = [];
   }
+
+  marcarOpcionConferencia(opcion: string) {
+    this.conferenceOption = opcion;
+  }
   
+  obtenerOpcionConferencia() {
+    return this.conferenceOption;
+  }
+
+  marcarNombreVenue(venue: string) {
+    this.venueName = venue;
+  }
+  
+  obtenerNombreVenue() {
+    return this.venueName;
+  }
+
+
 }
