@@ -13,6 +13,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
 
   titulosSeleccionados: any[] = [];
+  numPapers: number = 0;
   estadisticas: any[] = [];
   lineChart!: Chart;
   researchers: any[] = [];
@@ -38,7 +39,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     this.apiService.obtenerResearchers(this.titulosSeleccionados).subscribe({
       next: (response: any) => {
         this.researchers = response;
-        this.generarEstadisticas();
+        this.statsResearchers();
         this.generarGrafico1();
       },
       error: (error: any) => {
@@ -47,7 +48,20 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
-  generarEstadisticas() {
+  obtenerPapers() {
+    this.apiService.obtenerPapers(this.titulosSeleccionados).subscribe({
+      next: (response: any) => {
+        this.numPapers = response;
+        this.statsPapers();
+        this.generarGrafico2();
+      },
+      error: (error: any) => {
+        console.error('Error al obtener los researchers:', error);
+      }
+    });
+  }
+
+  statsResearchers() {
     const numResearchers = this.researchers.length;
     const anios = this.titulosSeleccionados.map(titulo => titulo.properties.name);
     const numResearchersPorAnio = anios.map(anio =>
@@ -59,7 +73,44 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     };
   }
 
+  statsPapers() {
+    const numPapers = this.researchers.length;
+    const anios = this.titulosSeleccionados.map(titulo => titulo.properties.name);
+    const numResearchersPorAnio = anios.map(anio =>
+      this.researchers.filter(researcher => researcher.years.includes(anio)).length
+    );
+    this.estadisticas[0] = {
+      anios: anios,
+      numResearchers: numResearchersPorAnio
+    };
+  }
+
   generarGrafico1() {
+    this.lineChart = new Chart('lineChart', {
+      type: 'line',
+      data: {
+        labels: this.estadisticas[0].anios,
+        datasets: [
+          {
+            label: 'Número de investigadores',
+            data: this.estadisticas[0].numResearchers,
+            fill: false,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        scales: {
+          y: {
+            display: true
+          }
+        }
+      }
+    });
+  }
+
+  generarGrafico2() {
     this.lineChart = new Chart('lineChart', {
       type: 'line',
       data: {

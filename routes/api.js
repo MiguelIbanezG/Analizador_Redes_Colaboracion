@@ -116,6 +116,25 @@ router.post('/researchers', async (req, res) => {
   }
 });
 
+router.post('/papers', async (req, res) => {
+  const titulosSeleccionados = req.body.titulosSeleccionados;
+  const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
+    MATCH (y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Inproceeding) WHERE id(y) IN $yearIds return count(p) AS numPapers
+    `;
+    const result = await session.run(query, { yearIds });
+    const numPapers = result.records[0].get('numPapers');
+    res.json(numPapers);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener las Publicaciones', details: error.message });
+  } finally {
+    session.close();
+  }
+});
 
 
 module.exports = router;

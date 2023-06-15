@@ -36,6 +36,10 @@ export class ApiService {
   obtenerResearchers(titulosSeleccionados: any[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/researchers`, { titulosSeleccionados });
   }
+
+  obtenerPapers(titulosSeleccionados: any[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/papers`, { titulosSeleccionados });
+  }
   
   /*
   getInformacionNodo(nodo: string): Observable<string> {
