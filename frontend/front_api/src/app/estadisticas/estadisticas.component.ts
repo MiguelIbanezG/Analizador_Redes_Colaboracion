@@ -13,7 +13,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
 
   titulosSeleccionados: any[] = [];
-  numPapers: number = 0;
+  papers: any[] = [];
   estadisticas: any[] = [];
   lineChart!: Chart;
   researchers: any[] = [];
@@ -27,6 +27,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.titulosSeleccionados = this.seleccionService.obtenerTitulosSeleccionados();
     this.obtenerResearchers();
+    this.obtenerPapers();
   }
 
   ngAfterViewInit() {
@@ -51,9 +52,10 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   obtenerPapers() {
     this.apiService.obtenerPapers(this.titulosSeleccionados).subscribe({
       next: (response: any) => {
-        this.numPapers = response;
+        this.papers = response;
         this.statsPapers();
         this.generarGrafico2();
+        this.generarGrafico3();
       },
       error: (error: any) => {
         console.error('Error al obtener los researchers:', error);
@@ -61,6 +63,9 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
+  obtenerInstituciones(){
+    // que son las instituciones?
+  }
   statsResearchers() {
     const numResearchers = this.researchers.length;
     const anios = this.titulosSeleccionados.map(titulo => titulo.properties.name);
@@ -74,19 +79,27 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   }
 
   statsPapers() {
-    const numPapers = this.researchers.length;
-    const anios = this.titulosSeleccionados.map(titulo => titulo.properties.name);
-    const numResearchersPorAnio = anios.map(anio =>
-      this.researchers.filter(researcher => researcher.years.includes(anio)).length
-    );
-    this.estadisticas[0] = {
+    const anios = this.papers.map(paper => paper.year); // Extraer los años de this.numPapers
+    const numPapers = this.papers.map(paper => paper.numPapers); 
+
+    this.estadisticas[1] = {
       anios: anios,
-      numResearchers: numResearchersPorAnio
+      numPapers: numPapers
+    };
+  }  
+  
+  statsInstitutions() {
+    const anios = this.papers.map(paper => paper.year); // Extraer los años de this.numPapers
+    // const numPapers = this.papers.map(paper => paper.numPapers); 
+
+    this.estadisticas[2] = {
+      anios: anios,
+      numPapers: anios
     };
   }
 
   generarGrafico1() {
-    this.lineChart = new Chart('lineChart', {
+    this.lineChart = new Chart('lineChart1', {
       type: 'line',
       data: {
         labels: this.estadisticas[0].anios,
@@ -111,14 +124,39 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   }
 
   generarGrafico2() {
-    this.lineChart = new Chart('lineChart', {
+    this.lineChart = new Chart('lineChart2', {
       type: 'line',
       data: {
-        labels: this.estadisticas[0].anios,
+        labels: this.estadisticas[1].anios,
         datasets: [
           {
-            label: 'Número de investigadores',
-            data: this.estadisticas[0].numResearchers,
+            label: 'Número de papers',
+            data: this.estadisticas[1].numPapers,
+            fill: false,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        scales: {
+          y: {
+            display: true
+          }
+        }
+      }
+    });
+  }
+
+  generarGrafico3() {
+    this.lineChart = new Chart('lineChart3', {
+      type: 'line',
+      data: {
+        labels: this.estadisticas[1].anios,
+        datasets: [
+          {
+            label: 'Número de instituciones. INACABADO',
+            data: this.estadisticas[1].numPapers,
             fill: false,
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 1

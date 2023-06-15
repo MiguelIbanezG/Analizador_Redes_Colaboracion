@@ -123,11 +123,17 @@ router.post('/papers', async (req, res) => {
 
   try {
     const query = `
-    MATCH (y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Inproceeding) WHERE id(y) IN $yearIds return count(p) AS numPapers
+    MATCH (y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Inproceeding) WHERE id(y) IN $yearIds return toFloat(count(p)) AS numPapers, y.name AS yearName
     `;
     const result = await session.run(query, { yearIds });
-    const numPapers = result.records[0].get('numPapers');
-    res.json(numPapers);
+    const papers = result.records.map(record => {
+      return {
+        numPapers: record.get('numPapers'),
+        year: record.get('yearName')
+      };
+    });
+    console.log(papers);
+    res.json(papers);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener las Publicaciones', details: error.message });

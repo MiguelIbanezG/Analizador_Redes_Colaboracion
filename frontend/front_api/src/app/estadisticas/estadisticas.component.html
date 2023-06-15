@@ -1,6 +1,38 @@
+<!DOCTYPE html>
+<html>
 <h2>Estadísticas</h2>
+<head>
+  <style>
+    .container {
+      display: flex;
+    }
 
-<div>
-    <canvas id="lineChart"></canvas>
-</div>
-  
+    .column {
+      flex: 1;
+      margin-right: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="column">
+      <div>
+        <canvas id="lineChart1"></canvas>
+      </div>
+    </div>
+    <div class="column">
+      <div>
+        <canvas id="lineChart2"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="column">
+      <div>
+        <canvas id="lineChart3"></canvas>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
