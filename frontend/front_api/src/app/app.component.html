@@ -1,8 +1,59 @@
+<!DOCTYPE html>
+<html>
 
-<h1>Esto es lo global de app.component!</h1>
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    
+    nav {
+      background-color: #9aa9ff;
+      padding: 10px;
+    }
+    
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      margin-right: 20px;
+    }
+    
+    nav a:hover {
+      color: #cccccc;
+    }
+    
+    nav a.active {
+      font-weight: bold;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      text-align: center;
+      color: #333333;
+    }
+    
+    /* Resto de estilos para el contenido de las páginas */
+  </style>
+</head>
 
-<nav>
-  <a routerLink="/" routerLinkActive="active">Página Principal</a>
-  <a routerLink="/estadisticas" routerLinkActive="active">Estadísticas</a>
-</nav>
-<router-outlet></router-outlet>
+<body>
+  <nav>
+    <a routerLink="/" routerLinkActive="active">Página Principal</a>
+    <a routerLink="/estadisticas" routerLinkActive="active">Estadísticas</a>
+  </nav>
+  
+  <div class="container">
+    <router-outlet></router-outlet>
+  </div>
+</body>
+
+</html>
