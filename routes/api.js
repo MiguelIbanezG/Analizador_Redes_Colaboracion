@@ -5,21 +5,6 @@ const estadisticasController = require('../controllers/estadisticasController');
 
 const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', '4452762354'), {encrypted:'ENCRYPTION_OFF'});
 
-// router.get('/publications', async(req, res) => {
-//   const session = driver.session({database:'neo4j'});
-//   const query = `MATCH (p:Publication) RETURN p`;
-  
-//   try {
-//       const result = await session.run(query);
-//       const publications = result.records.map(record => record.get('p').properties);
-//       res.json(publications);
-//   } catch (error) {
-//       console.error(error);
-//       res.status(500).json({ error: 'Error al obtener las publicaciones', details: error.message });
-//   } finally {
-//       session.close();
-//   }
-// })
 
 router.get('/etiquetas', async (req, res) => {
   const session = driver.session({database:'neo4j'});
@@ -155,5 +140,108 @@ router.post('/papers', async (req, res) => {
   }
 });
 
+router.post('/colaboraciones', async (req, res) => {
+  const titulosSeleccionados = req.body.titulosSeleccionados;
+  const option = req.body.option;
+  const venueName = req.body.venue;
+  const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    let query = '';
+    if (option === 'all') {
+      query = `
+      MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)
+      WHERE id(y) in $yearIds AND size((p)-[:EDITED_BY]->()) > 1
+      WITH y, count(DISTINCT p) AS numpColaboraciones
+      MATCH (y)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(i:Inproceeding)
+      WHERE id(y) in $yearIds AND size((i)-[:AUTHORED_BY]->()) > 1
+      WITH y, numpColaboraciones, count(DISTINCT i) AS numiColaboraciones
+      RETURN y.name AS year, toFloat(numpColaboraciones + numiColaboraciones) AS totalColaboraciones
+      `;
+    } else if (option === 'main') {
+      query = `
+      MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)
+      WHERE id(y) in $yearIds AND p.bookTitle = $venueName AND size((p)-[:EDITED_BY]->()) > 1
+      WITH y, count(DISTINCT p) AS numpColaboraciones
+      MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(i:Inproceeding)
+      WHERE id(y) in $yearIds AND p.bookTitle = $venueName AND size((i)-[:AUTHORED_BY]->()) > 1 
+      WITH y, numpColaboraciones, count(DISTINCT i) AS numiColaboraciones
+      RETURN y.name AS year, toFloat(numpColaboraciones + numiColaboraciones) AS totalColaboraciones
+      `;
+    } 
+    const result = await session.run(query, { yearIds, venueName });
+    const colaboraciones = result.records.map(record => {
+      return {
+        numColabs: record.get('totalColaboraciones'),
+        year: record.get('year')
+      };
+    });
+    res.json(colaboraciones);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+
+router.post('/densidad', async (req, res) => {
+  const titulosSeleccionados = req.body.titulosSeleccionados;
+  const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
+  const venueName = req.body.venue;
+  const option = req.body.option;
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    let query = '';
+    if (option === 'all') {
+      query = `
+      `;
+    } else if (option === 'main') {
+      query = `
+      `;
+    } 
+    const result = await session.run(query, { yearIds });
+    // const researchers = result.records.map(record => {
+    //   return {
+    //     researcher: record.get('researcher'),
+    //     years: record.get('years')
+    //   };
+    // });
+    res.json(researchers);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+// router.post('/researchers', async (req, res) => {
+//   const titulosSeleccionados = req.body.titulosSeleccionados;
+//   const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
+//   const session = driver.session({ database: 'neo4j' });
+
+//   try {
+//     const query = `
+//     //
+//     `;
+//     const result = await session.run(query, { yearIds });
+//     const researchers = result.records.map(record => {
+//       return {
+//         researcher: record.get('researcher'),
+//         years: record.get('years')
+//       };
+//     });
+//     res.json(researchers);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });
+//   } finally {
+//     session.close();
+//   }
+// });
 
 module.exports = router;

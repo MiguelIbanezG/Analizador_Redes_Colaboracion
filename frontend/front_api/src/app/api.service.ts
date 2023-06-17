@@ -11,15 +11,6 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  // obtenerEtiquetas(): Observable<any> {
-  //   return this.http.get<any>(`${this.baseUrl}/etiquetas`);
-  // }
-
-  // getPublications(): Observable<any[]> {
-  //   const url = `${this.baseUrl}/publications`;
-  //   return this.http.get<any[]>(url);
-  // }
-
   obtenerNodosFiltrados(filterName: string): Observable<string[]> {
     return this.http.get<string[]>(`${this.baseUrl}//filtrar-resultados/${filterName}`);
   }
@@ -40,12 +31,13 @@ export class ApiService {
   obtenerPapers(titulosSeleccionados: any[], option: string, venue: string): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/papers`, { titulosSeleccionados, option, venue });
   }
-  
-  /*
-  getInformacionNodo(nodo: string): Observable<string> {
-    const endpoint = `${this.baseUrl}/nodo/${nodo}`;
-    return this.http.get<string>(endpoint);
+
+  obtenerColaboraciones(titulosSeleccionados: any[], option: string, venue: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/colaboraciones`, { titulosSeleccionados, option, venue });
   }
-  */
+
+  calcularDensidad(titulosSeleccionados: any[], option: string, venue: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/densidad`, { titulosSeleccionados, option, venue });
+  }
 
 }
