@@ -153,21 +153,21 @@ router.post('/colaboraciones', async (req, res) => {
       query = `
       MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)
       WHERE id(y) in $yearIds AND size((p)-[:EDITED_BY]->()) > 1
-      WITH y, count(DISTINCT p) AS numpColaboraciones
+      WITH y, collect(p) AS numpColaboraciones
       MATCH (y)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(i:Inproceeding)
       WHERE id(y) in $yearIds AND size((i)-[:AUTHORED_BY]->()) > 1
-      WITH y, numpColaboraciones, count(DISTINCT i) AS numiColaboraciones
-      RETURN y.name AS year, toFloat(numpColaboraciones + numiColaboraciones) AS totalColaboraciones
+      WITH y, numpColaboraciones, collect(i) AS numiColaboraciones
+      RETURN y.name AS year, toFloat(size(apoc.coll.flatten(collect(distinct(numpColaboraciones + numiColaboraciones))))) AS totalColaboraciones
       `;
     } else if (option === 'main') {
       query = `
       MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)
       WHERE id(y) in $yearIds AND p.bookTitle = $venueName AND size((p)-[:EDITED_BY]->()) > 1
-      WITH y, count(DISTINCT p) AS numpColaboraciones
+      WITH y, collect(p) AS numpColaboraciones
       MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(i:Inproceeding)
       WHERE id(y) in $yearIds AND p.bookTitle = $venueName AND size((i)-[:AUTHORED_BY]->()) > 1 
-      WITH y, numpColaboraciones, count(DISTINCT i) AS numiColaboraciones
-      RETURN y.name AS year, toFloat(numpColaboraciones + numiColaboraciones) AS totalColaboraciones
+      WITH y, numpColaboraciones, collect(i) AS numiColaboraciones
+      RETURN y.name AS year, toFloat(size(apoc.coll.flatten(collect(distinct(numpColaboraciones + numiColaboraciones))))) AS totalColaboraciones
       `;
     } 
     const result = await session.run(query, { yearIds, venueName });
