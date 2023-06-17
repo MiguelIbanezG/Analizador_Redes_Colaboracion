@@ -109,21 +109,11 @@ router.post('/papers', async (req, res) => {
   const session = driver.session({ database: 'neo4j' });
 
   try {
-    let query = '';
-    if (option === 'all') {
-      query = `
-        MATCH (y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Inproceeding)
-        WHERE id(y) IN $yearIds
-        RETURN toFloat(count(p)) AS numPapers, y.name AS yearName
+    query = `
+      MATCH (y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Inproceeding)
+      WHERE id(y) IN $yearIds ${option === 'main' ? `AND p.bookTitle = $venueName` : ''}
+       RETURN toFloat(count(p)) AS numPapers, y.name AS yearName
       `;
-    } else if (option === 'main') {
-      query = `
-        MATCH (y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Inproceeding)
-        WHERE id(y) IN $yearIds AND p.bookTitle = $venueName
-        RETURN toFloat(count(p)) AS numPapers, y.name AS yearName
-      `;
-    } 
-    
     const result = await session.run(query, { yearIds, venueName });
     const papers = result.records.map(record => {
       return {
@@ -148,28 +138,15 @@ router.post('/colaboraciones', async (req, res) => {
   const session = driver.session({ database: 'neo4j' });
 
   try {
-    let query = '';
-    if (option === 'all') {
-      query = `
-      MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)
-      WHERE id(y) in $yearIds AND size((p)-[:EDITED_BY]->()) > 1
-      WITH y, collect(p) AS numpColaboraciones
-      MATCH (y)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(i:Inproceeding)
-      WHERE id(y) in $yearIds AND size((i)-[:AUTHORED_BY]->()) > 1
-      WITH y, numpColaboraciones, collect(i) AS numiColaboraciones
-      RETURN y.name AS year, toFloat(size(apoc.coll.flatten(collect(distinct(numpColaboraciones + numiColaboraciones))))) AS totalColaboraciones
-      `;
-    } else if (option === 'main') {
-      query = `
-      MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)
-      WHERE id(y) in $yearIds AND p.bookTitle = $venueName AND size((p)-[:EDITED_BY]->()) > 1
-      WITH y, collect(p) AS numpColaboraciones
-      MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(i:Inproceeding)
-      WHERE id(y) in $yearIds AND p.bookTitle = $venueName AND size((i)-[:AUTHORED_BY]->()) > 1 
-      WITH y, numpColaboraciones, collect(i) AS numiColaboraciones
-      RETURN y.name AS year, toFloat(size(apoc.coll.flatten(collect(distinct(numpColaboraciones + numiColaboraciones))))) AS totalColaboraciones
-      `;
-    } 
+    let query = `
+    MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(ip:Inproceeding)
+    WHERE id(y) IN $yearIds
+    ${option === 'main' ? `AND p.bookTitle = $venueName` : ''}
+    AND size((p)-[:EDITED_BY]->()) > 1
+    AND size((ip)-[:AUTHORED_BY]->()) > 1
+    WITH y, collect(p) AS numpColaboraciones, collect(ip) AS numiColaboraciones
+    RETURN y.name AS year, toFloat(size(apoc.coll.flatten(collect(distinct(numpColaboraciones + numiColaboraciones))))) AS totalColaboraciones
+    `;
     const result = await session.run(query, { yearIds, venueName });
     const colaboraciones = result.records.map(record => {
       return {
@@ -178,39 +155,6 @@ router.post('/colaboraciones', async (req, res) => {
       };
     });
     res.json(colaboraciones);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });
-  } finally {
-    session.close();
-  }
-});
-
-
-router.post('/densidad', async (req, res) => {
-  const titulosSeleccionados = req.body.titulosSeleccionados;
-  const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
-  const venueName = req.body.venue;
-  const option = req.body.option;
-  const session = driver.session({ database: 'neo4j' });
-
-  try {
-    let query = '';
-    if (option === 'all') {
-      query = `
-      `;
-    } else if (option === 'main') {
-      query = `
-      `;
-    } 
-    const result = await session.run(query, { yearIds });
-    // const researchers = result.records.map(record => {
-    //   return {
-    //     researcher: record.get('researcher'),
-    //     years: record.get('years')
-    //   };
-    // });
-    res.json(researchers);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });

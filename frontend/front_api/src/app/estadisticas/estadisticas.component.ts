@@ -72,11 +72,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     this.apiService.obtenerColaboraciones(this.titulosSeleccionados, this.conferenceOption, this.venueName).subscribe({
       next: (response: any) => {
         this.colaboraciones = response;
-        console.log("colaboraciones");
-        console.log(this.colaboraciones);
         this.statsColaboraciones();
-        console.log("stats3");
-        console.log(this.estadisticas[3]);
         this.generarGrafico3('lineChart3', 'Densidad', this.estadisticas[3].anios, this.estadisticas[3].densidades);
       },
       error: (error: any) => {
@@ -122,43 +118,25 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     };
   }
 
-  statsColaboraciones(){
-    
-    const colaboracionesPorAnio = this.colaboraciones.reduce((map, colaboracion) => {
-      const { numColabs, year } = colaboracion;
-      if (!map.has(year)) {
-        map.set(year, { numColabs, numPapers: 0 });
-      }
-      return map;
-    }, new Map());
-    console.log("colabsxaño");
-    console.log(colaboracionesPorAnio);
-    
-    const papersPorAnio = this.papers.reduce((map, paper) => {
-      const { numPapers, year } = paper;
-      if (map.has(year)) {
-        map.get(year).numPapers = numPapers;
-      } else {
-        map.set(year, { numColabs: 0, numPapers });
-      }
-      return map;
-    }, colaboracionesPorAnio);
+  statsColaboraciones(){    
+    const colabsXtotal = this.papers.map(paper => {
+      const colab = this.colaboraciones.find(c => c.year === paper.year);
+      return {
+        year: paper.year,
+        numColabs: colab ? colab.numColabs : 0,
+        numPapers: paper.numPapers
+      };
+    });
 
-    console.log("papersxaño");
-    console.log(papersPorAnio);
-    
-    const densidades = [];
-    for (const [year, { numColabs, numPapers }] of colaboracionesPorAnio.entries()) {
+    const densidad = colabsXtotal.map(dato => {
+      const { year, numColabs, numPapers } = dato;
       const densidad = numColabs / numPapers;
-      densidades.push({ year, densidad });
-    }
+      return { densidad, year };
+    });
 
-    const anios = densidades.map(densidad => densidad.year);
-    const densidad = densidades.map(densidad => densidad.densidad);
-    
     this.estadisticas[3] = {
-      anios: anios,
-      densidades: densidad
+      anios: densidad.map(dato => dato.year),
+      densidades: densidad.map(dato => dato.densidad)
     };
   }
 
