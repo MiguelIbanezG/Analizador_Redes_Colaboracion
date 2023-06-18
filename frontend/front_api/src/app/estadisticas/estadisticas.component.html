@@ -33,6 +33,53 @@
         <canvas id="lineChart3"></canvas>
       </div>
     </div>
+    <div class="column">
+      <div>
+        <canvas id="barChart1"></canvas>
+      </div>
+    </div>
   </div>
+
+  <div class="container">
+    <div class="column">
+      <div>
+        <h4>Autores por papers publicados</h4>
+        <table>
+          <thead>
+            <tr>
+              <th># autores</th>
+              <th># papers (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of autoresPorPapersTable">
+              <td>{{ row['# autores'] }}</td>
+              <td>{{ row['# papers (%)'] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+      <div class="column">
+        <div>
+          <h4>Papers por número de autores</h4>
+          <table>
+            <thead>
+              <tr>
+                <th># autores</th>
+                <th># papers (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of papersPorAutoresTable">
+                <td>{{ row['# autores'] }}</td>
+                <td>{{ row['# papers (%)'] }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
 </body>
 </html>

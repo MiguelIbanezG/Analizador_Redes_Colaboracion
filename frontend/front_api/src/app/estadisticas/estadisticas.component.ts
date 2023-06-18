@@ -17,9 +17,14 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   venueName: string = "";
   papers: any[] = [];
   colaboraciones: any[] = [];
+  singleAuthor: any[] = [];
   estadisticas: any[] = [];
   lineChart!: Chart;
+  barChart!: Chart;
   researchers: any[] = [];
+  papersWithAuthors: any[] = [];
+  autoresPorPapersTable: any[] = [];
+  papersPorAutoresTable: any[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -34,6 +39,13 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     this.obtenerResearchers();
     this.obtenerPapers();
     this.obtenerColaboraciones();
+    this.obtenerSingleAuthorPapers()
+      .then(() => {
+        this.obtenerDistribuciones();
+      })
+      .catch((error) => {
+        console.error('Error al obtener los datos:', error);
+      });
   }
 
   ngAfterViewInit() {
@@ -84,6 +96,97 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   obtenerInstituciones(){
     // que son las instituciones?
   }
+
+  obtenerSingleAuthorPapers(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.apiService.obtenerAuthorsPapers(this.titulosSeleccionados, this.conferenceOption, this.venueName)
+        .subscribe({
+          next: (response: any) => {
+            this.singleAuthor = response;
+            this.statsSingleAuthor();
+            this.generarGraficoBarras('barChart1', 'Single Author Papers', this.estadisticas[4].anios, this.estadisticas[4].porcentajes);
+            resolve(); // Resuelve la Promesa para indicar que se ha completado la ejecución
+          },
+          error: (error: any) => {
+            reject(error); // Rechaza la Promesa y pasa el error al flujo de ejecución
+          }
+        });
+    });
+  }
+
+  obtenerDistribuciones(){
+    const autoresPorPapersLabels: string[] = ['1', '2', '3', '4', '5 o más'];
+    let autoresPorPapersData: number[] = [];
+    const papersPorAutoresLabels: string[] = ['1', '2', '3', '4', '5 o más'];
+    let papersPorAutoresData: number[] = [];
+    const labels: number[] = [1, 2, 3, 4, 5]
+
+    const numPapersPorAutor: { [key: number]: number } = {};
+
+    this.papersWithAuthors.forEach((paper) => {
+      const numAutores = paper.numAuthors;
+      if (numPapersPorAutor[numAutores]) {
+        numPapersPorAutor[numAutores]++;
+      } else {
+        numPapersPorAutor[numAutores] = 1;
+      }
+    });
+    
+    console.log("numPapersPorAutor");
+    console.log(numPapersPorAutor);
+
+    autoresPorPapersData = autoresPorPapersLabels.map((label) => {
+      if (label === '5 o más') {
+        return Object.values(numPapersPorAutor).slice(4).reduce((total, current) => total + current, 0);
+      } else {
+        return numPapersPorAutor[Number(label)] || 0;
+      }
+    });
+    
+    const numPapersPorAutores: { [key: number]: number } = {};
+
+    this.papersWithAuthors.forEach((paper) => {
+      const numAutores = paper.numAuthors;
+      if (numPapersPorAutores[numAutores]) {
+        numPapersPorAutores[numAutores]++;
+      } else {
+        numPapersPorAutores[numAutores] = 1;
+      }
+    });
+
+    papersPorAutoresData = papersPorAutoresLabels.map((label) => {
+      if (label === '5 o más') {
+        return Object.values(numPapersPorAutores).slice(4).reduce((total, current) => total + current, 0);
+      } else {
+        return numPapersPorAutores[Number(label)] || 0;
+      }
+    });
+
+    this.autoresPorPapersTable = autoresPorPapersLabels.map((label, index) => {
+      return {
+        '# autores': label,
+        '# papers (%)': autoresPorPapersData[index]
+      };
+    });
+
+    console.log("autoresPorPapersTable");
+    console.log(this.autoresPorPapersTable);
+  
+    this.papersPorAutoresTable = papersPorAutoresLabels.map((label, index) => {
+      return {
+        '# papers (%)': label,
+        '# autores': papersPorAutoresData[index]
+      };
+    });
+    
+    console.log("papersPorAutoresTable");
+    console.log(this.papersPorAutoresTable);
+
+  }
+
+  /**
+   * ############################################
+   */
 
   statsResearchers() {
     const numResearchers = this.researchers.length;
@@ -140,6 +243,62 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     };
   }
 
+  statsSingleAuthor() {
+
+    // const authorsByYear: { [year: string]: number } = {};
+
+    // this.singleAuthor.forEach((author: { numPublications: number, year: string }) => {
+    // if (author.numPublications === 1) {
+    //   const year = author.year;
+    //   authorsByYear[year] = (authorsByYear[year] || 0) + 1;
+    // }
+    // });
+    
+    // console.log("una pub authors");
+    // console.log(authorsByYear);
+    
+    const papersWithAuthors: { ipName: string, numAuthors: number, authorNames: string[], year: string }[] = [];
+
+    this.singleAuthor.forEach((author: { ipNames: string[], researcher: string, year: string }) => {
+      author.ipNames.forEach(ipName => {
+        const paperIndex = papersWithAuthors.findIndex(paper => paper.ipName === ipName);
+        if (paperIndex !== -1) {
+          papersWithAuthors[paperIndex].numAuthors++;
+          papersWithAuthors[paperIndex].authorNames.push(author.researcher);
+        } else {
+            papersWithAuthors.push({
+              ipName,
+              numAuthors: 1,
+              authorNames: [author.researcher],
+              year: author.year
+            });
+          }
+        });
+    });
+
+    this.papersWithAuthors = papersWithAuthors;
+    
+    console.log("papersWithAuthors?");
+    console.log(papersWithAuthors);
+
+    const papersWithOneAuthor = papersWithAuthors.filter(paper => paper.numAuthors === 1);
+
+    const porcentajeByYear = this.papers.map(paper => {
+      const year = paper.year;
+      const numPapers = paper.numPapers;
+      const numPapersWithSingleAuthor = papersWithOneAuthor.filter(paper => paper.year === year).length;
+      const porcentaje = (numPapersWithSingleAuthor / numPapers) * 100;
+    
+      return { year, porcentaje };
+    });
+    
+    this.estadisticas[4] = {
+      anios: porcentajeByYear.map(dato => dato.year),
+      porcentajes: porcentajeByYear.map(dato => dato.porcentaje)
+    };
+}  
+
+
   generarGrafico3(idChart: string, label: string, labels: any[], data: any[]) {
     this.lineChart = new Chart(idChart, {
       type: 'line',
@@ -163,6 +322,63 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         }
       }
     });
+  }
+
+  generarGraficoBarras(idChart: string, label: string, labels: any[], data: any[]) {
+    this.barChart = new Chart(idChart, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: label,
+            data: data,
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+          }
+        }
+      },
+    });
+  }
+
+  generarTablas(): void {
+    const autoresPorPapersLabels: string[] = ['1', '2', '3', '4', '5 o más'];
+    const autoresPorPapersData: number[] = this.autoresPorPapersTable.map((item) => item.numPapers);
+  
+    const papersPorAutoresLabels: string[] = ['1', '2', '3', '4', '5 o más'];
+    const papersPorAutoresData: number[] = this.papersPorAutoresTable.map((item) => item.numAutores);
+  
+    const table1 = document.getElementById('table1');
+    const table2 = document.getElementById('table2');
+  
+    if (table1 && table2) {
+      table1.innerHTML = this.generateTableHTML(autoresPorPapersLabels, autoresPorPapersData);
+      table2.innerHTML = this.generateTableHTML(papersPorAutoresLabels, papersPorAutoresData);
+    }
+  }
+  
+  generateTableHTML(labels: string[], data: number[]): string {
+    let tableHTML = '<table>';
+    tableHTML += '<tr><th># papers</th><th># autores (%)</th></tr>';
+  
+    for (let i = 0; i < labels.length; i++) {
+      const label = labels[i];
+      const value = data[i];
+  
+      tableHTML += `<tr><td>${label}</td><td>${value}</td></tr>`;
+    }
+  
+    tableHTML += '</table>';
+  
+    return tableHTML;
   }
 
 }

@@ -36,4 +36,7 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/colaboraciones`, { titulosSeleccionados, option, venue });
   }
 
+  obtenerAuthorsPapers(titulosSeleccionados: any[], option: string, venue: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/AuthorsPapers`, { titulosSeleccionados, option, venue });
+  }
 }

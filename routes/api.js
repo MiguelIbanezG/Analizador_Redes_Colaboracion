@@ -112,7 +112,7 @@ router.post('/papers', async (req, res) => {
     query = `
       MATCH (y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Inproceeding)
       WHERE id(y) IN $yearIds ${option === 'main' ? `AND p.bookTitle = $venueName` : ''}
-       RETURN toFloat(count(p)) AS numPapers, y.name AS yearName
+      RETURN toFloat(count(p)) AS numPapers, y.name AS yearName
       `;
     const result = await session.run(query, { yearIds, venueName });
     const papers = result.records.map(record => {
@@ -163,6 +163,40 @@ router.post('/colaboraciones', async (req, res) => {
   }
 });
 
+router.post('/AuthorsPapers', async (req, res) => {
+  const titulosSeleccionados = req.body.titulosSeleccionados;
+  const option = req.body.option;
+  const venueName = req.body.venue;
+  const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    let query = `   
+    MATCH (v:Venue {name: $venueName})-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(ip:Inproceeding)-[:AUTHORED_BY]->(r1:Researcher)
+    WHERE id(y) IN $yearIds
+    ${option === 'main' ? `AND p.bookTitle = $venueName` : ''}
+    WITH r1, y, collect(ip.title) AS ipNames, count(distinct ip) AS numPublications
+    WITH {researcher: r1.name, numPublications: numPublications, year: y.name, ipNames: ipNames} AS autxpub
+    UNWIND autxpub AS autxpubData
+    RETURN autxpubData.researcher AS researcher, autxpubData.numPublications AS numPublications, autxpubData.year AS year, autxpubData.ipNames as ipNames
+    `;
+    const result = await session.run(query, { yearIds, venueName });
+    const autxpub = result.records.map(record => {
+      return {
+        researcher: record.get('researcher'),
+        numPublications: record.get('numPublications').low,
+        year: record.get('year'),
+        ipNames: record.get('ipNames')
+      };
+    });
+    res.json(autxpub);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });
+  } finally {
+    session.close();
+  }
+});
 // router.post('/researchers', async (req, res) => {
 //   const titulosSeleccionados = req.body.titulosSeleccionados;
 //   const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
