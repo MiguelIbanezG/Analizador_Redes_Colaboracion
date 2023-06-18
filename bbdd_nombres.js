@@ -11,13 +11,31 @@ const countries = {
   'España': 37,
   'Francia': 38,
   'Alemania': 43, 
-  'China': 80,
-  'India': 81,
-  'Rusia': 69  
+  'Europa': [39, 41, 47, 48, 49, 50, 54, 55, 56, 57, 68], 
+  'Asia': [69, 80, 81, 82, 83, 84]
 };
 
+function get_switch_valor(name, frequencyHex){
+  switch (frequencyHex) {
+    case 'A':
+      return 10;
+    case 'B':
+      return 11;
+    case 'C':
+      return 12;
+    case 'D':
+      return 13;
+    case 'E':
+      return 14;
+    case 'F':
+      return 15;
+    default:
+      return Number(frequencyHex);
+  };
+}
+
 // Lee el archivo y obtén su contenido como una cadena de texto
-const fileContent = fs.readFileSync('nam_dict.txt', 'utf8');
+const fileContent = fs.readFileSync('nam_dict.txt', 'latin1');
 
 // Encuentra el índice de inicio de la lista de nombres
 const startIndex = fileContent.indexOf('M  Aad');
@@ -36,52 +54,72 @@ for (let i = 0; i < lines.length; i++) {
   const line = lines[i].trim();
   
   // Verifica si la línea contiene un nombre y su frecuencia
-  if (/^[MF?]\s+\w+\s+\d/.test(line)) {
-    const parts = line.split(/\s+/);
-    const gender = parts[0];
-    const name = parts[1];
-    
-    // Obtén las frecuencias para los países de interés
-    const frequencies = {};
-    for (const country in countries) {
-      const column = countries[country];
-      const frequencyHex = line.substring(column-1, column);     
-      let frequency;
-      switch (frequencyHex) {
-        case 'A':
-          frequency = 10;
-          break;
-        case 'B':
-          frequency = 11;
-          break;
-        case 'C':
-          frequency = 12;
-          break;
-        case 'D':
-          frequency = 13;
-          break;
-        case 'E':
-          frequency = 14;
-          break;
-        case 'F':
-          frequency = 15;
-          break;
-        default:
-          if(frequencyHex == ""){
-            frequency = 0;
-          }else{
-            frequency = Number(frequencyHex);
-          }
+  //if (/^[MF?]\s+\w+\s+\d/.test(line)) {
+  const parts = line.split(/\s+/);
+  const gender = parts[0];
+  const name = parts[1];
+  
+  // Obtén las frecuencias para los países de interés
+  const frequencies = {};
+  for (const country in countries) {
+    const column = countries[country];
+    const frequencyHex = line.substring(column-1, column);     
+    let frequency;
+
+    if (country === 'Asia') {
+      const asiaColumns = countries.Asia;
+      let maxFrequency = 0;
+      for (const asiaColumn of asiaColumns) {
+        let asiaFrequencyHex = line.substring(asiaColumn - 1, asiaColumn);        
+        if(asiaFrequencyHex == ' ' || asiaFrequencyHex == ''){
+          asiaFrequencyHex = 0;
+        }
+        const asiaFrequency = get_switch_valor(name, asiaFrequencyHex);
+        if (asiaFrequency > maxFrequency) {
+        maxFrequency = asiaFrequency;
+        }
       }
+      frequency = maxFrequency;
+    }
+    else if (country === 'Europa') {
+      const europaColumns = countries.Europa;
+      let maxFrequency = 0;
+      for (const europaColumn of europaColumns) {
+        let europaFrequencyHex = line.substring(europaColumn - 1, europaColumn);
+        if(europaFrequencyHex == ' ' || europaFrequencyHex == ''){
+          europaFrequencyHex = 0;
+        }
+        const europaFrequency = get_switch_valor(name, europaFrequencyHex);
+        if (europaFrequency > maxFrequency) {
+          maxFrequency = europaFrequency;
+        }
+      }
+      frequency = maxFrequency;
+    } else {
+      frequency = get_switch_valor(name, frequencyHex);  
+    }
+
+    if (namesData[name]) {
+      const existingFrequencies = namesData[name].frequencies;
+      const existingFrequency = existingFrequencies[country];
+
+      // Compara la frecuencia existente con la nueva frecuencia y guarda la más alta
+      if (frequency > existingFrequency) {
+        existingFrequencies[country] = frequency;
+      }
+    } else {
+      // El nombre no existe en namesData, crea una nueva entrada
       frequencies[country] = frequency;
     }
-    
-    // Almacena los datos del nombre
-    namesData[name] = {
-      gender,
-      frequencies
-    };
-  }
+}
+
+// Almacena los datos del nombre
+if (!namesData[name]) {
+  namesData[name] = {
+    gender,
+    frequencies
+  };
+}
 }
 
 // Crea el contenido para el archivo common_names.txt

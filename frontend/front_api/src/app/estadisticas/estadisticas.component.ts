@@ -5,9 +5,6 @@ import { SeleccionService } from '../seleccion.service';
 import { Chart, CategoryScale, LineController  } from 'chart.js';
 import { HttpClient } from '@angular/common/http';
 
-
-
-
 @Component({
   selector: 'app-estadisticas',
   templateUrl: './estadisticas.component.html',
@@ -72,27 +69,13 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         diccionario[nombreActual] = datosActuales;
       }
     }
-    console.log("DICCIONARIO  NOMBNRES");
-    console.log(Object.keys(diccionario).slice(0, 100));
-
     return diccionario;
   }
 
   ngOnInit() {
     this.loadCommonNames();
-    this.titulosSeleccionados = this.seleccionService.obtenerTitulosSeleccionados();
-    this.conferenceOption = this.seleccionService.obtenerOpcionConferencia();
-    this.venueName = this.seleccionService.obtenerNombreVenue();
-    this.obtenerResearchers();
-    this.obtenerPapers();
-    this.obtenerColaboraciones();
-    this.obtenerSingleAuthorPapers()
-      .then(() => {
-        this.obtenerDistribuciones();
-      })
-      .catch((error) => {
-        console.error('Error al obtener los datos:', error);
-      });
+    //LLamada a la funcion principal para la ejecucion de todo
+    this.main();
   }
 
   ngAfterViewInit() {
@@ -101,11 +84,13 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     // como ajustes de estilo, cambios dinámicos en los datos, etc.
   }
 
-  obtenerResearchers() {
+  async obtenerResearchers() {
     this.apiService.obtenerResearchers(this.titulosSeleccionados).subscribe({
       next: (response: any) => {
         this.researchers = response;
         this.statsResearchers();
+        console.log("RESEARCHERS");
+        console.log(this.researchers);
         this.generarGrafico3('lineChart1', 'Número de investigadores', this.estadisticas[0].anios, this.estadisticas[0].numResearchers);
       },
       error: (error: any) => {
@@ -114,7 +99,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
-  obtenerPapers() {
+  async obtenerPapers() {
     this.apiService.obtenerPapers(this.titulosSeleccionados, this.conferenceOption, this.venueName).subscribe({
       next: (response: any) => {
         this.papers = response;
@@ -127,7 +112,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
-  obtenerColaboraciones() {
+  async obtenerColaboraciones() {
     this.apiService.obtenerColaboraciones(this.titulosSeleccionados, this.conferenceOption, this.venueName).subscribe({
       next: (response: any) => {
         this.colaboraciones = response;
@@ -140,11 +125,11 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
-  obtenerInstituciones(){
+  async obtenerInstituciones(){
     // que son las instituciones?
   }
 
-  obtenerSingleAuthorPapers(): Promise<void> {
+  async obtenerSingleAuthorPapers(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       this.apiService.obtenerAuthorsPapers(this.titulosSeleccionados, this.conferenceOption, this.venueName)
         .subscribe({
@@ -161,7 +146,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
-  obtenerDistribuciones(){
+  async obtenerDistribuciones(){
     const autoresPorPapersLabels: string[] = ['1', '2', '3', '4', '5 o más'];
     let autoresPorPapersData: number[] = [];
     const papersPorAutoresLabels: string[] = ['1', '2', '3', '4', '5 o más'];
@@ -178,9 +163,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         numPapersPorAutor[numAutores] = 1;
       }
     });
-    
-    console.log("numPapersPorAutor");
-    console.log(numPapersPorAutor);
 
     autoresPorPapersData = autoresPorPapersLabels.map((label) => {
       if (label === '5 o más') {
@@ -215,9 +197,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         '# papers (%)': autoresPorPapersData[index]
       };
     });
-
-    console.log("autoresPorPapersTable");
-    console.log(this.autoresPorPapersTable);
   
     this.papersPorAutoresTable = papersPorAutoresLabels.map((label, index) => {
       return {
@@ -225,10 +204,39 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         '# autores': papersPorAutoresData[index]
       };
     });
-    
-    console.log("papersPorAutoresTable");
-    console.log(this.papersPorAutoresTable);
 
+  }
+
+  async obtenerDatosDemograficos(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+
+      const datasets = this.researchers.map(researcher => {
+        const nombre = researcher.researcher.properties.name.split(' ')[0];
+        const anios = Array.isArray(researcher.years) ? researcher.years : [researcher.years];
+      
+        const datasetPorAnio = anios.map((year: any) => {
+          const info = this.commonNames[nombre];
+          const genero = info ? info.genero : 'Desconocido';
+          const frecuencias = info ? info.frec_paises : {};
+      
+          return {
+            year,
+            nombre,
+            genero,
+            frecuencias
+          };
+        });
+        return datasetPorAnio;
+      }).flat();
+      
+      console.log("dataset?")
+      console.log(datasets);    
+
+      this.statsGenero(datasets);
+      this.statsGeografia(datasets);
+      //this.generarGraficoMultiple('lineChart4', ['Hombres', 'Mujeres'], [this.estadisticas[5].anios, this.estadisticas[6].anios], [this.estadisticas[5].conteo, this.estadisticas[6].conteo]);
+    
+    });
   }
 
   /**
@@ -345,6 +353,147 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     };
 }  
 
+  statsGenero(datasets: any[]){
+    const datasetsPorGenero: { [genero: string]: { year: string; count: number }[] } = {};
+
+      datasets.forEach((data: { year: any; genero: any; }) => {
+        const { year, genero } = data;
+        
+        let genderKey = '';
+        
+        if (genero == 'M' || genero == '?M' || genero == '1M' || genero == '?') {
+          genderKey = 'Hombres';
+        } else if (genero == 'F' || genero == '?F' || genero == '1F') {
+          genderKey = 'Mujeres';
+        } else{
+          genderKey = 'Desconocido';
+        }
+        
+        if (!datasetsPorGenero[genderKey]) {
+          datasetsPorGenero[genderKey] = [];
+        }
+        
+        const existingData = datasetsPorGenero[genderKey].find(d => d.year === year);
+        
+        if (existingData) {
+          existingData.count++;
+        } else {
+          datasetsPorGenero[genderKey].push({
+            year,
+            count: 1
+          });
+        }
+      });
+
+      // Crear un objeto para almacenar los datos ordenados
+      const datosOrdenados: { [anio: string]: { hombres?: number; mujeres?: number } } = {};
+      const hombres = datasetsPorGenero['Hombres'];
+      const mujeres = datasetsPorGenero['Mujeres'];
+
+      // Ordenar los datos de hombres
+      hombres.forEach(dato => {
+        const anio = dato.year;
+        const conteo = dato.count;
+
+        datosOrdenados[anio] = { hombres: conteo };
+      });
+
+      // Ordenar los datos de mujeres y combinarlos con los datos de hombres
+      mujeres.forEach(dato => {
+        const anio = dato.year;
+        const conteo = dato.count;
+
+        if (datosOrdenados[anio]) {
+          datosOrdenados[anio].mujeres = conteo;
+        } else {
+          datosOrdenados[anio] = { mujeres: conteo };
+        }
+      });
+
+      // Obtener los años ordenados
+      const aniosOrdenados = Object.keys(datosOrdenados).sort();
+
+
+      const conteosHombres = aniosOrdenados.map(anio => datosOrdenados[anio].hombres);
+      const conteosMujeres = aniosOrdenados.map(anio => datosOrdenados[anio].mujeres);
+      
+      this.generarGraficoMultiple('lineChart4', aniosOrdenados, ['Hombres', 'Mujeres'], [conteosHombres, conteosMujeres]);
+
+  }
+
+  statsGeografia(datasets: any[]){
+    let mapeoGeof = [];
+
+    const datasetFiltrado = datasets.filter((objeto: any) => Object.keys(objeto.frecuencias).length > 0);
+
+    console.log("datasest filtrados en geof");
+    console.log(datasetFiltrado);
+
+    // Obtener todas las fechas únicas
+    const fechasUnicas = [...new Set(datasetFiltrado.map(dato => dato.year))];
+    console.log("fechasUnicas");
+    console.log(fechasUnicas);
+
+    // Iterar sobre las fechas
+    for (const fecha of fechasUnicas) {
+      const objetosFecha = datasetFiltrado.filter(dato => dato.year === fecha);
+      console.log("objetosFecha");
+      console.log(objetosFecha);
+
+      // Crear objeto de mapeo para la fecha actual
+      const mapeoFecha: {[fecha: string]: {[pais: string]: number}} = {};
+      mapeoFecha[fecha] = {};
+  
+      for (const objeto of objetosFecha) {
+        let paisMasAlto = '';
+        let frecuenciaMasAlta = -1;
+
+        for (const pais in objeto.frecuencias) {
+          if (objeto.frecuencias[pais] > frecuenciaMasAlta) {
+            paisMasAlto = pais;
+            frecuenciaMasAlta = objeto.frecuencias[pais];
+          }
+        }
+        if(!(paisMasAlto in mapeoFecha[fecha])){
+          mapeoFecha[fecha][paisMasAlto] = 1
+        }else{
+          mapeoFecha[fecha][paisMasAlto] = mapeoFecha[fecha][paisMasAlto] + 1
+        }
+      }
+  
+      // Agregar el objeto de mapeo al arreglo final
+      mapeoGeof.push(mapeoFecha);
+    }
+
+    mapeoGeof = mapeoGeof.flat();
+
+    console.log("mapeo geof ????");
+    console.log(mapeoGeof);
+    // // Obtener el elemento HTML del gráfico
+    // const chartElement = document.getElementById('lineChart5');
+
+    // // Obtener los años y los nombres de los países del dataset
+    // const years = Object.keys(mapeoGeof);
+    // const firstYear: string = years[0];
+    // const countries = Object.keys(mapeoGeof[firstYear]);
+
+    // // Crear una matriz vacía para almacenar los datos de cada país
+    // const datasets = [];
+
+    // // Iterar sobre los países y construir los datasets de cada país
+    // countries.forEach((country) => {
+    //   const data = years.map((year) => mapeoGeof[year][country]);
+      
+    //   datasets.push({
+    //     label: country,
+    //     data: data,
+    //     fill: false,
+    //     borderColor: getRandomColor(),
+    //     tension: 0.4
+    //   });
+    // });
+    
+  }
 
   generarGrafico3(idChart: string, label: string, labels: any[], data: any[]) {
     this.lineChart = new Chart(idChart, {
@@ -371,6 +520,47 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
+  generarGraficoMultiple(idChart: string, labels: string[], datasetsLabels: string[], datasetsData: any[][]) {
+    const ctx = document.getElementById(idChart) as HTMLCanvasElement;
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: datasetsLabels.map((label, index) => ({
+          label: label,
+          data: datasetsData[index],
+          fill: false,
+          borderColor: index === 0 ? 'rgba(75, 192, 192, 1)' : 'rgba(192, 83, 75, 1)',
+          tension: 0.4
+        }))
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Gráfico de línea múltiple'
+          }
+        },
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Años'
+            }
+          },
+          y: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Conteo'
+            }
+          }
+        }
+      }
+    });
+  }
   generarGraficoBarras(idChart: string, label: string, labels: any[], data: any[]) {
     this.barChart = new Chart(idChart, {
       type: 'bar',
@@ -426,6 +616,30 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     tableHTML += '</table>';
   
     return tableHTML;
+  }
+
+  async main(){
+    try {
+      this.titulosSeleccionados = this.seleccionService.obtenerTitulosSeleccionados();
+      this.conferenceOption = this.seleccionService.obtenerOpcionConferencia();
+      this.venueName = this.seleccionService.obtenerNombreVenue();
+
+      this.obtenerPapers();
+      this.obtenerColaboraciones();
+      this.obtenerSingleAuthorPapers();
+
+      await this.obtenerResearchers();
+
+      while (this.researchers.length === 0) {
+        // Esperar hasta que this.researchers tenga valores
+        await new Promise(resolve => setTimeout(resolve, 100)); 
+      }
+      
+      await this.obtenerDistribuciones();
+      await this.obtenerDatosDemograficos();
+  } catch (error) {
+    console.error('Error al obtener los datos:', error);
+  }
   }
 
 }
