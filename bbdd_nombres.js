@@ -1,4 +1,8 @@
 const fs = require('fs');
+const path = require('path');
+
+// Ruta completa para almacenar estadisticas
+const filePath = path.join(__dirname, 'frontend/front_api/src/assets/common_names.txt');
 
 // Define los países y columnas de interés
 const countries = {
@@ -6,7 +10,10 @@ const countries = {
   'Italia': 34,
   'España': 37,
   'Francia': 38,
-  'Alemania': 43
+  'Alemania': 43, 
+  'China': 80,
+  'India': 81,
+  'Rusia': 69  
 };
 
 // Lee el archivo y obtén su contenido como una cadena de texto
@@ -92,10 +99,10 @@ for (const name in namesData) {
   
   content += `nombre: ${name}\n`;
   content += `frec_paises: ${JSON.stringify(frequencies)}\n`;
-  content += `género: ${gender}\n\n`;
+  content += `genero: ${gender}\n\n`;
 }
 
 // Escribe el contenido en el archivo common_names.txt
-fs.writeFileSync('common_names.txt', content, 'utf8');
+fs.writeFileSync(filePath, content, 'utf8');
 
 console.log('Archivo common_names.txt generado exitosamente.');

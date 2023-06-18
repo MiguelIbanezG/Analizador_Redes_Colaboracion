@@ -2,7 +2,11 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../api.service';
 import { SeleccionService } from '../seleccion.service';
-import { Chart, CategoryScale  } from 'chart.js';
+import { Chart, CategoryScale, LineController  } from 'chart.js';
+import { HttpClient } from '@angular/common/http';
+
+
+
 
 @Component({
   selector: 'app-estadisticas',
@@ -25,14 +29,57 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   papersWithAuthors: any[] = [];
   autoresPorPapersTable: any[] = [];
   papersPorAutoresTable: any[] = [];
+  commonNames: { [key: string]: { frec_paises: { [key: string]: number }, genero: string } } = {};
 
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService,
-    private seleccionService: SeleccionService
+    private seleccionService: SeleccionService,
+    private http: HttpClient
   ) {}
 
+  loadCommonNames() {
+    this.http.get('assets/common_names.txt', { responseType: 'text' }).subscribe(
+      (data: string) => {
+        this.commonNames = this.parseCommonNames(data);
+      },
+      (error: any) => {
+        console.error('Error al cargar los datos:', error);
+      }
+    );
+  }
+
+  parseCommonNames(data: string) {
+    const lineas = data.split('\n');
+    const diccionario: { [key: string]: { frec_paises: { [key: string]: number }, genero: string } } = {};
+    let nombreActual = '';
+    let datosActuales: { frec_paises: { [key: string]: number }, genero: string } = {
+      frec_paises: {},
+      genero: ''
+    };
+  
+    for (const linea of lineas) {
+      if (linea.startsWith('nombre:')) {
+        nombreActual = linea.split(':')[1].trim();
+        datosActuales = { frec_paises: {}, genero: '' };
+      } else if (linea.startsWith('frec_paises:')) {
+        const frec_paisesStr = linea.substring(linea.indexOf('{'), linea.lastIndexOf('}') + 1);
+        const frec_paises = JSON.parse(frec_paisesStr);
+        datosActuales.frec_paises = frec_paises;
+      } else if (linea.startsWith('genero:')) {
+        datosActuales.genero = linea.split(':')[1].trim();
+      } else if (linea.trim() === '') {
+        diccionario[nombreActual] = datosActuales;
+      }
+    }
+    console.log("DICCIONARIO  NOMBNRES");
+    console.log(Object.keys(diccionario).slice(0, 100));
+
+    return diccionario;
+  }
+
   ngOnInit() {
+    this.loadCommonNames();
     this.titulosSeleccionados = this.seleccionService.obtenerTitulosSeleccionados();
     this.conferenceOption = this.seleccionService.obtenerOpcionConferencia();
     this.venueName = this.seleccionService.obtenerNombreVenue();
