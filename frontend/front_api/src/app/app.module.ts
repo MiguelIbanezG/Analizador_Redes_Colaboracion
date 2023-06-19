@@ -10,6 +10,7 @@ import { FormularioFiltrosComponent } from './formulario-filtros/formulario-filt
 import { FormsModule } from '@angular/forms';
 import { EstadisticasComponent } from './estadisticas/estadisticas.component';
 import { SeleccionService } from './seleccion.service';
+import { TagCloudComponent } from 'angular-tag-cloud-module';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { SeleccionService } from './seleccion.service';
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
+    TagCloudComponent
   ],
   providers: [
     ApiService,

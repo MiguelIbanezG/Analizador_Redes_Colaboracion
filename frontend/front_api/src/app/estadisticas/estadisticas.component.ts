@@ -7,12 +7,22 @@ import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs';
-
+import { CloudData, CloudOptions } from 'angular-tag-cloud-module';
 
 @Component({
   selector: 'app-estadisticas',
   templateUrl: './estadisticas.component.html',
-  styleUrls: ['./estadisticas.component.css']
+  styleUrls: ['./estadisticas.component.css'],
+  template: `
+    <div>
+      <angular-tag-cloud
+        [data]="data"
+        [width]="options.width"
+        [height]="options.height"
+        [overflow]="options.overflow">
+      </angular-tag-cloud>
+    </div>
+  `
 })
 export class EstadisticasComponent implements OnInit, AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
@@ -31,6 +41,17 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   autoresPorPapersTable: any[] = [];
   papersPorAutoresTable: any[] = [];
   commonNames: { [key: string]: { frec_paises: { [key: string]: number }, genero: string } } = {};
+  options: CloudOptions = {
+    // if width is between 0 and 1 it will be set to the width of the upper element multiplied by the value
+    width: 1000,
+    // if height is between 0 and 1 it will be set to the height of the upper element multiplied by the value
+    height: 400,
+    overflow: false,
+    realignOnResize: false,
+    strict: false,
+    step: 2,
+  };
+  cloudData: CloudData[] = []
 
   constructor(
     private route: ActivatedRoute,
@@ -88,14 +109,24 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     // como ajustes de estilo, cambios dinámicos en los datos, etc.
   }
 
-  obtenerResearchers() {
+  async esperarResearcherNoVacio() {
+    while (!this.researchers || this.researchers.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100)); // Esperar 100 milisegundos antes de volver a verificar
+    }
+  }
+
+  async obtenerResearchers() {
     this.apiService.obtenerResearchers(this.titulosSeleccionados).subscribe({
-      next: (response: any) => {
+      next: async (response: any) => {
         this.researchers = response;
         this.statsResearchers();
         this.generarGrafico3('lineChart1', 'Número de investigadores', this.estadisticas[0].anios, this.estadisticas[0].numResearchers);
       
+        await this.esperarResearcherNoVacio();
+
         // Para ejecutar las siguientes se necesita this.researchers con valores
+        console.log("researchers antes de las culpables");
+        console.log(this.researchers);
         this.obtenerDistribuciones();
         this.obtenerDatosDemograficos();
       },
@@ -154,6 +185,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   }
 
   obtenerDistribuciones(){
+    console.log("distribuciones antes o despues?");
     const autoresPorPapersLabels: string[] = ['1', '2', '3', '4', '5 o más'];
     let autoresPorPapersData: number[] = [];
     const papersPorAutoresLabels: string[] = ['1', '2', '3', '4', '5 o más'];
@@ -214,9 +246,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
   }
 
-  obtenerDatosDemograficos(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-
+  obtenerDatosDemograficos(){
+    console.log("demograficos antes o despues?");
       const datasets = this.researchers.map(researcher => {
         let nombre = researcher.researcher.properties.name.split(' ')[0];
         if(nombre.includes("-")){
@@ -241,9 +272,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
       this.statsGenero(datasets);
       this.statsGeografia(datasets);
-      //this.generarGraficoMultiple('lineChart4', ['Hombres', 'Mujeres'], [this.estadisticas[5].anios, this.estadisticas[6].anios], [this.estadisticas[5].conteo, this.estadisticas[6].conteo]);
-    
-    });
   }
 
   generarNGrams(titles: string[], n: number): string[] {
@@ -268,8 +296,9 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
   limpiarTitulo(titulo: string, stopwords: string[]) {
     // Separar el título en palabras
-    const palabras = titulo.toLowerCase().split(" ");
-  
+    const palabras = titulo.toLowerCase().split(" ").map(palabra => palabra.replace(/[^\w\s]/g, ""));
+
+    //const palabrasSingulares = palabras.map(palabra => pluralize.singular(palabra));
     // Filtrar las palabras para eliminar las stopwords
     const palabrasFiltradas = palabras.filter(palabra => !stopwords.includes(palabra));
   
@@ -287,7 +316,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   obtenerTopicAnalisis(){
 
       // Requerimos natural para tokenizar y eliminar las stopwords, y calcular frecuencias
-      const stopwords = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now'];
+      const stopwords = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now', '.', ','];
 
       const titulosLimpios = this.papersWithAuthors.map(paper => {
         const ipName = this.limpiarTitulo(paper.ipName, stopwords);
@@ -297,12 +326,18 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
       const bigrams = this.generarNGrams(titulosLimpios.map((paper) => paper.ipName), 2);
       const trigrams = this.generarNGrams(titulosLimpios.map((paper) => paper.ipName), 3);
-    
+
       const bigramFrequencies = this.countFrequencies(bigrams);
       const trigramFrequencies = this.countFrequencies(trigrams);
-    
+
       const top20Bigrams = this.getTopN(bigramFrequencies, 20);
       const top20Trigrams = this.getTopN(trigramFrequencies, 20);
+
+      
+      console.log("bigrams");
+      console.log(top20Bigrams);
+      console.log("trigrams");
+      console.log(top20Trigrams);
     
       const top20BigramsWithYears = top20Bigrams.map(([ngram, count]) => ({
         ngram,
@@ -340,6 +375,28 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
           table2.appendChild(row);
         });
       }
+
+      const combinedData = [...top20BigramsWithYears, ...top20TrigramsWithYears];
+      
+      combinedData.sort((a, b) => b.count - a.count);
+
+      const maxCount = combinedData[0].count;
+
+      const wordCloudData = combinedData.map((item, index) => ({
+        text: item.ngram,
+        weight: item.count * Math.exp(-0.1 * index),
+        color: this.randomColor()
+      }));
+
+      console.log("wordcloud data");
+      console.log(wordCloudData);
+
+      if(wordCloudData.length > 200){
+        this.cloudData = wordCloudData.slice(0,200);
+      }else{
+        this.cloudData = wordCloudData;
+      }
+      // this.cloudData = 
   }
 
   /**
@@ -650,6 +707,11 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
+  generarWordCloud(data: { [key: string]: number }): void {
+    
+  }
+  
+
   generarTablas(): void {
     const autoresPorPapersLabels: string[] = ['1', '2', '3', '4', '5 o más'];
     const autoresPorPapersData: number[] = this.autoresPorPapersTable.map((item) => item.numPapers);
@@ -680,6 +742,13 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     tableHTML += '</table>';
   
     return tableHTML;
+  }
+
+  randomColor(){
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    return `rgba(${r}, ${g}, ${b}, 1)`;
   }
 
   getRandomColor(index: number) {
