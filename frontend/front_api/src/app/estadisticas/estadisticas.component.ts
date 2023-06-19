@@ -435,41 +435,34 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
   statsGeografia(datasets: any[]){
     const mapeoFecha: {[fecha: string]: {[pais: string]: number}} = {};
-
+    const datasetFiltrado = datasets.filter((objeto: any) => Object.keys(objeto.frecuencias).length > 0);
+    
     // Obtener todas las fechas únicas
-    const fechasUnicas = [...new Set(datasets.map(dato => dato.year))];
+    const fechasUnicas = [...new Set(datasetFiltrado.map(dato => dato.year))];
     console.log("fechasUnicas");
     console.log(fechasUnicas);
 
     // Iterar sobre las fechas
     for (const fecha of fechasUnicas) {
-      const objetosFecha = datasets.filter(dato => dato.year === fecha);
+      const objetosFecha = datasetFiltrado.filter(dato => dato.year === fecha);
 
       // Crear objeto de mapeo para la fecha actual
       mapeoFecha[fecha] = {};
   
-      for (const objeto of objetosFecha) {
-        let paisMasAlto = '';
-        let frecuenciaMasAlta = -1;
+    for (const objeto of objetosFecha) {
+      let paisMasAlto = '';
+      let frecuenciaMasAlta = -1;
 
-        if (Object.keys(objeto.frecuencias).length === 0) {
-          if(!("Desconocido/Otros" in mapeoFecha[fecha])){
-            mapeoFecha[fecha]["Desconocido/Otros"] = 1;
-          }else{
-            mapeoFecha[fecha]["Desconocido/Otros"] = mapeoFecha[fecha]["Desconocido/Otros"] + 1;
+      for (const pais in objeto.frecuencias) {
+          if (objeto.frecuencias[pais] > frecuenciaMasAlta) {
+            paisMasAlto = pais;
+            frecuenciaMasAlta = objeto.frecuencias[pais];
           }
+        }
+        if(!(paisMasAlto in mapeoFecha[fecha])){
+          mapeoFecha[fecha][paisMasAlto] = 1;
         }else{
-          for (const pais in objeto.frecuencias) {
-            if (objeto.frecuencias[pais] > frecuenciaMasAlta) {
-              paisMasAlto = pais;
-              frecuenciaMasAlta = objeto.frecuencias[pais];
-            }
-          }
-          if(!(paisMasAlto in mapeoFecha[fecha])){
-            mapeoFecha[fecha][paisMasAlto] = 1;
-          }else{
-            mapeoFecha[fecha][paisMasAlto] = mapeoFecha[fecha][paisMasAlto] + 1;
-          }
+          mapeoFecha[fecha][paisMasAlto] = mapeoFecha[fecha][paisMasAlto] + 1;
         }
       }
     }
@@ -486,7 +479,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       years.map((year) => mapeoFecha[year][country])
     );
 
-    this.generarGrafico2('lineChart5', years, datasetsLabels, datasetsData);
+    this.generarGraficoMultiple('lineChart5', years, datasetsLabels, datasetsData);
     
   }
 
@@ -525,7 +518,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
           label: label,
           data: datasetsData[index],
           fill: false,
-          borderColor: index === 0 ? 'rgba(75, 192, 192, 1)' : 'rgba(192, 83, 75, 1)',
+          borderColor: this.getRandomColor(index),
           tension: 0.4
         }))
       },
@@ -581,48 +574,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
-  generarGrafico2(idChart: string, labels: string[], datasetsLabels: string[], datasetsData: any[][]) {
-    const ctx = document.getElementById(idChart) as HTMLCanvasElement;
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: datasetsLabels.map((label, index) => ({
-          label: label,
-          data: datasetsData[index],
-          fill: false,
-          borderColor: this.getRandomColor(),
-          tension: 0.4
-        }))
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: 'Gráfico de línea múltiple'
-          }
-        },
-        scales: {
-          x: {
-            display: true,
-            title: {
-              display: true,
-              text: 'Años'
-            }
-          },
-          y: {
-            display: true,
-            title: {
-              display: true,
-              text: 'Conteo'
-            }
-          }
-        }
-      }
-    });
-  }    
-
   generarTablas(): void {
     const autoresPorPapersLabels: string[] = ['1', '2', '3', '4', '5 o más'];
     const autoresPorPapersData: number[] = this.autoresPorPapersTable.map((item) => item.numPapers);
@@ -655,13 +606,17 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     return tableHTML;
   }
 
-  getRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+  getRandomColor(index: number) {
+    let colors: Record<number, string> = {
+      0: "rgba(75, 192, 192, 1)",
+      1: "rgba(192, 75, 75, 1)",
+      2: "rgba(98, 192, 75, 1)", 
+      3: "rbga(192, 141, 75, 1)",
+      4: "rgba(226, 232, 107, 1)",
+      5: "rgba(176, 75, 192, 1)"
+    };
+
+    return colors[index];
   }
 
   async main(){
