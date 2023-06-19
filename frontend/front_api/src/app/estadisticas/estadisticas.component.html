@@ -9,7 +9,7 @@
 
     .column {
       flex: 1;
-      margin-right: 20px;
+      margin-right: 5px;
     }
   </style>
 </head>
@@ -40,47 +40,37 @@
     </div>
   </div>
 
+  <hr>
   <div class="container">
     <div class="column">
       <div>
-        <h4>Autores por papers publicados</h4>
-        <table>
+        <table id="autoresTabla" class="centered-table">
           <thead>
             <tr>
-              <th># autores</th>
-              <th># papers (%)</th>
+              <th>Autores</th>
+              <th>Papers (%)</th>
             </tr>
           </thead>
-          <tbody>
-            <tr *ngFor="let row of autoresPorPapersTable">
-              <td>{{ row['# autores'] }}</td>
-              <td>{{ row['# papers (%)'] }}</td>
-            </tr>
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
-      </div>
-      <div class="column">
-        <div>
-          <h4>Papers por número de autores</h4>
-          <table>
-            <thead>
-              <tr>
-                <th># autores</th>
-                <th># papers (%)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let row of papersPorAutoresTable">
-                <td>{{ row['# autores'] }}</td>
-                <td>{{ row['# papers (%)'] }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    </div>
+    <div class="column">
+      <div>
+        <table id="papersTabla" class="centered-table">
+          <thead>
+            <tr>
+              <th>Papers</th>
+              <th>Autores (%)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
+  </div>
 
+    <hr>
     <div class="container">
       <div class="column">
         <div>
@@ -94,6 +84,7 @@
       </div>
     </div>
 
+    <hr>
     <div class="container">
       <div class="column">
         <div>
@@ -102,8 +93,8 @@
               <tr>
                 <th>Bigrama</th>
                 <th>Apariciones</th>
-                <th>Primer año</th>
-                <th>Último año</th>
+                <th>Primer <br> año</th>
+                <th>Último <br> año</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -117,8 +108,8 @@
               <tr>
                 <th>Trigrama</th>
                 <th>Apariciones</th>
-                <th>Primer año</th>
-                <th>Último año</th>
+                <th>Primer <br> año</th>
+                <th>Último <br> año</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -127,9 +118,96 @@
       </div>
     </div>
 
+    <div> 
+      <hr>
+    </div>
     <div class="container">
       <div>
         <angular-tag-cloud [config]="options" [data]="cloudData"></angular-tag-cloud>
+      </div>
+    </div>
+
+    <hr>
+    <h4>Autores más prolíficos de acuerdo a su número de publicaciones por década</h4>
+    <div class="container">
+      <div class="column">
+        <div>
+          <table id="tabla90" class="centered-table">
+            <thead>
+              <tr>
+                <th colspan="2">
+                  (a) 1989-1999
+                </th>
+              </tr>
+              <hr>
+              <tr>
+                <th>Author</th>
+                <th>#</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="column">
+        <div>
+          <table id="tabla00" class="centered-table">
+            <thead>
+              <tr>
+                <th colspan="2">
+                  (b) 1999-2009
+                </th>
+              </tr>
+              <hr>
+              <tr>
+                  <th>Author</th>
+                  <th>#</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="container">
+      <div class="column">
+        <div>
+          <table id="tabla10" class="centered-table">
+            <thead>
+              <tr>
+                <th colspan="2">
+                  (a) 2009-2019
+                </th>
+              </tr>
+              <hr>
+              <tr>
+                <th>Author</th>
+                <th>#</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="column">
+        <div>
+          <table id="tabla20" class="centered-table">
+            <thead>
+              <tr>
+                <th colspan="2">
+                  (a) 2019-2029
+                </th>
+              </tr>
+              <hr>
+              <tr>
+                <th>Author</th>
+                <th>#</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </div>
 </body>

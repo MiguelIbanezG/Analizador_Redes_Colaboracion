@@ -176,10 +176,9 @@ router.post('/AuthorsPapers', async (req, res) => {
     WHERE id(y) IN $yearIds
     ${option === 'main' ? `AND p.bookTitle = $venueName` : ''}
     WITH r1, y, collect(ip.title) AS ipNames, count(distinct ip) AS numPublications
-    WITH {researcher: r1.name, numPublications: numPublications, year: y.name, ipNames: ipNames} AS autxpub
-    UNWIND autxpub AS autxpubData
-    RETURN autxpubData.researcher AS researcher, autxpubData.numPublications AS numPublications, autxpubData.year AS year, autxpubData.ipNames as ipNames
+    RETURN r1.name AS researcher, numPublications AS numPublications, y.name AS year, ipNames AS ipNames
     `;
+
     const result = await session.run(query, { yearIds, venueName });
     const autxpub = result.records.map(record => {
       return {
@@ -189,6 +188,7 @@ router.post('/AuthorsPapers', async (req, res) => {
         ipNames: record.get('ipNames')
       };
     });
+
     res.json(autxpub);
   } catch (error) {
     console.error(error);
@@ -197,29 +197,5 @@ router.post('/AuthorsPapers', async (req, res) => {
     session.close();
   }
 });
-// router.post('/researchers', async (req, res) => {
-//   const titulosSeleccionados = req.body.titulosSeleccionados;
-//   const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
-//   const session = driver.session({ database: 'neo4j' });
-
-//   try {
-//     const query = `
-//     //
-//     `;
-//     const result = await session.run(query, { yearIds });
-//     const researchers = result.records.map(record => {
-//       return {
-//         researcher: record.get('researcher'),
-//         years: record.get('years')
-//       };
-//     });
-//     res.json(researchers);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });
-//   } finally {
-//     session.close();
-//   }
-// });
 
 module.exports = router;
