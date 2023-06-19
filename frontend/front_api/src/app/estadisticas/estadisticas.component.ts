@@ -2,18 +2,13 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../api.service';
 import { SeleccionService } from '../seleccion.service';
-import { Chart, CategoryScale, LineController  } from 'chart.js';
+//import { Chart, CategoryScale, LineController  } from 'chart.js';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs';
 
-//Interfaz para los graficos, para el multiple
-interface Dataset {
-  label: string;
-  data: number[];
-  fill: boolean;
-  borderColor: string;
-  yAxisID: string;
-}
+
 @Component({
   selector: 'app-estadisticas',
   templateUrl: './estadisticas.component.html',
@@ -93,14 +88,16 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     // como ajustes de estilo, cambios dinámicos en los datos, etc.
   }
 
-  async obtenerResearchers() {
+  obtenerResearchers() {
     this.apiService.obtenerResearchers(this.titulosSeleccionados).subscribe({
       next: (response: any) => {
         this.researchers = response;
         this.statsResearchers();
-        console.log("RESEARCHERS");
-        console.log(this.researchers);
         this.generarGrafico3('lineChart1', 'Número de investigadores', this.estadisticas[0].anios, this.estadisticas[0].numResearchers);
+      
+        // Para ejecutar las siguientes se necesita this.researchers con valores
+        this.obtenerDistribuciones();
+        this.obtenerDatosDemograficos();
       },
       error: (error: any) => {
         console.error('Error al obtener los researchers:', error);
@@ -108,7 +105,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
-  async obtenerPapers() {
+  obtenerPapers() {
     this.apiService.obtenerPapers(this.titulosSeleccionados, this.conferenceOption, this.venueName).subscribe({
       next: (response: any) => {
         this.papers = response;
@@ -121,7 +118,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
-  async obtenerColaboraciones() {
+  obtenerColaboraciones() {
     this.apiService.obtenerColaboraciones(this.titulosSeleccionados, this.conferenceOption, this.venueName).subscribe({
       next: (response: any) => {
         this.colaboraciones = response;
@@ -134,28 +131,29 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
-  async obtenerInstituciones(){
+  obtenerInstituciones(){
     // que son las instituciones?
   }
 
-  async obtenerSingleAuthorPapers(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+  obtenerSingleAuthorPapers() {
       this.apiService.obtenerAuthorsPapers(this.titulosSeleccionados, this.conferenceOption, this.venueName)
         .subscribe({
           next: (response: any) => {
             this.singleAuthor = response;
             this.statsSingleAuthor();
             this.generarGraficoBarras('barChart1', 'Single Author Papers', this.estadisticas[4].anios, this.estadisticas[4].porcentajes);
-            resolve(); // Resuelve la Promesa para indicar que se ha completado la ejecución
+            
+            // ahora stats de topicos porque se necesita this.authorswithpapers y solo se guarda despues de statsSingleAuthor
+            this.obtenerTopicAnalisis();
+
           },
           error: (error: any) => {
-            reject(error); // Rechaza la Promesa y pasa el error al flujo de ejecución
+            console.error('Error al obtener los Author Papers:', error);
           }
         });
-    });
   }
 
-  async obtenerDistribuciones(){
+  obtenerDistribuciones(){
     const autoresPorPapersLabels: string[] = ['1', '2', '3', '4', '5 o más'];
     let autoresPorPapersData: number[] = [];
     const papersPorAutoresLabels: string[] = ['1', '2', '3', '4', '5 o más'];
@@ -216,7 +214,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
   }
 
-  async obtenerDatosDemograficos(): Promise<void> {
+  obtenerDatosDemograficos(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
 
       const datasets = this.researchers.map(researcher => {
@@ -239,16 +237,109 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
           };
         });
         return datasetPorAnio;
-      }).flat();
-      
-      console.log("dataset?")
-      console.log(datasets);    
+      }).flat(); 
 
       this.statsGenero(datasets);
       this.statsGeografia(datasets);
       //this.generarGraficoMultiple('lineChart4', ['Hombres', 'Mujeres'], [this.estadisticas[5].anios, this.estadisticas[6].anios], [this.estadisticas[5].conteo, this.estadisticas[6].conteo]);
     
     });
+  }
+
+  generarNGrams(titles: string[], n: number): string[] {
+    const ngrams: string[] = [];
+    titles.forEach((title) => {
+      const words = title.toLowerCase().split(" ");
+      for (let i = 0; i < words.length - n + 1; i++) {
+        ngrams.push(words.slice(i, i + n).join(" "));
+      }
+    });
+    return ngrams;
+  }
+  
+  countFrequencies(ngrams: string[]): Map<string, number> {
+    const frequencies = new Map<string, number>();
+    ngrams.forEach((ngram) => {
+      const count = frequencies.get(ngram) || 0;
+      frequencies.set(ngram, count + 1);
+    });
+    return frequencies;
+  }
+
+  limpiarTitulo(titulo: string, stopwords: string[]) {
+    // Separar el título en palabras
+    const palabras = titulo.toLowerCase().split(" ");
+  
+    // Filtrar las palabras para eliminar las stopwords
+    const palabrasFiltradas = palabras.filter(palabra => !stopwords.includes(palabra));
+  
+    // Unir las palabras filtradas en un nuevo título
+    const nuevoTitulo = palabrasFiltradas.join(' ');
+  
+    return nuevoTitulo;
+  }
+
+  getTopN(frequencies: Map<string, number>, n: number): [string, number][] {
+    const sortedFrequencies = [...frequencies.entries()].sort((a, b) => b[1] - a[1]);
+    return sortedFrequencies.slice(0, n);
+  }
+
+  obtenerTopicAnalisis(){
+
+      // Requerimos natural para tokenizar y eliminar las stopwords, y calcular frecuencias
+      const stopwords = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now'];
+
+      const titulosLimpios = this.papersWithAuthors.map(paper => {
+        const ipName = this.limpiarTitulo(paper.ipName, stopwords);
+        const year = parseInt(paper.year);
+        return { ipName, year };
+      });
+
+      const bigrams = this.generarNGrams(titulosLimpios.map((paper) => paper.ipName), 2);
+      const trigrams = this.generarNGrams(titulosLimpios.map((paper) => paper.ipName), 3);
+    
+      const bigramFrequencies = this.countFrequencies(bigrams);
+      const trigramFrequencies = this.countFrequencies(trigrams);
+    
+      const top20Bigrams = this.getTopN(bigramFrequencies, 20);
+      const top20Trigrams = this.getTopN(trigramFrequencies, 20);
+    
+      const top20BigramsWithYears = top20Bigrams.map(([ngram, count]) => ({
+        ngram,
+        count,
+        years: titulosLimpios.filter((paper) => paper.ipName.includes(ngram)).map((paper) => paper.year),
+      }));
+    
+      const top20TrigramsWithYears = top20Trigrams.map(([ngram, count]) => ({
+        ngram,
+        count,
+        years: titulosLimpios.filter((paper) => paper.ipName.includes(ngram)).map((paper) => paper.year),
+      }));
+
+      const table1 = document.querySelector('#tablaBigramas tbody');
+      const table2 = document.querySelector('#tablaTrigramas tbody');
+    
+      if (table1 instanceof HTMLElement && table2 instanceof HTMLElement) {
+        top20BigramsWithYears.forEach(({ ngram, count, years }) => {
+          const minYear = Math.min(...years);
+          const maxYear = Math.max(...years);
+      
+          const row = document.createElement('tr');
+          row.innerHTML = `<td>${ngram}</td><td>${count}</td><td>${minYear}</td><td>${maxYear}</td>`;
+      
+          table1.appendChild(row);
+        });
+      
+        top20TrigramsWithYears.forEach(({ ngram, count, years }) => {
+          const minYear = Math.min(...years);
+          const maxYear = Math.max(...years);
+      
+          const row = document.createElement('tr');
+          row.innerHTML = `<td>${ngram}</td><td>${count}</td><td>${minYear}</td><td>${maxYear}</td>`;
+      
+          table2.appendChild(row);
+        });
+      }
   }
 
   /**
@@ -311,18 +402,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   }
 
   statsSingleAuthor() {
-
-    // const authorsByYear: { [year: string]: number } = {};
-
-    // this.singleAuthor.forEach((author: { numPublications: number, year: string }) => {
-    // if (author.numPublications === 1) {
-    //   const year = author.year;
-    //   authorsByYear[year] = (authorsByYear[year] || 0) + 1;
-    // }
-    // });
-    
-    // console.log("una pub authors");
-    // console.log(authorsByYear);
     
     const papersWithAuthors: { ipName: string, numAuthors: number, authorNames: string[], year: string }[] = [];
 
@@ -439,8 +518,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     
     // Obtener todas las fechas únicas
     const fechasUnicas = [...new Set(datasetFiltrado.map(dato => dato.year))];
-    console.log("fechasUnicas");
-    console.log(fechasUnicas);
 
     // Iterar sobre las fechas
     for (const fecha of fechasUnicas) {
@@ -466,9 +543,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         }
       }
     }
-
-    console.log("mapeo fecha ????");
-    console.log(mapeoFecha);
 
     const years = Object.keys(mapeoFecha); // Obtener las llaves de los años
     const countries = Object.keys(mapeoFecha[years[0]]); // Obtener los nombres de los países
@@ -501,6 +575,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       options: {
         scales: {
           y: {
+            type: 'linear',
             display: true
           }
         }
@@ -549,6 +624,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
   generarGraficoBarras(idChart: string, label: string, labels: any[], data: any[]) {
     this.barChart = new Chart(idChart, {
       type: 'bar',
@@ -567,10 +643,10 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       options: {
         scales: {
           y: {
-            beginAtZero: true,
+            beginAtZero: true
           }
         }
-      },
+      }
     });
   }
 
@@ -618,8 +694,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
     return colors[index];
   }
-
-  async main(){
+  main(){
     try {
       this.titulosSeleccionados = this.seleccionService.obtenerTitulosSeleccionados();
       this.conferenceOption = this.seleccionService.obtenerOpcionConferencia();
@@ -629,15 +704,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       this.obtenerColaboraciones();
       this.obtenerSingleAuthorPapers();
 
-      await this.obtenerResearchers();
+      this.obtenerResearchers();
 
-      while (this.researchers.length === 0) {
-        // Esperar hasta que this.researchers tenga valores
-        await new Promise(resolve => setTimeout(resolve, 100)); 
-      }
-      
-      await this.obtenerDistribuciones();
-      await this.obtenerDatosDemograficos();
   } catch (error) {
     console.error('Error al obtener los datos:', error);
   }
