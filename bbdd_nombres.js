@@ -111,6 +111,11 @@ for (let i = 0; i < lines.length; i++) {
       // El nombre no existe en namesData, crea una nueva entrada
       frequencies[country] = frequency;
     }
+    // if(name==""){
+    //   console.log(name);
+    //   console.log(country);
+    //   console.log(frequency);
+    // }
 }
 
 // Almacena los datos del nombre

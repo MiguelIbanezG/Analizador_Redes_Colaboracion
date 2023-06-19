@@ -4,7 +4,16 @@ import { ApiService } from '../api.service';
 import { SeleccionService } from '../seleccion.service';
 import { Chart, CategoryScale, LineController  } from 'chart.js';
 import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs';
 
+//Interfaz para los graficos, para el multiple
+interface Dataset {
+  label: string;
+  data: number[];
+  fill: boolean;
+  borderColor: string;
+  yAxisID: string;
+}
 @Component({
   selector: 'app-estadisticas',
   templateUrl: './estadisticas.component.html',
@@ -211,7 +220,10 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     return new Promise<void>((resolve, reject) => {
 
       const datasets = this.researchers.map(researcher => {
-        const nombre = researcher.researcher.properties.name.split(' ')[0];
+        let nombre = researcher.researcher.properties.name.split(' ')[0];
+        if(nombre.includes("-")){
+          nombre = nombre.split('-')[0];
+        }
         const anios = Array.isArray(researcher.years) ? researcher.years : [researcher.years];
       
         const datasetPorAnio = anios.map((year: any) => {
@@ -422,76 +434,59 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   }
 
   statsGeografia(datasets: any[]){
-    let mapeoGeof = [];
-
-    const datasetFiltrado = datasets.filter((objeto: any) => Object.keys(objeto.frecuencias).length > 0);
-
-    console.log("datasest filtrados en geof");
-    console.log(datasetFiltrado);
+    const mapeoFecha: {[fecha: string]: {[pais: string]: number}} = {};
 
     // Obtener todas las fechas únicas
-    const fechasUnicas = [...new Set(datasetFiltrado.map(dato => dato.year))];
+    const fechasUnicas = [...new Set(datasets.map(dato => dato.year))];
     console.log("fechasUnicas");
     console.log(fechasUnicas);
 
     // Iterar sobre las fechas
     for (const fecha of fechasUnicas) {
-      const objetosFecha = datasetFiltrado.filter(dato => dato.year === fecha);
-      console.log("objetosFecha");
-      console.log(objetosFecha);
+      const objetosFecha = datasets.filter(dato => dato.year === fecha);
 
       // Crear objeto de mapeo para la fecha actual
-      const mapeoFecha: {[fecha: string]: {[pais: string]: number}} = {};
       mapeoFecha[fecha] = {};
   
       for (const objeto of objetosFecha) {
         let paisMasAlto = '';
         let frecuenciaMasAlta = -1;
 
-        for (const pais in objeto.frecuencias) {
-          if (objeto.frecuencias[pais] > frecuenciaMasAlta) {
-            paisMasAlto = pais;
-            frecuenciaMasAlta = objeto.frecuencias[pais];
+        if (Object.keys(objeto.frecuencias).length === 0) {
+          if(!("Desconocido/Otros" in mapeoFecha[fecha])){
+            mapeoFecha[fecha]["Desconocido/Otros"] = 1;
+          }else{
+            mapeoFecha[fecha]["Desconocido/Otros"] = mapeoFecha[fecha]["Desconocido/Otros"] + 1;
+          }
+        }else{
+          for (const pais in objeto.frecuencias) {
+            if (objeto.frecuencias[pais] > frecuenciaMasAlta) {
+              paisMasAlto = pais;
+              frecuenciaMasAlta = objeto.frecuencias[pais];
+            }
+          }
+          if(!(paisMasAlto in mapeoFecha[fecha])){
+            mapeoFecha[fecha][paisMasAlto] = 1;
+          }else{
+            mapeoFecha[fecha][paisMasAlto] = mapeoFecha[fecha][paisMasAlto] + 1;
           }
         }
-        if(!(paisMasAlto in mapeoFecha[fecha])){
-          mapeoFecha[fecha][paisMasAlto] = 1
-        }else{
-          mapeoFecha[fecha][paisMasAlto] = mapeoFecha[fecha][paisMasAlto] + 1
-        }
       }
-  
-      // Agregar el objeto de mapeo al arreglo final
-      mapeoGeof.push(mapeoFecha);
     }
 
-    mapeoGeof = mapeoGeof.flat();
+    console.log("mapeo fecha ????");
+    console.log(mapeoFecha);
 
-    console.log("mapeo geof ????");
-    console.log(mapeoGeof);
-    // // Obtener el elemento HTML del gráfico
-    // const chartElement = document.getElementById('lineChart5');
+    const years = Object.keys(mapeoFecha); // Obtener las llaves de los años
+    const countries = Object.keys(mapeoFecha[years[0]]); // Obtener los nombres de los países
+    const datasetsLabels = countries; // Etiquetas de los conjuntos de datos serán los nombres de los países
 
-    // // Obtener los años y los nombres de los países del dataset
-    // const years = Object.keys(mapeoGeof);
-    // const firstYear: string = years[0];
-    // const countries = Object.keys(mapeoGeof[firstYear]);
+    // Crear la matriz de datos para los países
+    const datasetsData = countries.map((country) =>
+      years.map((year) => mapeoFecha[year][country])
+    );
 
-    // // Crear una matriz vacía para almacenar los datos de cada país
-    // const datasets = [];
-
-    // // Iterar sobre los países y construir los datasets de cada país
-    // countries.forEach((country) => {
-    //   const data = years.map((year) => mapeoGeof[year][country]);
-      
-    //   datasets.push({
-    //     label: country,
-    //     data: data,
-    //     fill: false,
-    //     borderColor: getRandomColor(),
-    //     tension: 0.4
-    //   });
-    // });
+    this.generarGrafico2('lineChart5', years, datasetsLabels, datasetsData);
     
   }
 
@@ -586,6 +581,48 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
+  generarGrafico2(idChart: string, labels: string[], datasetsLabels: string[], datasetsData: any[][]) {
+    const ctx = document.getElementById(idChart) as HTMLCanvasElement;
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: datasetsLabels.map((label, index) => ({
+          label: label,
+          data: datasetsData[index],
+          fill: false,
+          borderColor: this.getRandomColor(),
+          tension: 0.4
+        }))
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Gráfico de línea múltiple'
+          }
+        },
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Años'
+            }
+          },
+          y: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Conteo'
+            }
+          }
+        }
+      }
+    });
+  }    
+
   generarTablas(): void {
     const autoresPorPapersLabels: string[] = ['1', '2', '3', '4', '5 o más'];
     const autoresPorPapersData: number[] = this.autoresPorPapersTable.map((item) => item.numPapers);
@@ -616,6 +653,15 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     tableHTML += '</table>';
   
     return tableHTML;
+  }
+
+  getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
   }
 
   async main(){
