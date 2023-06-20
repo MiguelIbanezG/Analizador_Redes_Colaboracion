@@ -9,6 +9,8 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs';
 import { CloudData, CloudOptions } from 'angular-tag-cloud-module';
 import { singular } from 'pluralize';
+import { ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
+
 
 interface Author {
   ipNames: string[];
@@ -246,49 +248,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         papersTabla.appendChild(row);
       });
     }
-
-
-    // autoresPorPapersData = autoresPorPapersLabels.map((label) => {
-    //   if (label === '5 o más') {
-    //     return Object.values(numPapersPorAutor).slice(4).reduce((total, current) => total + current, 0);
-    //   } else {
-    //     return numPapersPorAutor[Number(label)] || 0;
-    //   }
-    // });
-    
-    // const numPapersPorAutores: { [key: number]: number } = {};
-
-    // this.papersWithAuthors.forEach((paper) => {
-    //   const numAutores = paper.numAuthors;
-    //   if (numPapersPorAutores[numAutores]) {
-    //     numPapersPorAutores[numAutores]++;
-    //   } else {
-    //     numPapersPorAutores[numAutores] = 1;
-    //   }
-    // });
-
-    // papersPorAutoresData = papersPorAutoresLabels.map((label) => {
-    //   if (label === '5 o más') {
-    //     return Object.values(numPapersPorAutores).slice(4).reduce((total, current) => total + current, 0);
-    //   } else {
-    //     return numPapersPorAutores[Number(label)] || 0;
-    //   }
-    // });
-
-    // this.autoresPorPapersTable = autoresPorPapersLabels.map((label, index) => {
-    //   return {
-    //     '# autores': label,
-    //     '# papers (%)': autoresPorPapersData[index]
-    //   };
-    // });
-  
-    // this.papersPorAutoresTable = papersPorAutoresLabels.map((label, index) => {
-    //   return {
-    //     '# papers (%)': label,
-    //     '# autores': papersPorAutoresData[index]
-    //   };
-    // });
-
   }
 
   obtenerDatosDemograficos(){
@@ -592,7 +551,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       });
 
       // Crear un objeto para almacenar los datos ordenados
-      const datosOrdenados: { [anio: string]: { hombres?: number; mujeres?: number } } = {};
+      const datosOrdenados: { [anio: string]: { hombres: number; mujeres: number; total: number} } = {};
       const hombres = datasetsPorGenero['Hombres'];
       const mujeres = datasetsPorGenero['Mujeres'];
 
@@ -601,7 +560,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         const anio = dato.year;
         const conteo = dato.count;
 
-        datosOrdenados[anio] = { hombres: conteo };
+        datosOrdenados[anio] = { hombres: conteo, mujeres: 0, total: conteo };
       });
 
       // Ordenar los datos de mujeres y combinarlos con los datos de hombres
@@ -611,17 +570,25 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
         if (datosOrdenados[anio]) {
           datosOrdenados[anio].mujeres = conteo;
+          datosOrdenados[anio].total += conteo;
         } else {
-          datosOrdenados[anio] = { mujeres: conteo };
+          datosOrdenados[anio] = { mujeres: conteo, hombres: 0, total: conteo };
         }
       });
+
+      console.log("datos ordenados");
+      console.log(datosOrdenados);
 
       // Obtener los años ordenados
       const aniosOrdenados = Object.keys(datosOrdenados).sort();
 
 
-      const conteosHombres = aniosOrdenados.map(anio => datosOrdenados[anio].hombres);
-      const conteosMujeres = aniosOrdenados.map(anio => datosOrdenados[anio].mujeres);
+      const conteosHombres = aniosOrdenados.map(anio => Number((datosOrdenados[anio].hombres/(datosOrdenados[anio].total)).toFixed(4)));
+      const conteosMujeres = aniosOrdenados.map(anio => Number((datosOrdenados[anio].mujeres/(datosOrdenados[anio].total)).toFixed(4)));
+
+      console.log("conteos hombres");
+      console.log(conteosHombres);
+
       
       this.generarGraficoMultiple('lineChart4', aniosOrdenados, ['Hombres', 'Mujeres'], [conteosHombres, conteosMujeres]);
 
@@ -659,6 +626,20 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       }
     }
 
+    console.log("mapeoFecha antes");
+    console.log(mapeoFecha);
+
+    // Normalizamos valores según su total
+    for (const year in mapeoFecha) {
+      let total = 0;
+      for (const country in mapeoFecha[year]) {
+        total += mapeoFecha[year][country];
+      }
+      for (const country in mapeoFecha[year]) {
+        mapeoFecha[year][country] = Number((mapeoFecha[year][country]/total).toFixed(4));
+      }
+    }
+
     const years = Object.keys(mapeoFecha); // Obtener las llaves de los años
     const countries = Object.keys(mapeoFecha[years[0]]); // Obtener los nombres de los países
     const datasetsLabels = countries; // Etiquetas de los conjuntos de datos serán los nombres de los países
@@ -667,6 +648,9 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     const datasetsData = countries.map((country) =>
       years.map((year) => mapeoFecha[year][country])
     );
+
+    console.log("datasetsData");
+    console.log(datasetsData);
 
     this.generarGraficoMultiple('lineChart5', years, datasetsLabels, datasetsData);
     
@@ -725,10 +709,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         endYear: decadeEndYear,
         authors: decadeAuthors
       });
-    }
-    console.log("DESCEAEFOAJSD");
-    console.log(decades);
-  
+    }  
     // Ordenar los autores por número de publicaciones en cada década
     decades.forEach((decade) => {
       decade.authors.sort((a, b) => b.numPublications - a.numPublications);
@@ -738,8 +719,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   
     // Devolver las décadas con los autores ordenados
-    console.log("decadas con autores");
-    console.log(decades);
     return decades;
   }
 
@@ -793,46 +772,73 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
-  generarGraficoMultiple(idChart: string, labels: string[], datasetsLabels: string[], datasetsData: any[][]) {
-    const ctx = document.getElementById(idChart) as HTMLCanvasElement;
-    const chart = new Chart(ctx, {
+  // generarGraficoMultiple(idChart: string, labels: string[], datasetsLabels: string[], datasetsData: any[][]) {
+  //   const ctx = document.getElementById(idChart) as HTMLCanvasElement;
+  //   const chart = new Chart(ctx, {
+  //     type: 'line',
+  //     data: {
+  //       labels: labels,
+  //       datasets: datasetsLabels.map((label, index) => ({
+  //         label: label,
+  //         data: datasetsData[index],
+  //         fill: false,
+  //         borderColor: this.getRandomColor(index),
+  //         tension: 0.4
+  //       }))
+  //     },
+  //     options: {
+  //       responsive: true,
+  //       plugins: {
+  //         title: {
+  //           display: true,
+  //         }
+  //       },
+  //       scales: {
+  //         x: {
+  //           display: true,
+  //           title: {
+  //             display: true,
+  //             text: 'Años'
+  //           }
+  //         },
+  //         y: {
+  //           title: {
+  //             display: true,
+  //             text: 'Tamaño Relativo'
+  //           }
+  //         }
+  //       }
+  //     }
+  //   });
+  // }
+
+  generarGraficoMultiple(chartId: string, labels: string[], datasetsLabels: string[], datasetsData: number[][]) {
+    const datasets = datasetsLabels.map((label, index) => ({
+      label: label,
+      data: datasetsData[index],
+      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+      borderColor: this.getRandomColor(index),
+    }));
+  
+    const chartConfig: ChartConfiguration<'line'> = {
       type: 'line',
       data: {
         labels: labels,
-        datasets: datasetsLabels.map((label, index) => ({
-          label: label,
-          data: datasetsData[index],
-          fill: false,
-          borderColor: this.getRandomColor(index),
-          tension: 0.4
-        }))
+        datasets: datasets,
       },
       options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: 'Gráfico de línea múltiple'
-          }
-        },
         scales: {
-          x: {
-            display: true,
-            title: {
-              display: true,
-              text: 'Años'
-            }
-          },
           y: {
+            type: 'linear',
             display: true,
-            title: {
-              display: true,
-              text: 'Conteo'
-            }
-          }
-        }
-      }
-    });
+          },
+        },
+      },
+    };
+  
+    // Crear el gráfico
+    const ctx = document.getElementById(chartId) as HTMLCanvasElement;
+    new Chart(ctx, chartConfig);
   }
 
   generarGraficoBarras(idChart: string, label: string, labels: any[], data: any[]) {
