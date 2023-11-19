@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Ruta completa para almacenar estadisticas
-const filePath = path.join(__dirname, 'frontend/front_api/src/assets/common_names.txt');
+const filePath = path.join(__dirname, 'front/front_api/src/assets/common_names.txt');
 
 // Define los países y columnas de interés
 const countries = {

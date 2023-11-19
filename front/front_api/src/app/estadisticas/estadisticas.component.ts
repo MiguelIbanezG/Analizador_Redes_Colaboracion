@@ -12,6 +12,7 @@ import { singular } from 'pluralize';
 import { ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
 
 
+
 interface Author {
   ipNames: string[];
   numPublications: number;

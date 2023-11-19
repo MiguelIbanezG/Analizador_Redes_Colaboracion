@@ -10,7 +10,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // Configuración de la conexión a Neo4j
-const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', '4452762354'), {encrypted:'ENCRYPTION_OFF'});
+const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', 'Miki22santa'), {encrypted:'ENCRYPTION_OFF'});
 const corsOptions = {
     origin: 'http://localhost:4200',
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204

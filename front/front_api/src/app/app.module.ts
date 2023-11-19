@@ -16,9 +16,10 @@ import { TagCloudComponent } from 'angular-tag-cloud-module';
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent,
     FormularioFiltrosComponent,
+    HomeComponent,
     EstadisticasComponent
+  
   ],
   imports: [
     BrowserModule,

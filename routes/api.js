@@ -3,7 +3,7 @@ const router = express.Router();
 const neo4j = require('neo4j-driver');
 const estadisticasController = require('../controllers/estadisticasController'); 
 
-const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', '4452762354'), {encrypted:'ENCRYPTION_OFF'});
+const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', 'Miki22santa'), {encrypted:'ENCRYPTION_OFF'});
 
 
 router.get('/etiquetas', async (req, res) => {

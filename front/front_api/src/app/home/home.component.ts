@@ -3,7 +3,7 @@ import { ApiService } from '../api.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { SeleccionService } from '../seleccion.service';
-
+import { FormsModule } from '@angular/forms';
 
 
 @Component({
