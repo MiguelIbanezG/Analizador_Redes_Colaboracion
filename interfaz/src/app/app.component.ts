@@ -9,7 +9,7 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   publications: any[] = [];
-  title = 'front_api';
+  title = 'interfaz';
   info = 'Web app for dblp stats'
 
   constructor(private http: HttpClient) {}

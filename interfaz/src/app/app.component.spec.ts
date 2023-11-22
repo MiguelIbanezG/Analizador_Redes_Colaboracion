@@ -23,7 +23,7 @@ describe('AppComponent', () => {
     
     fixture = TestBed.createComponent(AppComponent);
     app = fixture.componentInstance;
-    app.title = 'front_api';
+    app.title = 'interfaz';
 
     fixture.detectChanges();
   });
@@ -32,8 +32,8 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'front_api'`, () => {
-    expect(app.title).toEqual('front_api');
+  it(`should have as title 'interfaz'`, () => {
+    expect(app.title).toEqual('interfaz');
   });
 
   it('should render title', () => {
