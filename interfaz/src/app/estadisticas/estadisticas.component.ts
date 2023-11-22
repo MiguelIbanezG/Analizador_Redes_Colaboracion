@@ -31,7 +31,7 @@ interface DecadeStats {
 @Component({
   selector: 'app-estadisticas',
   templateUrl: './estadisticas.component.html',
-  styleUrls: ['./estadisticas.component.css'],
+  styleUrls: ['./estadisticas.component.scss'],
   template: `
     <div>
       <angular-tag-cloud
@@ -757,18 +757,29 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
             label: label,
             data: data,
             fill: false,
-            borderColor: 'rgba(75, 192, 192, 1)',
+            borderColor: 'rgb(105, 53, 1)',
             borderWidth: 1
           }
         ]
       },
       options: {
+        plugins: {
+          legend: {
+            labels: {
+              color: 'black',
+              font: {
+                size: 25, 
+                family: 'Roboto',
+              }
+            }
+          }
+        },
         scales: {
           y: {
             type: 'linear',
             display: true
           }
-        }
+        },
       }
     });
   }
@@ -828,6 +839,17 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         datasets: datasets,
       },
       options: {
+        plugins: {
+          legend: {
+            labels: {
+              color: 'black',
+              font: {
+                size: 25, 
+                family: 'Roboto',
+              }
+            }
+          }
+        },
         scales: {
           y: {
             type: 'linear',
@@ -851,13 +873,24 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
           {
             label: label,
             data: data,
-            backgroundColor: 'rgba(75, 192, 192, 0.5)',
-            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgb(105, 53, 1)',
+            borderColor: 'rgb(105, 53, 1)',
             borderWidth: 1
           }
         ]
       },
       options: {
+        plugins: {
+          legend: {
+            labels: {
+              color: 'black',
+              font: {
+                size: 25, 
+                family: 'Roboto',
+              }
+            }
+          }
+        },
         scales: {
           y: {
             beginAtZero: true

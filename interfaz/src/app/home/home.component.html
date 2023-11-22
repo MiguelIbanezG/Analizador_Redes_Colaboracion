@@ -1,20 +1,14 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-
-</head>
 
 <body>
   <div class="container">
-    <h1>Redes de Colaboracion</h1>
+    <h1>Redes de Colaboración</h1>
 
-    <div>
+    <div class="button-filter">
       <input type="text" [(ngModel)]="filtros" placeholder="Ingrese la Conferencia" (keyup.enter)="obtenerNodosFiltrados()">
       <button (click)="obtenerNodosFiltrados()">Filtrar</button>
     </div>
 
-    <div>
+    <div class="button-stats">
       <button [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generar Stats</button>
     </div>
 
@@ -44,4 +38,4 @@
   </div>
 </body>
 
-</html>
+
