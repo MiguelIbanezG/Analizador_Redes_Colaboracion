@@ -1,0 +1,41 @@
+body {
+    font-family: "Roboto";
+    background-color: #f4f4f4;
+    margin: 0;
+  }
+  
+  nav {
+    background-color: rgb(105, 53, 1);
+    padding: 10px;
+    margin: 0;
+    font-size: x-large;
+  }
+  
+  nav a {
+    color: #ffffff;
+    text-decoration: none;
+    margin-right: 20px;
+  }
+  
+  nav a:hover {
+    color: #cccccc;
+  }
+  
+  nav a.active {
+    font-weight: bold;
+  }
+  
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    text-align: center;
+    color: #333333;
+  }
+  

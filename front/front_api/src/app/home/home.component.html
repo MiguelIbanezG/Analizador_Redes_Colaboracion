@@ -2,73 +2,12 @@
 <html>
 
 <head>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-    }
-    
-    div.container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #ffffff;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    
-    h1 {
-      text-align: center;
-      color: #333333;
-    }
-    
-    input[type="text"] {
-      padding: 8px;
-      width: 70%;
-      border: 1px solid #cccccc;
-      border-radius: 4px;
-    }
-    
-    button {
-      padding: 8px 16px;
-      background-color: #3639d1;
-      color: #ffffff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    
-    button:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-    }
-    
-    select {
-      padding: 8px;
-      width: 100%;
-      border: 1px solid #cccccc;
-      border-radius: 4px;
-    }
-    
-    label {
-      display: block;
-      margin-top: 10px;
-      margin-bottom: 5px;
-    }
-    
-    input[type="checkbox"] {
-      margin-right: 8px;
-    }
-    
-    span.selected {
-      font-weight: bold;
-    }
-  </style>
+
 </head>
 
 <body>
   <div class="container">
-    <h1>Página Principal</h1>
+    <h1>Redes de Colaboracion</h1>
 
     <div>
       <input type="text" [(ngModel)]="filtros" placeholder="Ingrese la Conferencia" (keyup.enter)="obtenerNodosFiltrados()">
