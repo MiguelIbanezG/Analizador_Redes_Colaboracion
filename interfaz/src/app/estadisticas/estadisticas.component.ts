@@ -757,7 +757,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
             label: label,
             data: data,
             fill: false,
-            borderColor: 'rgb(105, 53, 1)',
+            borderColor: 'rgb(0, 22, 68)',
             borderWidth: 1
           }
         ]
@@ -873,8 +873,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
           {
             label: label,
             data: data,
-            backgroundColor: 'rgb(105, 53, 1)',
-            borderColor: 'rgb(105, 53, 1)',
+            backgroundColor: 'rgb(0, 22, 68)',
+            borderColor: 'rgb(0, 22, 68)',
             borderWidth: 1
           }
         ]

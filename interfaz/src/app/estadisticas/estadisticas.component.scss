@@ -7,11 +7,11 @@ h2{
 .line{
   margin-top: 60px;
   margin-bottom: 60px;
-  background-color: rgb(105, 53, 1);
+  background-color: rgb(0, 22, 68);
 }
 
 .line2{
-  background-color: rgb(105, 53, 1);
+  background-color: rgb(0, 22, 68);
 }
 
 .flex-item{
@@ -24,7 +24,7 @@ h2{
 
 .flex-item canvas {
   max-width: 50%; 
-  border: 2px solid rgb(105, 53, 1); 
+  border: 2px solid rgb(0, 22, 68); 
   margin-left: 450px;
   padding: 20px;
 
@@ -46,7 +46,7 @@ h2{
 }
 
 .tabla1{
-  border-right: 1px solid rgb(105, 53, 1); 
+  border-right: 1px solid rgb(0, 22, 68); 
   padding: 70px;
 }
 
@@ -68,25 +68,26 @@ h4{
   margin-bottom: 50px;
 }
 
+
 table {
     font-size: 20px;
     border-collapse: collapse;
     max-width: 100%;
     text-align: center;
 }
+
 td, th {
-    padding: 30px;
+    padding: 20px;
     vertical-align: middle;
     text-align: center;
 }
 
 .centered-table {
   margin: 0 auto;
-  border-spacing: 0 100px;
 }
 
 table th:nth-child(2) {
-  padding-left: 20px;
+  padding-left: 0px;
 }
 
 @media screen and (max-width: 768px) {
