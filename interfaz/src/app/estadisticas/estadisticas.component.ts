@@ -6,12 +6,10 @@ import { SeleccionService } from '../seleccion.service';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
+import { Observable, catchError, map, tap, throwError } from 'rxjs';
 import { CloudData, CloudOptions } from 'angular-tag-cloud-module';
 import { singular } from 'pluralize';
 import { ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
-
-
 
 interface Author {
   ipNames: string[];
@@ -25,6 +23,16 @@ interface DecadeStats {
   startYear: number;
   endYear: number;
   authors: Author[];
+}
+
+interface GeneroCounts {
+  hombres: number;
+  mujeres: number;
+  desconocidos: number;
+}
+
+interface GeneroData {
+  [anio: string]: GeneroCounts;
 }
 
 
@@ -161,6 +169,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
 
   obtenerColaboraciones() {
     this.apiService.obtenerColaboraciones(this.titulosSeleccionados, this.conferenceOption, this.venueName).subscribe({
@@ -517,83 +526,10 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       anios: porcentajeByYear.map(dato => dato.year),
       porcentajes: porcentajeByYear.map(dato => dato.porcentaje)
     };
-}  
-
-  statsGenero(datasets: any[]){
-    const datasetsPorGenero: { [genero: string]: { year: string; count: number }[] } = {};
-
-      datasets.forEach((data: { year: any; genero: any; }) => {
-        const { year, genero } = data;
-        
-        let genderKey = '';
-        
-        if (genero == 'M' || genero == '?M' || genero == '1M' || genero == '?') {
-          genderKey = 'Hombres';
-        } else if (genero == 'F' || genero == '?F' || genero == '1F') {
-          genderKey = 'Mujeres';
-        } else{
-          genderKey = 'Desconocido';
-        }
-        
-        if (!datasetsPorGenero[genderKey]) {
-          datasetsPorGenero[genderKey] = [];
-        }
-        
-        const existingData = datasetsPorGenero[genderKey].find(d => d.year === year);
-        
-        if (existingData) {
-          existingData.count++;
-        } else {
-          datasetsPorGenero[genderKey].push({
-            year,
-            count: 1
-          });
-        }
-      });
-
-      // Crear un objeto para almacenar los datos ordenados
-      const datosOrdenados: { [anio: string]: { hombres: number; mujeres: number; total: number} } = {};
-      const hombres = datasetsPorGenero['Hombres'];
-      const mujeres = datasetsPorGenero['Mujeres'];
-
-      // Ordenar los datos de hombres
-      hombres.forEach(dato => {
-        const anio = dato.year;
-        const conteo = dato.count;
-
-        datosOrdenados[anio] = { hombres: conteo, mujeres: 0, total: conteo };
-      });
-
-      // Ordenar los datos de mujeres y combinarlos con los datos de hombres
-      mujeres.forEach(dato => {
-        const anio = dato.year;
-        const conteo = dato.count;
-
-        if (datosOrdenados[anio]) {
-          datosOrdenados[anio].mujeres = conteo;
-          datosOrdenados[anio].total += conteo;
-        } else {
-          datosOrdenados[anio] = { mujeres: conteo, hombres: 0, total: conteo };
-        }
-      });
-
-      console.log("datos ordenados");
-      console.log(datosOrdenados);
-
-      // Obtener los años ordenados
-      const aniosOrdenados = Object.keys(datosOrdenados).sort();
+  }  
 
 
-      const conteosHombres = aniosOrdenados.map(anio => Number((datosOrdenados[anio].hombres/(datosOrdenados[anio].total)).toFixed(4)));
-      const conteosMujeres = aniosOrdenados.map(anio => Number((datosOrdenados[anio].mujeres/(datosOrdenados[anio].total)).toFixed(4)));
-
-      console.log("conteos hombres");
-      console.log(conteosHombres);
-
-      
-      this.generarGraficoMultiple('lineChart4', aniosOrdenados, ['Hombres', 'Mujeres'], [conteosHombres, conteosMujeres]);
-
-  }
+ 
 
   statsGeografia(datasets: any[]){
     const mapeoFecha: {[fecha: string]: {[pais: string]: number}} = {};
@@ -784,45 +720,81 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // generarGraficoMultiple(idChart: string, labels: string[], datasetsLabels: string[], datasetsData: any[][]) {
-  //   const ctx = document.getElementById(idChart) as HTMLCanvasElement;
-  //   const chart = new Chart(ctx, {
-  //     type: 'line',
-  //     data: {
-  //       labels: labels,
-  //       datasets: datasetsLabels.map((label, index) => ({
-  //         label: label,
-  //         data: datasetsData[index],
-  //         fill: false,
-  //         borderColor: this.getRandomColor(index),
-  //         tension: 0.4
-  //       }))
-  //     },
-  //     options: {
-  //       responsive: true,
-  //       plugins: {
-  //         title: {
-  //           display: true,
-  //         }
-  //       },
-  //       scales: {
-  //         x: {
-  //           display: true,
-  //           title: {
-  //             display: true,
-  //             text: 'Años'
-  //           }
-  //         },
-  //         y: {
-  //           title: {
-  //             display: true,
-  //             text: 'Tamaño Relativo'
-  //           }
-  //         }
-  //       }
-  //     }
-  //   });
-  // }
+  statsGenero(datasets: any[]){
+    const datasetsPorGenero: { [genero: string]: { year: string; count: number }[] } = {};
+
+      datasets.forEach((data: { year: any; genero: any; }) => {
+        const { year, genero } = data;
+        
+        let genderKey = '';
+        
+        if (genero == 'M' || genero == '?M' || genero == '1M' || genero == '?') {
+          genderKey = 'Hombres';
+        } else if (genero == 'F' || genero == '?F' || genero == '1F') {
+          genderKey = 'Mujeres';
+        } else{
+          genderKey = 'Desconocido';
+        }
+        
+        if (!datasetsPorGenero[genderKey]) {
+          datasetsPorGenero[genderKey] = [];
+        }
+        
+        const existingData = datasetsPorGenero[genderKey].find(d => d.year === year);
+        
+        if (existingData) {
+          existingData.count++;
+        } else {
+          datasetsPorGenero[genderKey].push({
+            year,
+            count: 1
+          });
+        }
+      });
+
+      // Crear un objeto para almacenar los datos ordenados
+      const datosOrdenados: { [anio: string]: { hombres: number; mujeres: number; total: number} } = {};
+      const hombres = datasetsPorGenero['Hombres'];
+      const mujeres = datasetsPorGenero['Mujeres'];
+
+      // Ordenar los datos de hombres
+      hombres.forEach(dato => {
+        const anio = dato.year;
+        const conteo = dato.count;
+
+        datosOrdenados[anio] = { hombres: conteo, mujeres: 0, total: conteo };
+      });
+
+      // Ordenar los datos de mujeres y combinarlos con los datos de hombres
+      mujeres.forEach(dato => {
+        const anio = dato.year;
+        const conteo = dato.count;
+
+        if (datosOrdenados[anio]) {
+          datosOrdenados[anio].mujeres = conteo;
+          datosOrdenados[anio].total += conteo;
+        } else {
+          datosOrdenados[anio] = { mujeres: conteo, hombres: 0, total: conteo };
+        }
+      });
+
+      console.log("datos ordenados");
+      console.log(datosOrdenados);
+
+      // Obtener los años ordenados
+      const aniosOrdenados = Object.keys(datosOrdenados).sort();
+
+
+      const conteosHombres = aniosOrdenados.map(anio => Number((datosOrdenados[anio].hombres/(datosOrdenados[anio].total)).toFixed(4)));
+      const conteosMujeres = aniosOrdenados.map(anio => Number((datosOrdenados[anio].mujeres/(datosOrdenados[anio].total)).toFixed(4)));
+
+      console.log("conteos hombres");
+      console.log(conteosHombres);
+
+      
+      this.generarGraficoCircular('lineChart4', aniosOrdenados, ['Hombres', 'Mujeres'], [conteosHombres, conteosMujeres]);
+      this.generarGraficoMultiple('lineChart8', aniosOrdenados, ['Hombres', 'Mujeres'], [conteosHombres, conteosMujeres]);
+  }
 
   generarGraficoMultiple(chartId: string, labels: string[], datasetsLabels: string[], datasetsData: number[][]) {
     const datasets = datasetsLabels.map((label, index) => ({
@@ -863,6 +835,44 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     const ctx = document.getElementById(chartId) as HTMLCanvasElement;
     new Chart(ctx, chartConfig);
   }
+
+  generarGraficoCircular(chartId: string, labels: string[], datasetsLabels: string[], datasetsData: number[][]) {
+    const colores = ['#FF5733', '#3399FF'];
+
+    const datasets = datasetsLabels.map((label, index) => ({
+      label: label,
+      data: datasetsData[index],
+      backgroundColor: colores[index],  // Cambia la opacidad a un valor más alto
+      borderColor: 'black',
+    }));
+  
+    const chartConfig: ChartConfiguration<'pie'> = {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: datasets,
+      },
+      options: {
+        plugins: {
+          legend: {
+            display: false,
+            labels: {
+              color: 'black',
+              font: {
+                size: 25,
+                family: 'Roboto',
+              }
+            }
+          }
+        },
+      },
+    };
+    const ctx = document.getElementById(chartId) as HTMLCanvasElement;
+    new Chart(ctx, chartConfig);
+
+  
+
+}
 
   generarGraficoBarras(idChart: string, label: string, labels: any[], data: any[]) {
     this.barChart = new Chart(idChart, {
