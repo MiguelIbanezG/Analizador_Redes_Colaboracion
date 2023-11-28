@@ -1,103 +1,51 @@
+.container{
+
+}
+
 h2{
-  font-size: 35px;
   text-align: center;
-  margin-bottom: 50px;
-}
-
-.line{
-  margin-top: 60px;
-  margin-bottom: 60px;
-  background-color: rgb(0, 22, 68);
-}
-
-.line2{
-  background-color: rgb(0, 22, 68);
-}
-
-
-.flex-container {
-  display: block;
-  position: relative;
-  flex-wrap: wrap;
-}
-
-.flex-container.custom{
- display: flex;
-}
-
-.flex-container {
-  position: relative;
-}
-.text{
   font-size: 30px;
-  text-align: center;
-  margin-bottom: 30px;
 }
 
+h3 {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
 
-
-.legend{
+.flex-container {
   display: flex;
   justify-content: center;
-  font-size: 25px;
-  margin-top: -70px;
-  margin-bottom: 20px;
-}
-
-div {
-  min-width: 40px;
-  min-height: 20px;
-  margin-right: 5px;
-}
-
-.hombres {
-  background-color: rgb(255, 87, 51);
-  
-}
-
-.mujeres {
-  background-color: rgb(51, 153, 255);
-  margin-left: 20PX;
-}
-
-.flex-item canvas#lineChart8 {
-  min-height: 400px; // Ajusta la altura según sea necesario
+  align-items: center;
+  overflow: auto;
 }
 
 .flex-item {
-  max-width: 50%; 
-  border: 2px solid rgb(0, 22, 68); 
-  margin-left: 450px;
   padding: 20px;
   margin-bottom: 50px;
-
 }
 
-.flex-item.custom {
-  border: 2px solid rgb(0, 22, 68);  
-  margin-bottom: 50px;
-  min-width: 300px;
-  margin-left: 10px;
+.canvas-container {
+  border: 2px solid rgb(0, 22, 68); 
+  padding: 20px;
+  width: 95%;
 }
 
-.flex-item.custom1 {
-  border: 2px solid rgb(0, 22, 68);
-  padding: 100px;  
-  margin-bottom: 50px;
-  margin-left: 300px;
+canvas {
+  max-width: 100%; /* Hace las gráficas responsive */
+  height: auto; 
+  display: block; 
+}
+
+.line{
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background-color: rgb(0, 22, 68);
 }
 
 
-@media screen and (max-width: 1500px) {
-  .flex-item canvas {
-    max-width: 100%; 
-    margin-left: 0;
-  }
-}
-
-.container {
-  width: 80%;
-  margin: 0 auto; 
+.containertable {
+  width: 100%;
   justify-content: center; 
   display: flex;
   overflow: auto;
@@ -105,58 +53,39 @@ div {
 
 .tabla1{
   border-right: 1px solid rgb(0, 22, 68); 
-  padding: 70px;
+
 }
 
-.tabla2{
-  margin-right: 70px;
-  padding: 70px;
-}
-
-.conceptual {
-  display: flex;
-  justify-content: center; /* Alinear horizontalmente al centro */
-  align-items: center; /* Alinear verticalmente al centro */
-  height: 200px; /* Ajusta la altura si es necesario */
-}
-
-h4{
-  text-align: center;
-  font-size: 25px;
-  margin-bottom: 50px;
-}
-
-
-table {
-    font-size: 20px;
-    border-collapse: collapse;
-    max-width: 100%;
-    text-align: center;
-}
 
 td, th {
-    padding: 20px;
-    vertical-align: middle;
-    text-align: center;
+  padding: 20px;
+  vertical-align: middle;
+  text-align: center;
 }
 
 .centered-table {
-  margin: 0 auto;
+margin: 0 auto;
 }
 
 table th:nth-child(2) {
-  padding-left: 0px;
+padding-left: 0px;
 }
 
 @media screen and (max-width: 768px) {
-  table {
-    font-size: 14px; 
-  }
-
-  td, th {
-    padding: 8px; 
-  }
+table {
+  font-size: 14px; 
 }
+
+td, th {
+  padding: 8px; 
+}
+
+}
+
+.aparte{
+  margin-top: 50px;
+}
+
 
 
 

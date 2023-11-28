@@ -149,7 +149,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       next: (response: any) => {
         this.researchers = response;
         this.statsResearchers();
-        this.generarGrafico3('lineChart1', 'Número de investigadores', this.estadisticas[0].anios, this.estadisticas[0].numResearchers);
+        this.generarGrafico3('lineChart1', 'Number of authors', this.estadisticas[0].anios, this.estadisticas[0].numResearchers);
       },
       error: (error: any) => {
         console.error('Error al obtener los researchers:', error);
@@ -162,7 +162,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       next: (response: any) => {
         this.papers = response;
         this.statsPapers();
-        this.generarGrafico3('lineChart2', 'Número de papers', this.estadisticas[1].anios, this.estadisticas[1].numPapers);
+        this.generarGrafico3('lineChart2', 'Number of papers', this.estadisticas[1].anios, this.estadisticas[1].numPapers);
       },
       error: (error: any) => {
         console.error('Error al obtener los papers:', error);
@@ -176,7 +176,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       next: (response: any) => {
         this.colaboraciones = response;
         this.statsColaboraciones();
-        this.generarGrafico3('lineChart3', 'Densidad', this.estadisticas[3].anios, this.estadisticas[3].densidades);
+        this.generarGrafico3('lineChart3', 'Density', this.estadisticas[3].anios, this.estadisticas[3].densidades);
       },
       error: (error: any) => {
         console.error('Error al obtener las colaboraciones:', error);
@@ -704,7 +704,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
             labels: {
               color: 'black',
               font: {
-                size: 25, 
+                size: 18, 
                 family: 'Roboto',
               }
             }
@@ -816,7 +816,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
             labels: {
               color: 'black',
               font: {
-                size: 25, 
+                size: 18, 
                 family: 'Roboto',
               }
             }
@@ -859,7 +859,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
             labels: {
               color: 'black',
               font: {
-                size: 25,
+                size: 18,
                 family: 'Roboto',
               }
             }
@@ -895,7 +895,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
             labels: {
               color: 'black',
               font: {
-                size: 25, 
+                size: 18, 
                 family: 'Roboto',
               }
             }

@@ -1,61 +1,81 @@
+<div>
+  <h2>Statistics</h2>
 
-<h2>Estadísticas</h2>
+  <div class="flex-container" >
 
-<body>
-  <!-- Investigadores y papers -->
-  <div class="flex-container">
     <div class="flex-item">
-      <canvas id="lineChart1"></canvas>
-    </div>
-    <div class="flex-item">
-      <canvas id="lineChart2"></canvas>
-    </div>
-  </div>
+      <h3>Authors by year</h3>
 
-  <div class="flex-container">
-    <div class="flex-item">
-        <canvas id="lineChart3"></canvas>
+      <div class="canvas-container">
+        <canvas id="lineChart1"></canvas>
+      </div>
     </div>
+
     <div class="flex-item">
-        <canvas id="barChart1"></canvas>
+      <h3>Papers by year</h3>
+
+      <div class="canvas-container">
+        <canvas id="lineChart2"></canvas>
+      </div>
     </div>
+   
   </div>
 
   <hr class="line">
 
-  <div class="container">
-      <div class="tabla1">
-        <table id="autoresTabla" class="centered-table">
-          <thead>
-            <tr>
-              <th>Autores</th>
-              <th>Papers (%)</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+  <div class="flex-container" >
 
-    <div class="tabla2">
-      <table id="papersTabla" class="centered-table">
+    <div class="flex-item">
+      <h3>Density evolution over the years</h3>
+
+      <div class="canvas-container">
+        <canvas id="lineChart3"></canvas>
+      </div>
+    </div>
+
+    <div class="flex-item">
+      <h3>Percentage of single-author papers per year</h3>
+
+      <div class="canvas-container">
+        <canvas id="barChart1"></canvas>
+      </div>
+    </div>
+   
+  </div>
+
+  <hr class="line">
+
+  <div class="containertable">
+    <div class="tabla1">
+      <table id="autoresTabla" class="centered-table">
         <thead>
           <tr>
-            <th>Papers</th>
-            <th>Autores (%)</th>
+            <th>Autores</th>
+            <th>Papers (%)</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
+
+  <div class="tabla2">
+    <table id="papersTabla" class="centered-table">
+      <thead>
+        <tr>
+          <th>Papers</th>
+          <th>Autores (%)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 
-  <hr class="line">
 
+</div>
 
-
-  <div class="text">
-    Porcentaje Publicaciones Hombres-Mujeres / Año
-  </div>
+  
+<div class ="aparte">
+    <h4>  Porcentaje Publicaciones Hombres-Mujeres / Año</h4>
   <div class="flex-container custom">
     <div class="flex-item custom1">
         <div class="legend">
@@ -71,7 +91,7 @@
   </div>
 
   <hr class="line">
-  
+  <h4> Porcenatje de publicaciones por Pais / Año </h4>
   <div class="flex-container">
     <div class="flex-item"> 
       <canvas id="lineChart5"></canvas>
@@ -80,8 +100,8 @@
 
   <hr class="line">
 
+  <h4>Bigramas y Trigramas mas frecuentes</h4>
   <div class="container">
-
     <div class="tabla1">
         <table id="tablaBigramas">
           <thead>
@@ -95,7 +115,6 @@
           <tbody></tbody>
         </table>
     </div>
-
     <div class="tabla2">
         <table id="tablaTrigramas">
           <thead>
@@ -198,4 +217,35 @@
         </table>
       </div>
   </div>
-</body>
+
+  <hr class="line">
+
+
+  <h4>Autores principales con centralidad de grado con su primer y más reciente año de publicación</h4>
+  <div class="container">
+    <div class="tabla2">
+        <table id="nn">
+          <thead>
+            <tr>
+              <th>Author</th>
+              <th>Grado</th>
+              <th>Primer <br> año</th>
+              <th>Último <br> año</th>
+              <th>h-index<br> (All time)</th>
+              <th>h-index<br> (Since 2015)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+  </div>
+  </div>
+</div>
+  
+
+
+
+
+
+
+

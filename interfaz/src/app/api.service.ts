@@ -39,5 +39,9 @@ export class ApiService {
   obtenerAuthorsPapers(titulosSeleccionados: any[], option: string, venue: string): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/AuthorsPapers`, { titulosSeleccionados, option, venue });
   }
+
+  obtenerAuthorsGrade(titulosSeleccionados: any[], option: string, venue: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/AuthorsDegree`, { titulosSeleccionados, option, venue });
+  }
   
 }

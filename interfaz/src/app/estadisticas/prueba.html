@@ -1,0 +1,220 @@
+
+<h2>Estadísticas</h2>
+
+<body>
+  <!-- Investigadores y papers -->
+  <div class="flex-container" >
+    <div class="flex-item">
+      <canvas id="lineChart1"></canvas>
+    </div>
+    <div class="flex-item">
+      <canvas id="lineChart2"></canvas>
+    </div>
+  </div>
+
+  <div class="flex-container">
+    <div class="flex-item">
+        <canvas id="lineChart3"></canvas>
+    </div>
+    <div class="flex-item">
+        <canvas id="barChart1"></canvas>
+    </div>
+  </div>
+
+  <hr class="line">
+  <h4>Distribuciones de autores por artículo y de artículos por autor.</h4>
+  <div class="container">
+      <div class="tabla1">
+        <table id="autoresTabla" class="centered-table">
+          <thead>
+            <tr>
+              <th>Autores</th>
+              <th>Papers (%)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+    <div class="tabla2">
+      <table id="papersTabla" class="centered-table">
+        <thead>
+          <tr>
+            <th>Papers</th>
+            <th>Autores (%)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="line">
+
+
+
+
+  <h4>  Porcentaje Publicaciones Hombres-Mujeres / Año</h4>
+  <div class="flex-container custom">
+    <div class="flex-item custom1">
+        <div class="legend">
+          <div class="hombres"></div> Hombres
+          <div class="mujeres"></div> Mujeres
+        </div>
+        <canvas id="lineChart4"></canvas>
+    </div>
+    <div class="vertical-line"></div>
+    <div class="flex-item custom">
+      <canvas id="lineChart8"></canvas>
+    </div>
+  </div>
+
+  <hr class="line">
+  <h4> Porcenatje de publicaciones por Pais / Año </h4>
+  <div class="flex-container">
+    <div class="flex-item"> 
+      <canvas id="lineChart5"></canvas>
+    </div>
+  </div>
+
+  <hr class="line">
+
+  <h4>Bigramas y Trigramas mas frecuentes</h4>
+  <div class="container">
+    <div class="tabla1">
+        <table id="tablaBigramas">
+          <thead>
+            <tr>
+              <th>Bigrama</th>
+              <th>Apariciones</th>
+              <th>Primer <br> año</th>
+              <th>Último <br> año</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+    <div class="tabla2">
+        <table id="tablaTrigramas">
+          <thead>
+            <tr>
+              <th>Trigrama</th>
+              <th>Apariciones</th>
+              <th>Primer <br> año</th>
+              <th>Último <br> año</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+  </div>
+
+  
+  <hr class="line">
+
+  <div class="conceptual">
+      <angular-tag-cloud [config]="options" [data]="cloudData"></angular-tag-cloud>
+  </div>
+
+  <hr class="line">
+
+  <h4>Autores más prolíficos de acuerdo a su número de publicaciones por década</h4>
+  <div class="container">
+    <div class="tabla1">
+        <table id="tabla90" class="centered-table">
+          <thead>
+            <tr>
+              <th colspan="2">
+                (a) 1989-1999
+              </th>
+            </tr>
+            <hr class="line2">
+            <tr>
+              <th>Author</th>
+              <th>#</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="tabla2">
+        <table id="tabla00" class="centered-table">
+          <thead>
+            <tr>
+              <th colspan="2">
+                (b) 1999-2009
+              </th>
+            </tr>
+            <hr class="line2">
+            <tr>
+              <th>Author</th>
+              <th>#</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+  </div>
+
+  <hr class="line">
+
+  <div class="container">
+    <div class="tabla1">
+        <table id="tabla10" class="centered-table">
+          <thead>
+            <tr>
+              <th colspan="2">
+                (a) 2009-2019
+              </th>
+            </tr>
+            <hr class="line2">
+            <tr>
+              <th>Author</th>
+              <th>#</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="tabla2">
+        <table id="tabla20" class="centered-table">
+          <thead>
+            <tr>
+              <th colspan="2">
+                (a) 2019-2029
+              </th>
+            </tr>
+            <hr class="line2">
+            <tr>
+              <th>Author</th>
+              <th>#</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+  </div>
+
+  <hr class="line">
+
+  <h4>Autores principales con centralidad de grado con su primer y más reciente año de publicación</h4>
+  <div class="container">
+    <div class="tabla2">
+        <table id="nn">
+          <thead>
+            <tr>
+              <th>Author</th>
+              <th>Grado</th>
+              <th>Primer <br> año</th>
+              <th>Último <br> año</th>
+              <th>h-index<br> (All time)</th>
+              <th>h-index<br> (Since 2015)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+  </div>
+</body>
