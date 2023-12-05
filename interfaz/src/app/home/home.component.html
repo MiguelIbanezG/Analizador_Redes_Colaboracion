@@ -1,41 +1,97 @@
+<div class="container">
 
-<body>
-  <div class="container">
-    <h1>Redes de Colaboración</h1>
+  <!-- Title -->
+  <h1>Collaboration Networks</h1>
 
-    <div class="button-filter">
-      <input type="text" [(ngModel)]="filtros" placeholder="Ingrese la Conferencia" (keyup.enter)="obtenerNodosFiltrados()">
-      <button (click)="obtenerNodosFiltrados()">Filtrar</button>
+  <!-- Search Conference -->
+  <div class="box-conference">
+    <input type="text" [(ngModel)]="filtros" placeholder="Enter the Conference" (keyup.enter)="execFunctionsYear()">
+  </div>
+  <div class="noResults" *ngIf="noResultsFound">
+    <p>Conference not found. Please try another conference</p>
+  </div>
+
+  <!-- Buttons Filter -->
+  <div class="buttons">
+    <div class="button-years">
+      <button (click)="execFunctionsYear()" [disabled]="filtros.length === 0">Filter by years</button>
     </div>
-
-    <div class="button-stats">
-      <button [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generar Stats</button>
+    <div class="button-decade">
+      <button (click)="execFunctionsDecades()" [disabled]="filtros.length === 0">Filter by decades</button>
     </div>
+  </div>
+   
+  <!-- Select Conference -->
+  <div>
+    <label>
+      <div class="title-select">
+        Select Option:
+      </div>
+      <select [(ngModel)]="conferenceOption" (change)="handleSelection()">
+        <option value="mainConference" selected>Main Conference</option>
+        <option value="mainAndWorkshops">Conference and Workshops</option>
+      </select>
+    </label>
+  </div>
+  
+  <!-- Generate Stats -->
+  <div class="button-stats">
+    <button [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generate Stats</button>
+  </div>
 
-    <div>
-      <label>
-        Seleccione una opción:
-        <select [(ngModel)]="conferenceOption" (change)="handleSelection()">
-          <option value="mainConference" selected>Conferencia Principal</option>
-          <option value="mainAndWorkshops">Conferencia y Workshops</option>
-        </select>
-      </label>
-    </div>
-    
+  <!-- Filter by Decade -->
+  <div class="decades" *ngIf="mostrarDecadas && !mostrarAnios">
     <div *ngIf="titulosFiltrados.length > 0">
       <label>
-        <input type="checkbox" [(ngModel)]="seleccionarTodos" (change)="seleccionarTodosChanged()">
-        <span>Seleccionar Todos</span>
+        <input type="checkbox" [(ngModel)]="selccionarDecadas" (change)="seleccionarDecadas()">
+        <span>1989-1999</span>
       </label>
     </div>
-
-    <div *ngFor="let titulo of titulosFiltrados">
+  
+    <div *ngIf="titulosFiltrados.length > 0">
       <label>
-        <input type="checkbox" [(ngModel)]="titulo.selected" (change)="tituloChanged()">
-        <span [ngClass]="{ 'selected': titulo.selected }">{{ titulo.title }}</span>
+        <input type="checkbox" [(ngModel)]="selccionarDecadas2" (change)="seleccionarDecadas2()">
+        <span>1999-2009</span>
+      </label>
+    </div>
+  
+    <div *ngIf="titulosFiltrados.length > 0">
+      <label>
+        <input type="checkbox" [(ngModel)]="selccionarDecadas3" (change)="seleccionarDecadas3()">
+        <span>2009-2019</span>
+      </label>
+    </div>
+  
+    <div *ngIf="titulosFiltrados.length > 0">
+      <label>
+        <input type="checkbox" [(ngModel)]="selccionarDecadas4" (change)="seleccionarDecadas4()">
+        <span>2019-2024</span>
       </label>
     </div>
   </div>
-</body>
+      
+  <!-- Select All -->
+  <div *ngIf="titulosFiltrados.length > 0 && mostrarAnios">
+    <label>
+      <input type="checkbox" [(ngModel)]="seleccionarTodos" (change)="seleccionarTodosChanged()">
+      <span>All</span>
+    </label>
+  </div>
+  
+  <!-- Filter by Year -->
+  <div *ngIf="mostrarAnios && !mostrarDecadas">
+    <div class="columns">
+      <div class="column" *ngFor="let titulo of titulosFiltrados; let i = index">
+        <label>
+          <input type="checkbox" [(ngModel)]="titulo.selected" (change)="tituloChanged()">
+          <span [ngClass]="{ 'selected': titulo.selected }">{{ titulo.title }}</span>
+        </label>
+      </div>
+    </div>
+  </div>
+  
+
+</div>
+
 
 

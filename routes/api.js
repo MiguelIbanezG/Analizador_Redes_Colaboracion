@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const neo4j = require('neo4j-driver');
-const estadisticasController = require('../controllers/estadisticasController'); 
+const estadisticasController = require('../controllers/estadisticasController');
 
-const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', 'Miki22santa'), {encrypted:'ENCRYPTION_OFF'});
+const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', 'Miki22santa'), { encrypted: 'ENCRYPTION_OFF' });
 
 
 router.get('/etiquetas', async (req, res) => {
-  const session = driver.session({database:'neo4j'});
+  const session = driver.session({ database: 'neo4j' });
 
   try {
     const query = 'MATCH (n) UNWIND LABELS(n) AS etiqueta RETURN COLLECT(DISTINCT etiqueta) AS etiquetas';
@@ -37,7 +37,7 @@ router.get('/filtrar-resultados/:filterName', async (req, res) => {
       const yearNode = record.get('a');
       return yearNode;
     });
-    
+
     res.json(years);
   } catch (error) {
     console.error(error);
@@ -53,7 +53,7 @@ router.post('/estadisticas', async (req, res) => {
   try {
     // Lógica para generar las estadísticas utilizando los titulosSeleccionados
     // ...
-    
+
     // Devuelve los resultados de las estadísticas en formato JSON
     const estadisticas = {
       // ...
@@ -201,35 +201,35 @@ router.post('/AuthorsPapers', async (req, res) => {
 
 
 
-  router.post('/AuthorsDegree', async (req, res) => {
-    const titulosSeleccionados = req.body.titulosSeleccionados;
-    const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
-    const session = driver.session({ database: 'neo4j' });
-  
-    try {
-      const query = `
+router.post('/AuthorsDegree', async (req, res) => {
+  const titulosSeleccionados = req.body.titulosSeleccionados;
+  const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
         MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(ip:Inproceeding)-[:AUTHORED_BY]->(r:Researcher)
         WHERE id(y) IN $yearIds
         RETURN r.name AS researcher, degree(r) AS degree
       `;
-  
-      const result = await session.run(query, { yearIds });
-      const autxgrade = result.records.map(record => {
-        return {
-          researcher: record.get('researcher'),
-          degree: record.get('degree').low,
-        };
-      });
-  
-      res.json(autxgrade);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Error al obtener la centralidad de grado de los autores', details: error.message });
-    } finally {
-      session.close();
-    }
-  });
-  
-  module.exports = router;
+
+    const result = await session.run(query, { yearIds });
+    const autxgrade = result.records.map(record => {
+      return {
+        researcher: record.get('researcher'),
+        degree: record.get('degree').low,
+      };
+    });
+
+    res.json(autxgrade);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener la centralidad de grado de los autores', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+module.exports = router;
 
 module.exports = router;

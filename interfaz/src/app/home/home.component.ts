@@ -21,7 +21,16 @@ export class HomeComponent implements OnInit {
   etiquetas: string[] = []; // Lista de etiquetas posibles para filtrar 
   titulosSeleccionados: any[] = []; // Lista de titulos seleccionados para generar estadisticas
   seleccionarTodos = false;
+  selccionarDecadas = false;
+  selccionarDecadas2 = false;
+  selccionarDecadas3 = false;
+  selccionarDecadas4 = false;
   conferenceOption: string = "main";
+  count: number = 0;
+  mostrarAnios: boolean = false;
+  mostrarDecadas: boolean = false;
+  selectedOption: string = '';
+  noResultsFound: boolean = false;
 
 
   private nodosSubscription: Subscription | undefined;
@@ -35,6 +44,30 @@ export class HomeComponent implements OnInit {
   
   ngOnInit() {
     //INICIAL
+  }
+
+  execFunctionsYear(){
+    this.obtenerNodosFiltrados();
+    this.toggleYears();
+  }
+
+  execFunctionsDecades(){
+    this.obtenerNodosFiltrados();
+    this.toggleDecades();
+  }
+
+  toggleYears() {
+    this.mostrarAnios = !this.mostrarAnios;
+      if(this.mostrarDecadas == true){
+        this.mostrarDecadas = false;
+      }
+  }
+
+  toggleDecades() {
+    this.mostrarDecadas = !this.mostrarDecadas;
+      if(this.mostrarAnios == true){
+        this.mostrarAnios = false;
+      }
   }
   
   handleSelection() {
@@ -62,6 +95,12 @@ export class HomeComponent implements OnInit {
           };
           return obj;
         }, {}));
+        if (this.resultadosFiltrados.length === 0) {
+          this.noResultsFound = true;
+        } else {
+          this.noResultsFound = false;
+        }
+        console.log(this.noResultsFound)
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);
@@ -72,7 +111,6 @@ export class HomeComponent implements OnInit {
   hayTitulosSeleccionados(): boolean {
     return this.titulosFiltrados.some(titulo => titulo.selected);
   }
-  
   
   seleccionarTitulo(titulo: string) {
     if (this.titulosSeleccionados.includes(titulo)) {
@@ -88,8 +126,51 @@ export class HomeComponent implements OnInit {
     for (let titulo of this.titulosFiltrados) {
       titulo.selected = this.seleccionarTodos;
     }
+   
   }
+
+  seleccionarDecadas() {
+    for (let titulo of this.titulosFiltrados) {
+      if (titulo.title == "1989" || titulo.title == "1990" ||titulo.title == "1991" ||titulo.title == "1992" ||
+      titulo.title == "1993" || titulo.title == "1994" ||titulo.title == "1995" ||titulo.title == "1996" ||
+      titulo.title == "1997" || titulo.title == "1998" || titulo.title == "1999") {
+        titulo.selected = this.selccionarDecadas;
+      } 
+    }
+  }
+
+  seleccionarDecadas2() {
   
+    for (let titulo of this.titulosFiltrados) {
+      if (titulo.title == "1999" || titulo.title == "2001" ||titulo.title == "2002" ||titulo.title == "2003" ||
+      titulo.title == "2004" || titulo.title == "2005" ||titulo.title == "2006" ||titulo.title == "2007" ||
+      titulo.title == "2008" || titulo.title == "2009" || titulo.title == "2000") {
+        titulo.selected = this.selccionarDecadas2;
+      } 
+    }
+  }
+
+  seleccionarDecadas3() {
+  
+    for (let titulo of this.titulosFiltrados) {
+      if (titulo.title == "2009" || titulo.title == "2010" ||titulo.title == "2011" ||titulo.title == "2012" ||
+      titulo.title == "2013" || titulo.title == "2014" ||titulo.title == "2015" ||titulo.title == "2016" ||
+      titulo.title == "2017" || titulo.title == "2018" || titulo.title == "2019") {
+        titulo.selected = this.selccionarDecadas3;
+      } 
+    }
+  }
+
+  seleccionarDecadas4() {
+  
+    for (let titulo of this.titulosFiltrados) {
+      if (titulo.title == "2019" || titulo.title == "2020" ||titulo.title == "2021" ||titulo.title == "2022" ||
+      titulo.title == "2023" || titulo.title == "2024"){
+        titulo.selected = this.selccionarDecadas4;
+      } 
+    }
+  }
+
   tituloChanged() {
     let todosSeleccionados = true;
     for (let titulo of this.titulosFiltrados) {
@@ -113,5 +194,10 @@ export class HomeComponent implements OnInit {
     // Redirige a la página de estadísticas
     this.router.navigateByUrl('/estadisticas');
   }
+
+  getRange(length: number, step: number): number[] {
+    return Array.from({ length: Math.ceil(length / step) }, (_, i) => i * step);
+  }
+  
 
 }
