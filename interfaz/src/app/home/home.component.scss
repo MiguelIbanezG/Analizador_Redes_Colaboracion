@@ -52,6 +52,20 @@ button:disabled {
 
 .button-stats button{
   margin-bottom: 10px;
+  margin-right: 10px;
+}
+
+.stats{
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.button-clear button{
+  padding: 8px 16px;
+  background-color: rgb(255, 0, 0);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
 }
 
 .button-stats button:disabled{

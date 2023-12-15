@@ -11,8 +11,12 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  obtenerNodosFiltrados(filterName: string): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}//filtrar-resultados/${filterName}`);
+  obtenerNodosFiltradosConference(filterName: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}//filtrar-conferences/${filterName}`);
+  }
+
+  obtenerNodosFiltradosJournal(name: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}//filtrar-journals/${name}`);
   }
 
   generarEstadisticas(titulosSeleccionados: any[]): Observable<any> {

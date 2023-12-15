@@ -56,7 +56,8 @@ app.get('/estadisticas', (req, res) => {
 });
 
 // Endpoint para filtrar resultados
-app.get('/filtrar-resultados', apiRoutes);
+app.get('/filtrar-conferences', apiRoutes);
+app.get('/filtrar-journals', apiRoutes);
 app.post('/estadisticas', apiRoutes);
 
 // Configurar otros endpoints y lógica adicional aquí

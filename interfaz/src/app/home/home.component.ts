@@ -19,7 +19,6 @@ export class HomeComponent implements OnInit {
   resultadosFiltrados: string[] = [];
   titulosFiltrados: { title: string, pr_objeto: any, selected: boolean }[] = [];
   etiquetas: string[] = []; // Lista de etiquetas posibles para filtrar 
-  titulosSeleccionados: any[] = []; // Lista de titulos seleccionados para generar estadisticas
   seleccionarTodos = false;
   selccionarDecadas = false;
   selccionarDecadas2 = false;
@@ -30,7 +29,8 @@ export class HomeComponent implements OnInit {
   mostrarAnios: boolean = false;
   mostrarDecadas: boolean = false;
   selectedOption: string = '';
-  noResultsFound: boolean = false;
+  noResultsFoundConference: boolean = false;
+  noResultsFoundJournal: boolean = false;
 
 
   private nodosSubscription: Subscription | undefined;
@@ -46,13 +46,24 @@ export class HomeComponent implements OnInit {
     //INICIAL
   }
 
+  filter2(){
+    this.clear()
+    this.obtenerNodosFiltradosConference();
+    this.obtenerNodosFiltradosJournal();
+    this.toggleDecades();
+  }
+
   execFunctionsYear(){
-    this.obtenerNodosFiltrados();
+    this.clear()
+    this.obtenerNodosFiltradosJournal();
+    this.obtenerNodosFiltradosConference();
     this.toggleYears();
   }
 
   execFunctionsDecades(){
-    this.obtenerNodosFiltrados();
+    this.clear()
+    this.obtenerNodosFiltradosJournal();
+    this.obtenerNodosFiltradosConference();
     this.toggleDecades();
   }
 
@@ -69,6 +80,10 @@ export class HomeComponent implements OnInit {
         this.mostrarAnios = false;
       }
   }
+
+  clear(){
+    this.titulosFiltrados = [];
+  }
   
   handleSelection() {
     // Lógica para manejar la opción seleccionada
@@ -80,27 +95,61 @@ export class HomeComponent implements OnInit {
     this.seleccionService.marcarOpcionConferencia(this.conferenceOption);
   }
 
-  obtenerNodosFiltrados() {
-    this.apiService.obtenerNodosFiltrados(this.filtros).subscribe({
+  obtenerNodosFiltradosConference() {
+    this.apiService.obtenerNodosFiltradosConference(this.filtros).subscribe({
       next: (response: any[]) => {
         // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
         this.resultadosFiltrados = response.map(item => item);
-
-        this.titulosFiltrados = Object.values(response.reduce((obj, item) => {
-          const yearNode = item.properties;
-          obj[yearNode.name] = {
-            title: yearNode.name,
-            pr_objeto: item,
-            selected: false
-          };
-          return obj;
-        }, {}));
-        if (this.resultadosFiltrados.length === 0) {
-          this.noResultsFound = true;
-        } else {
-          this.noResultsFound = false;
+        if(this.titulosFiltrados.length < 1){
+          this.titulosFiltrados = Object.values(response.reduce((obj, item) => {
+            const yearNode = item.properties;
+            obj[yearNode.name] = {
+              title: yearNode.name,
+              pr_objeto: item,
+              selected: false
+            };
+            return obj;
+          }, {}));
+          if (this.resultadosFiltrados.length === 0) {
+            this.noResultsFoundConference = true;
+          } else {
+            this.noResultsFoundConference = false;
+          }
+          console.log(this.noResultsFoundConference)
         }
-        console.log(this.noResultsFound)
+      },
+      error: (error: any) => {
+        console.error('Error al obtener los resultados filtrados:', error);
+      }
+        
+    });
+  }
+
+  obtenerNodosFiltradosJournal() {
+    this.apiService.obtenerNodosFiltradosJournal(this.filtros).subscribe({
+      next: (response: any[]) => {
+        // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
+        this.resultadosFiltrados = response.map(item => item);
+        
+        if(this.titulosFiltrados.length < 1){
+          this.titulosFiltrados = Object.values(response.reduce((obj, item) => {
+            const yearNode = item.properties;
+            obj[yearNode.name] = {
+              title: yearNode.name,
+              pr_objeto: item,
+              selected: false
+            };
+            return obj;
+          }, {}));
+          if (this.resultadosFiltrados.length === 0) {
+            this.noResultsFoundJournal = true;
+          } else {
+            this.noResultsFoundJournal = false;
+          }
+          console.log(this.noResultsFoundJournal)
+        }
+
+        
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);
@@ -109,24 +158,20 @@ export class HomeComponent implements OnInit {
   }
 
   hayTitulosSeleccionados(): boolean {
-    return this.titulosFiltrados.some(titulo => titulo.selected);
-  }
-  
-  seleccionarTitulo(titulo: string) {
-    if (this.titulosSeleccionados.includes(titulo)) {
-      // Eliminar el título de la lista de seleccionados
-      this.titulosSeleccionados = this.titulosSeleccionados.filter(t => t !== titulo);
-    } else {
-      // Agregar el título a la lista de seleccionados
-      this.titulosSeleccionados.push(titulo);
+    let seleccionados = false;
+    if (this.titulosFiltrados.some(titulo => titulo.selected)){
+      seleccionados = true;
     }
+    return seleccionados;
   }
 
   seleccionarTodosChanged() {
-    for (let titulo of this.titulosFiltrados) {
-      titulo.selected = this.seleccionarTodos;
+    if (this.titulosFiltrados.length > 0){
+      for (let titulo of this.titulosFiltrados) {
+        titulo.selected = this.seleccionarTodos;
+      }
     }
-   
+    
   }
 
   seleccionarDecadas() {
@@ -179,8 +224,16 @@ export class HomeComponent implements OnInit {
         break;
       }
     }
+    for (let titulo of this.titulosFiltrados) {
+      if (!titulo.selected) {
+        todosSeleccionados = false;
+        break;
+      }
+    }
+    
     this.seleccionarTodos = todosSeleccionados;
   }
+
 
   generarEstadisticas() {
     // Filtra los títulos seleccionados
@@ -189,15 +242,12 @@ export class HomeComponent implements OnInit {
     
     // Almacena los títulos seleccionados en el servicio de selección
     this.seleccionService.agregarTitulos(titulosSeleccionados);
+
     this.seleccionService.marcarNombreVenue(this.filtros);
 
     // Redirige a la página de estadísticas
     this.router.navigateByUrl('/estadisticas');
   }
 
-  getRange(length: number, step: number): number[] {
-    return Array.from({ length: Math.ceil(length / step) }, (_, i) => i * step);
-  }
-  
 
 }

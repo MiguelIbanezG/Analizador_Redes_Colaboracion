@@ -22,7 +22,7 @@ router.get('/etiquetas', async (req, res) => {
   }
 });
 
-router.get('/filtrar-resultados/:filterName', async (req, res) => {
+router.get('/filtrar-conferences/:filterName', async (req, res) => {
   const session = driver.session({ database: 'neo4j' });
   const filterName = req.params.filterName;
 
@@ -30,6 +30,32 @@ router.get('/filtrar-resultados/:filterName', async (req, res) => {
     const query = `
       MATCH (v:Venue)-[:CELEBRATED_IN]->(a:Year)
       WHERE v.name = $filterName
+      RETURN a
+    `;
+    const result = await session.run(query, { filterName });
+    const years = result.records.map(record => {
+      const yearNode = record.get('a');
+      return yearNode;
+    });
+
+    res.json(years);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener los años', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+
+router.get('/filtrar-journals/:name', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+  const filterName = req.params.filterName;
+
+  try {
+    const query = `
+      MATCH (j:Journal)-[:PUBLISHED_IN]->(a:Year)
+      WHERE j.name = $filterName
       RETURN a
     `;
     const result = await session.run(query, { filterName });
@@ -232,4 +258,4 @@ router.post('/AuthorsDegree', async (req, res) => {
 
 module.exports = router;
 
-module.exports = router;
+

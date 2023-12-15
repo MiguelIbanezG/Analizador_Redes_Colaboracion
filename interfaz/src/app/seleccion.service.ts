@@ -20,10 +20,6 @@ export class SeleccionService {
     return this.titulosSeleccionados;
   }
 
-  limpiarTitulosSeleccionados() {
-    this.titulosSeleccionados = [];
-  }
-
   marcarOpcionConferencia(opcion: string) {
     this.conferenceOption = opcion;
   }

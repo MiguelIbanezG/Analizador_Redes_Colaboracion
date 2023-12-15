@@ -5,10 +5,10 @@
 
   <!-- Search Conference -->
   <div class="box-conference">
-    <input type="text" [(ngModel)]="filtros" placeholder="Enter the Conference" (keyup.enter)="execFunctionsYear()">
+    <input type="text" [(ngModel)]="filtros" placeholder="Enter the Conference or Journal" (keyup.enter)="filter2()">
   </div>
-  <div class="noResults" *ngIf="noResultsFound">
-    <p>Conference not found. Please try another conference</p>
+  <div class="noResults" *ngIf="noResultsFoundConference && noResultsFoundJournal">
+    <p>Conference or Journal not found. Please try another Conference or Journal</p>
   </div>
 
   <!-- Buttons Filter -->
@@ -35,10 +35,15 @@
   </div>
   
   <!-- Generate Stats -->
-  <div class="button-stats">
-    <button [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generate Stats</button>
+  <div class="stats">
+    <div class="button-stats">
+      <button [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generate Stats</button>
+    </div>
+    <div class="button-clear" *ngIf="titulosFiltrados.length > 0  ">
+      <button (click)="clear()">Cancel</button>
+    </div>
   </div>
-
+ 
   <!-- Filter by Decade -->
   <div class="decades" *ngIf="mostrarDecadas && !mostrarAnios">
     <div *ngIf="titulosFiltrados.length > 0">
@@ -48,7 +53,7 @@
       </label>
     </div>
   
-    <div *ngIf="titulosFiltrados.length > 0">
+    <div *ngIf="titulosFiltrados.length > 0  ">
       <label>
         <input type="checkbox" [(ngModel)]="selccionarDecadas2" (change)="seleccionarDecadas2()">
         <span>1999-2009</span>
@@ -71,7 +76,7 @@
   </div>
       
   <!-- Select All -->
-  <div *ngIf="titulosFiltrados.length > 0 && mostrarAnios">
+  <div *ngIf="(titulosFiltrados.length > 0) && !mostrarDecadas">
     <label>
       <input type="checkbox" [(ngModel)]="seleccionarTodos" (change)="seleccionarTodosChanged()">
       <span>All</span>
@@ -79,7 +84,7 @@
   </div>
   
   <!-- Filter by Year -->
-  <div *ngIf="mostrarAnios && !mostrarDecadas">
+  <div *ngIf="!mostrarDecadas">
     <div class="columns">
       <div class="column" *ngFor="let titulo of titulosFiltrados; let i = index">
         <label>
@@ -89,7 +94,6 @@
       </div>
     </div>
   </div>
-  
 
 </div>
 
