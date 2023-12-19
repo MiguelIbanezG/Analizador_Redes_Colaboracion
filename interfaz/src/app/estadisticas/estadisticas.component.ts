@@ -63,6 +63,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   singleAuthor: any[] = [];
   estadisticas: any[] = [];
   lineChart!: Chart;
+  lineChart2!: Chart;
+  lineChart3!: Chart;
   barChart!: Chart;
   researchers: any[] = [];
   papersWithAuthors: any[] = [];
@@ -144,17 +146,42 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     }
   }
 
-  obtenerResearchers() {
-    this.apiService.obtenerResearchers(this.titulosSeleccionados).subscribe({
+  obtenerResearchersConference() {
+    this.apiService.obtenerResearchersConference(this.titulosSeleccionados).subscribe({
       next: (response: any) => {
         this.researchers = response;
+        console.log("a saber" + this.researchers)
         this.statsResearchers();
-        this.generarGrafico3('lineChart1', 'Number of authors', this.estadisticas[0].anios, this.estadisticas[0].numResearchers);
+        this.combinarYMostrarDatos(this.estadisticas[0].anios, this.estadisticas[0].numResearchers);
       },
       error: (error: any) => {
         console.error('Error al obtener los researchers:', error);
       }
     });
+    if(this.researchers.length < 1){
+      this.apiService.obtenerResearchersJournals(this.titulosSeleccionados).subscribe({
+        next: (response: any) => {
+          this.researchers = response;
+          console.log("a saber" + this.researchers)
+          this.statsResearchers();
+          this.combinarYMostrarDatos(this.estadisticas[0].anios, this.estadisticas[0].numResearchers);
+        },
+        error: (error: any) => {
+          console.error('Error al obtener los researchers:', error);
+        }
+      });
+    }
+    
+  }
+
+  combinarYMostrarDatos(researchersConference: any[], researchersJournals: any[]) {
+    
+    if(this.lineChart){
+      this.lineChart.destroy();
+    }
+  
+    this.generarGrafico3('lineChart1', 'Number of authors', researchersConference, researchersJournals);
+
   }
 
   obtenerPapers() {
@@ -684,40 +711,118 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   }
 
   generarGrafico3(idChart: string, label: string, labels: any[], data: any[]) {
-    this.lineChart = new Chart(idChart, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: label,
-            data: data,
-            fill: false,
-            borderColor: 'rgb(0, 22, 68)',
-            borderWidth: 1
-          }
-        ]
-      },
-      options: {
-        plugins: {
-          legend: {
-            labels: {
-              color: 'black',
-              font: {
-                size: 18, 
-                family: 'Roboto',
+    if(idChart=="lineChart1"){
+      this.lineChart = new Chart(idChart, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: label,
+              data: data,
+              fill: false,
+              borderColor: 'rgb(0, 22, 68)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: 'black',
+                font: {
+                  size: 18, 
+                  family: 'Roboto',
+                }
               }
             }
-          }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true
+            }
+          },
+        }
+      });
+    }
+    if(idChart=="lineChart2"){
+      this.lineChart2 = new Chart(idChart, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: label,
+              data: data,
+              fill: false,
+              borderColor: 'rgb(0, 22, 68)',
+              borderWidth: 1
+            }
+          ]
         },
-        scales: {
-          y: {
-            type: 'linear',
-            display: true
-          }
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: 'black',
+                font: {
+                  size: 18, 
+                  family: 'Roboto',
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true
+            }
+          },
+        }
+      });
+    }
+    if(idChart=="lineChart3"){
+      this.lineChart3 = new Chart(idChart, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: label,
+              data: data,
+              fill: false,
+              borderColor: 'rgb(0, 22, 68)',
+              borderWidth: 1
+            }
+          ]
         },
-      }
-    });
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: 'black',
+                font: {
+                  size: 18, 
+                  family: 'Roboto',
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true
+            }
+          },
+        }
+      });
+    }
+
+
+   
+
   }
 
   statsGenero(datasets: any[]){
@@ -932,15 +1037,17 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   async main(){
     try {
       this.titulosSeleccionados = this.seleccionService.obtenerTitulosSeleccionados();
-      console.log(("TItulosselecc"));
-      console.log(this.titulosSeleccionados);
+      console.log("TItulosselecc"+this.titulosSeleccionados);
       this.conferenceOption = this.seleccionService.obtenerOpcionConferencia();
       this.venueName = this.seleccionService.obtenerNombreVenue();
 
       this.obtenerPapers();
       this.obtenerColaboraciones();
       this.obtenerSingleAuthorPapers();
-      this.obtenerResearchers();
+      this.obtenerResearchersConference();
+      
+
+     
 
       if(this.researchers.length == 0){
         await this.esperarResearcherNoVacio();

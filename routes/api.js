@@ -48,7 +48,7 @@ router.get('/filtrar-conferences/:filterName', async (req, res) => {
 });
 
 
-router.get('/filtrar-journals/:name', async (req, res) => {
+router.get('/filtrar-journals/:filterName', async (req, res) => {
   const session = driver.session({ database: 'neo4j' });
   const filterName = req.params.filterName;
 
@@ -94,7 +94,7 @@ router.post('/estadisticas', async (req, res) => {
 // Ruta para generar estadísticas
 router.get('/estadisticas', estadisticasController.generarEstadisticas);
 
-router.post('/researchers', async (req, res) => {
+router.post('/researchersconference', async (req, res) => {
   const titulosSeleccionados = req.body.titulosSeleccionados;
   const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
   const session = driver.session({ database: 'neo4j' });
@@ -105,6 +105,40 @@ router.post('/researchers', async (req, res) => {
     WHERE id(y) IN $yearIds
     WITH COLLECT(DISTINCT { researcher: r1, year: y.name }) AS researchers1
     MATCH (w:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(:Inproceeding)-[:AUTHORED_BY]-(r2:Researcher)
+    WHERE id(w) IN $yearIds
+    WITH researchers1, COLLECT(DISTINCT { researcher: r2, year: w.name }) AS researchers2
+    WITH researchers1 + researchers2 AS allResearchers
+    UNWIND allResearchers AS researcherData
+    RETURN researcherData.researcher AS researcher, COLLECT(DISTINCT researcherData.year) AS years    
+    `;
+    const result = await session.run(query, { yearIds });
+    const researchers = result.records.map(record => {
+      return {
+        researcher: record.get('researcher'),
+        years: record.get('years')
+      };
+    });
+    res.json(researchers);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+
+router.post('/researchersjorunals', async (req, res) => {
+  const titulosSeleccionados = req.body.titulosSeleccionados;
+  const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); // Obtener los identificadores de los nodos year
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
+    MATCH (y:Year)-[:HAS_ARTICLE]->(:Article)-[:EDITED_BY]-(r1:Researcher)
+    WHERE id(y) IN $yearIds
+    WITH COLLECT(DISTINCT { researcher: r1, year: y.name }) AS researchers1
+    MATCH (w:Year)-[:HAS_ARTICLE]->(:Article)-[:AUTHORED_BY]-(r2:Researcher)
     WHERE id(w) IN $yearIds
     WITH researchers1, COLLECT(DISTINCT { researcher: r2, year: w.name }) AS researchers2
     WITH researchers1 + researchers2 AS allResearchers
