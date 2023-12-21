@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { EstadisticasComponent } from './estadisticas/estadisticas.component';
 import { ConfigComponent } from './config/config.component';
+import { ModalModule } from 'ngx-bootstrap/modal';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -12,7 +13,9 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes),
+            ModalModule.forRoot()],
+
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

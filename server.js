@@ -67,6 +67,7 @@ app.get('/config', (req, res) => {
 app.get('/filtrar-conferences', apiRoutes);
 app.get('/filtrar-journals', apiRoutes);
 app.post('/estadisticas', apiRoutes);
+app.post('/config', apiRoutes);
 
 // Configurar otros endpoints y lógica adicional aquí
 // ...

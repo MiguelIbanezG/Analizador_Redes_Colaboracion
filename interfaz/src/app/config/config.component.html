@@ -1,1 +1,16 @@
-<p>config works!</p>
+<div class="tabla">
+  <table id="autoresTabla">
+    <thead>
+      <tr>
+        <th>Paper</th>
+        <th>Author</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let paper of papersWithAuthors">
+        <td>{{ paper.ipName }}</td>
+        <td>{{ paper.authorName }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { SeleccionService } from '../seleccion.service';
 import { FormsModule } from '@angular/forms';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { ModalModule } from 'ngx-bootstrap/modal';
 
 
 @Component({
@@ -29,8 +31,12 @@ export class HomeComponent implements OnInit {
   mostrarAnios: boolean = false;
   mostrarDecadas: boolean = false;
   selectedOption: string = '';
-  noResultsFoundConference: boolean = false;
-  noResultsFoundJournal: boolean = false;
+  noResultsFoundConference: boolean | undefined;
+  noResultsFoundJournal: boolean | undefined;
+  showNewTabContent: boolean = false;
+  showModal: boolean = false;
+  modalText: string = '';
+  modalRef: BsModalRef | undefined;
 
 
   private nodosSubscription: Subscription | undefined;
@@ -39,11 +45,20 @@ export class HomeComponent implements OnInit {
   constructor(
     private apiService: ApiService, 
     private router: Router,
-    private seleccionService: SeleccionService
+    private seleccionService: SeleccionService,
+    private modalService: BsModalService,
   ) { }
   
   ngOnInit() {
     //INICIAL
+  }
+
+  openModal(template: TemplateRef<any>) {
+    this.modalRef = this.modalService.show(template)
+  }
+
+  closeModal() {
+    this.modalRef?.hide();
   }
 
   filter2(){
@@ -189,9 +204,9 @@ export class HomeComponent implements OnInit {
   seleccionarDecadas2() {
   
     for (let titulo of this.titulosFiltrados) {
-      if (titulo.title == "1999" || titulo.title == "2001" ||titulo.title == "2002" ||titulo.title == "2003" ||
+      if (titulo.title == "2000" || titulo.title == "2001" ||titulo.title == "2002" ||titulo.title == "2003" ||
       titulo.title == "2004" || titulo.title == "2005" ||titulo.title == "2006" ||titulo.title == "2007" ||
-      titulo.title == "2008" || titulo.title == "2009" || titulo.title == "2000") {
+      titulo.title == "2008" || titulo.title == "2009") {
         titulo.selected = this.selccionarDecadas2;
       } 
     }
@@ -200,7 +215,7 @@ export class HomeComponent implements OnInit {
   seleccionarDecadas3() {
   
     for (let titulo of this.titulosFiltrados) {
-      if (titulo.title == "2009" || titulo.title == "2010" ||titulo.title == "2011" ||titulo.title == "2012" ||
+      if (titulo.title == "2010" ||titulo.title == "2011" ||titulo.title == "2012" ||
       titulo.title == "2013" || titulo.title == "2014" ||titulo.title == "2015" ||titulo.title == "2016" ||
       titulo.title == "2017" || titulo.title == "2018" || titulo.title == "2019") {
         titulo.selected = this.selccionarDecadas3;
@@ -211,7 +226,7 @@ export class HomeComponent implements OnInit {
   seleccionarDecadas4() {
   
     for (let titulo of this.titulosFiltrados) {
-      if (titulo.title == "2019" || titulo.title == "2020" ||titulo.title == "2021" ||titulo.title == "2022" ||
+      if (titulo.title == "2020" ||titulo.title == "2021" ||titulo.title == "2022" ||
       titulo.title == "2023" || titulo.title == "2024"){
         titulo.selected = this.selccionarDecadas4;
       } 
@@ -246,6 +261,7 @@ export class HomeComponent implements OnInit {
     this.seleccionService.agregarTitulos(titulosSeleccionados);
     const filtrosSeparados = this.filtros.split(',').map(filter => filter.trim());
     this.seleccionService.marcarNombreVenue(filtrosSeparados);
+    console.log("hgeSEFWWSwgWE::::::"+this.filtros)
 
     // Redirige a la página de estadísticas
     this.router.navigateByUrl('/estadisticas');
@@ -258,8 +274,9 @@ export class HomeComponent implements OnInit {
     
     // Almacena los títulos seleccionados en el servicio de selección
     this.seleccionService.agregarTitulos(titulosSeleccionados);
-    this.seleccionService.marcarBook(this.filtros);
-
+    const filtrosSeparados = this.filtros.split(',').map(filter => filter.trim());
+    this.seleccionService.marcarNombreVenue(filtrosSeparados);
+    console.log("hgeSEFWWSwgWE::::::"+this.filtros)
 
     // Redirige a la página de estadísticas
     this.router.navigateByUrl('/config');

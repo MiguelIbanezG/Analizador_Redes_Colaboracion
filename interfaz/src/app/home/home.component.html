@@ -20,32 +20,8 @@
       <button (click)="execFunctionsDecades()" [disabled]="filtros.length === 0">Filter by decades</button>
     </div>
   </div>
-   
-  <!-- Select Conference -->
-  <div>
-    <label>
-      <div class="title-select">
-        Select Option:
-      </div>
-      <select [(ngModel)]="conferenceOption" (change)="handleSelection()">
-        <option value="mainConference" selected>Main Conference</option>
-        <option value="mainAndWorkshops">Conference and Workshops</option>
-      </select>
-    </label>
-  </div>
-  
-  <!-- Generate Stats -->
-  <div class="stats">
-    <div class="button-stats">
-      <button [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generate Stats</button>
-    </div>
-    <div class="button-stats">
-      <button [disabled]="!hayTitulosSeleccionados()" (click)="generarconf()">Config</button>
-    </div>
-    <div class="button-clear" *ngIf="titulosFiltrados.length > 0  ">
-      <button (click)="clear()">Cancel</button>
-    </div>
-  </div>
+
+
  
   <!-- Filter by Decade -->
   <div class="decades" *ngIf="mostrarDecadas && !mostrarAnios">
@@ -98,7 +74,56 @@
     </div>
   </div>
 
+   <!-- Generate Stats -->
+   <div class="stats" >
+    <div class="button-stats">
+      <button [hidden]="(this.noResultsFoundConference === true && this.noResultsFoundJournal === true) ||
+      (this.noResultsFoundConference === undefined && this.noResultsFoundJournal === undefined)" [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generate Stats</button>
+    </div>
+    <div class="button-stats">
+      <button [hidden]="(this.noResultsFoundConference === true && this.noResultsFoundJournal === true) ||
+      (this.noResultsFoundConference === undefined && this.noResultsFoundJournal === undefined)" [disabled]="!hayTitulosSeleccionados()" (click)="generarconf()">Info</button>
+    </div>
+    <div class="button-clear" *ngIf="titulosFiltrados.length > 0  ">
+      <button (click)="clear()">Cancel</button>
+    </div>
+    
+  </div>
+  <div class="modal-button">
+    <button class="help" (click)="openModal(template)">?</button>
+  </div>
+
+
 </div>
+
+
+<ng-template #template>
+  <div class="custom-modal">
+    <div class="modal-container">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title pull-left">Help</h4>
+          <button type="button" class="close-btn" aria-label="Close" (click)="closeModal()">
+            <span class="close-icon" aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Buscar solo uno:</p>
+          <ul>
+            <li>ER</li>
+            <li>World Wide Web</li>
+            <!-- Agrega más elementos de la lista aquí -->
+          </ul>
+          <p>Buscar mas de uno (separar por comas):</p>
+          <ul>
+            <li>ER, 3DOR, BDM</li>
+            <!-- Agrega más elementos de la lista aquí -->
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
 
 
 

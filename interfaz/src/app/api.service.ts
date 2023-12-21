@@ -28,6 +28,16 @@ export class ApiService {
     return this.http.get<any>(url);
   }
 
+
+  generarconf(titulosSeleccionados: any[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/config`, { titulosSeleccionados });
+  }
+
+  obtenerConfig(): Observable<any> {
+    const url = `${this.baseUrl}/config`;
+    return this.http.get<any>(url);
+  }
+
   obtenerResearchersConference(titulosSeleccionados: any[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/researchersconference`, { titulosSeleccionados });
   }
@@ -48,12 +58,17 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/AuthorsPapers`, { titulosSeleccionados, option, venue });
   }
 
+  obtenerAuthorsNames(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/SearchNames`, { titulosSeleccionados, option, venue });
+  }
+
   obtenerAuthorsGrade(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/AuthorsDegree`, { titulosSeleccionados, option, venue });
   }
 
-  obtenerbooks(titulosSeleccionados: any[], book: string): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/AuthorsDegree`, { titulosSeleccionados, book});
+  obtenerbooks(titulosSeleccionados: any[], venue: string[]): Observable<any> {
+    console.log("rolerher"+venue)
+    return this.http.post<any>(`${this.baseUrl}/searchbook`, { titulosSeleccionados, venue});
   }
   
   

@@ -11,6 +11,8 @@ import { EstadisticasComponent } from './estadisticas/estadisticas.component';
 import { SeleccionService } from './seleccion.service';
 import { TagCloudComponent } from 'angular-tag-cloud-module';
 import { ConfigComponent } from './config/config.component';
+import { ModalModule } from 'ngx-bootstrap/modal';
+
 
 
 @NgModule({
@@ -26,7 +28,8 @@ import { ConfigComponent } from './config/config.component';
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    TagCloudComponent
+    TagCloudComponent,
+    ModalModule
   ],
   providers: [
     ApiService,

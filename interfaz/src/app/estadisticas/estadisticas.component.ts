@@ -150,7 +150,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     this.apiService.obtenerResearchersConference(this.titulosSeleccionados).subscribe({
       next: (response: any) => {
         this.researchers = response;
-        console.log("a saber" + this.researchers)
         this.statsResearchers();
         this.combinarYMostrarDatos(this.estadisticas[0].anios, this.estadisticas[0].numResearchers);
       },
@@ -162,7 +161,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       this.apiService.obtenerResearchersJournals(this.titulosSeleccionados).subscribe({
         next: (response: any) => {
           this.researchers = response;
-          console.log("a saber" + this.researchers)
           this.statsResearchers();
           this.combinarYMostrarDatos(this.estadisticas[0].anios, this.estadisticas[0].numResearchers);
         },
@@ -187,6 +185,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   obtenerPapers() {
     this.apiService.obtenerPapers(this.titulosSeleccionados, this.conferenceOption, this.venueName).subscribe({
       next: (response: any) => {
+        
         this.papers = response;
         this.statsPapers();
         this.generarGrafico3('lineChart2', 'Number of papers', this.estadisticas[1].anios, this.estadisticas[1].numPapers);
@@ -201,6 +200,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   obtenerColaboraciones() {
     this.apiService.obtenerColaboraciones(this.titulosSeleccionados, this.conferenceOption, this.venueName).subscribe({
       next: (response: any) => {
+        console.log("resss"+response)
         this.colaboraciones = response;
         this.statsColaboraciones();
         this.generarGrafico3('lineChart3', 'Density', this.estadisticas[3].anios, this.estadisticas[3].densidades);
@@ -245,7 +245,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
    * Función para obtener las distribuciones tanto de autores por papers como de papers por autores
    */
   obtenerDistribuciones(){
-    console.log("distribuciones antes o despues?");
     const labels: string[] = ['1', '2', '3', '4', '5 o más'];
 
     // Este representa el número de autores que tiene cada paper
@@ -288,7 +287,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   }
 
   obtenerDatosDemograficos(){
-    console.log("demograficos antes o despues?");
       const datasets = this.researchers.map(researcher => {
         let nombre = researcher.researcher.properties.name.split(' ')[0];
         if(nombre.includes("-")){
@@ -310,9 +308,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         });
         return datasetPorAnio;
       }).flat(); 
-
-      console.log("datasets en demogr");
-      console.log(datasets);
 
       this.statsGenero(datasets);
       this.statsGeografia(datasets);
@@ -433,9 +428,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         color: this.randomColor()
       }));
 
-      console.log("wordcloud data");
-      console.log(wordCloudData);
-
       this.cloudData = wordCloudData;
      
   }
@@ -458,8 +450,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     const numResearchersPorAnio = anios.map(anio =>
       this.researchers.filter(researcher => researcher.years.includes(anio)).length
     );
-    console.log("this.reserrchers");
-    console.log(this.researchers);
     this.estadisticas[0] = {
       anios: anios,
       numResearchers: numResearchersPorAnio
@@ -469,9 +459,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   statsPapers() {
     const anios = this.papers.map(paper => paper.year); // Extraer los años de this.numPapers
     const numPapers = this.papers.map(paper => paper.numPapers); 
-    
-    console.log("this.papers en stats papers");
-    console.log(this.papers);
 
     this.estadisticas[1] = {
       anios: anios,
@@ -590,9 +577,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       }
     }
 
-    console.log("mapeoFecha antes");
-    console.log(mapeoFecha);
-
     // Normalizamos valores según su total
     for (const year in mapeoFecha) {
       let total = 0;
@@ -612,9 +596,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     const datasetsData = countries.map((country) =>
       years.map((year) => mapeoFecha[year][country])
     );
-
-    console.log("datasetsData");
-    console.log(datasetsData);
 
     this.generarGraficoMultiple('lineChart5', years, datasetsLabels, datasetsData);
     
@@ -693,9 +674,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       '2010s': document.querySelector('#tabla10 tbody'),
       '2020s': document.querySelector('#tabla20 tbody'),
     };
-  
-    console.log("decadestats");
-    console.log(decadeStats);
     for (const decada of decadeStats) {
       const tabla = tablas[decada.label];
   
@@ -883,8 +861,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         }
       });
 
-      console.log("datos ordenados");
-      console.log(datosOrdenados);
 
       // Obtener los años ordenados
       const aniosOrdenados = Object.keys(datosOrdenados).sort();
@@ -892,9 +868,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
       const conteosHombres = aniosOrdenados.map(anio => Number((datosOrdenados[anio].hombres/(datosOrdenados[anio].total)).toFixed(4)));
       const conteosMujeres = aniosOrdenados.map(anio => Number((datosOrdenados[anio].mujeres/(datosOrdenados[anio].total)).toFixed(4)));
-
-      console.log("conteos hombres");
-      console.log(conteosHombres);
 
       
       this.generarGraficoCircular('lineChart4', aniosOrdenados, ['Hombres', 'Mujeres'], [conteosHombres, conteosMujeres]);
@@ -1037,7 +1010,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   async main(){
     try {
       this.titulosSeleccionados = this.seleccionService.obtenerTitulosSeleccionados();
-      console.log("TItulosselecc"+this.titulosSeleccionados);
       this.conferenceOption = this.seleccionService.obtenerOpcionConferencia();
       this.venueName = this.seleccionService.obtenerNombreVenue();
 
