@@ -55,6 +55,14 @@ app.get('/estadisticas', (req, res) => {
   res.json(estadisticas);
 });
 
+app.get('/config', (req, res) => {
+  // Realizar la lógica para obtener las estadísticas
+  // ...
+
+  // Enviar las estadísticas como respuesta
+  res.json(config);
+});
+
 // Endpoint para filtrar resultados
 app.get('/filtrar-conferences', apiRoutes);
 app.get('/filtrar-journals', apiRoutes);

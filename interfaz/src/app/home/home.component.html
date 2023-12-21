@@ -39,6 +39,9 @@
     <div class="button-stats">
       <button [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generate Stats</button>
     </div>
+    <div class="button-stats">
+      <button [disabled]="!hayTitulosSeleccionados()" (click)="generarconf()">Config</button>
+    </div>
     <div class="button-clear" *ngIf="titulosFiltrados.length > 0  ">
       <button (click)="clear()">Cancel</button>
     </div>

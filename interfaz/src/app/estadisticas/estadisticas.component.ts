@@ -57,7 +57,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   titulosSeleccionados: any[] = [];
   yearsSeleccionados: any[] = [];
   conferenceOption: string = "";
-  venueName: string = "";
+  venueName: any[] = [];
   papers: any[] = [];
   colaboraciones: any[] = [];
   singleAuthor: any[] = [];

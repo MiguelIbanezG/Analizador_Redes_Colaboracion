@@ -10,13 +10,15 @@ import { FormsModule } from '@angular/forms';
 import { EstadisticasComponent } from './estadisticas/estadisticas.component';
 import { SeleccionService } from './seleccion.service';
 import { TagCloudComponent } from 'angular-tag-cloud-module';
+import { ConfigComponent } from './config/config.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
-    EstadisticasComponent
+    EstadisticasComponent,
+    ConfigComponent
   
   ],
   imports: [

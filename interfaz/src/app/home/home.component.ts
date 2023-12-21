@@ -96,7 +96,9 @@ export class HomeComponent implements OnInit {
   }
 
   obtenerNodosFiltradosConference() {
-    this.apiService.obtenerNodosFiltradosConference(this.filtros).subscribe({
+    const filtrosSeparados = this.filtros.split(',').map(filter => filter.trim());
+
+    this.apiService.obtenerNodosFiltradosConference(filtrosSeparados).subscribe({
       next: (response: any[]) => {
         // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
         this.resultadosFiltrados = response.map(item => item);
@@ -242,11 +244,25 @@ export class HomeComponent implements OnInit {
     
     // Almacena los títulos seleccionados en el servicio de selección
     this.seleccionService.agregarTitulos(titulosSeleccionados);
-
-    this.seleccionService.marcarNombreVenue(this.filtros);
+    const filtrosSeparados = this.filtros.split(',').map(filter => filter.trim());
+    this.seleccionService.marcarNombreVenue(filtrosSeparados);
 
     // Redirige a la página de estadísticas
     this.router.navigateByUrl('/estadisticas');
+  }
+
+  generarconf() {
+    // Filtra los títulos seleccionados
+    const titulosSeleccionados = this.titulosFiltrados
+    .filter(titulo => titulo.selected).map(titulo => titulo.pr_objeto);
+    
+    // Almacena los títulos seleccionados en el servicio de selección
+    this.seleccionService.agregarTitulos(titulosSeleccionados);
+    this.seleccionService.marcarBook(this.filtros);
+
+
+    // Redirige a la página de estadísticas
+    this.router.navigateByUrl('/config');
   }
 
 

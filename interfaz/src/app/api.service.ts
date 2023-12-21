@@ -11,8 +11,8 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  obtenerNodosFiltradosConference(filterName: string): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}//filtrar-conferences/${filterName}`);
+  obtenerNodosFiltradosConference(filtros: string[]): Observable<string[]> {
+    return this.http.post<string[]>(`${this.baseUrl}/filtrar-conferences`, { filterNames: filtros });
   }
 
   obtenerNodosFiltradosJournal(name: string): Observable<string[]> {
@@ -33,23 +33,28 @@ export class ApiService {
   }
 
   obtenerResearchersJournals(titulosSeleccionados: any[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/researchersjorunals`, { titulosSeleccionados });
+    return this.http.post<any>(`${this.baseUrl}/researchersjournals`, { titulosSeleccionados });
   }
 
-  obtenerPapers(titulosSeleccionados: any[], option: string, venue: string): Observable<any> {
+  obtenerPapers(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/papers`, { titulosSeleccionados, option, venue });
   }
 
-  obtenerColaboraciones(titulosSeleccionados: any[], option: string, venue: string): Observable<any> {
+  obtenerColaboraciones(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/colaboraciones`, { titulosSeleccionados, option, venue });
   }
 
-  obtenerAuthorsPapers(titulosSeleccionados: any[], option: string, venue: string): Observable<any> {
+  obtenerAuthorsPapers(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/AuthorsPapers`, { titulosSeleccionados, option, venue });
   }
 
-  obtenerAuthorsGrade(titulosSeleccionados: any[], option: string, venue: string): Observable<any> {
+  obtenerAuthorsGrade(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/AuthorsDegree`, { titulosSeleccionados, option, venue });
   }
+
+  obtenerbooks(titulosSeleccionados: any[], book: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/AuthorsDegree`, { titulosSeleccionados, book});
+  }
+  
   
 }
