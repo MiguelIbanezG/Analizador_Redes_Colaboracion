@@ -4,6 +4,10 @@ body {
   padding: 10px;
 }
 
+.button-add{
+ margin-left: 10px;
+}
+
 .container {
   max-width: 600px;
   margin: 0 auto;
@@ -14,6 +18,24 @@ body {
   background-color: #ffffff;
   border-radius: 5px;
   box-shadow: 0 2px 5px  rgb(0, 22, 68);
+}
+
+.button-delete{
+  background-color: rgb(255, 0, 0);
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  margin-left: 8px;
+}
+
+.filtros-list ul li {
+  margin-bottom: 8px; /* Ajusta el valor según el espacio que desees entre elementos */
+}
+
+
+p{
+  font-weight: bold; /* Negrita */
 }
 
 h1 {
@@ -48,7 +70,9 @@ button:disabled {
 }
 
 .button-years:hover,
-.button-decade:hover {
+.button-decade:hover,
+.button-add:hover,
+.button-delete:hover {
   transform: scale(1.1);
   transition: transform 0.3s ease;
 }
@@ -90,6 +114,7 @@ button:disabled {
 
 .modal-button {
   text-align: right; /* Alinea el botón a la derecha */
+  margin-top: -20px;
 }
 
 .help {

@@ -17,6 +17,8 @@ export class HomeComponent implements OnInit {
   // Propiedades
   info: string = 'Home class';
   filtros: string = '';
+  filtrosBOX: string = '';
+  filtrosList: string[] = [];
   publicaciones: string[] = [];
   resultadosFiltrados: string[] = [];
   titulosFiltrados: { title: string, pr_objeto: any, selected: boolean }[] = [];
@@ -37,6 +39,8 @@ export class HomeComponent implements OnInit {
   showModal: boolean = false;
   modalText: string = '';
   modalRef: BsModalRef | undefined;
+  showButtons = false;
+  showAppend = false;
 
 
   private nodosSubscription: Subscription | undefined;
@@ -61,7 +65,48 @@ export class HomeComponent implements OnInit {
     this.modalRef?.hide();
   }
 
+  append() {
+    if (this.filtrosBOX && this.filtrosBOX.trim() !== '') {
+      const conferencia = this.filtrosBOX.trim();
+      // Realiza la verificación específica para la conferencia agregada
+      this.apiService.obtenerNodosFiltradosConference([conferencia]).subscribe({
+        next: (response: any[]) => {
+          if (response.length !== 0) {
+            this.noResultsFoundConference = false;
+            // La conferencia se encontró en los resultados, agrega a la lista
+            if (!this.filtrosList.includes(conferencia)) {
+              this.filtrosList.push(conferencia);
+              const filtrosComoString = this.filtrosList.join(','); // Convierte la lista a cadena
+              this.filtros = filtrosComoString; // Actualiza el valor de filtros como una cadena
+            }
+          } else {
+            // La conferencia no se encontró en los resultados, muestra el mensaje de error
+            this.noResultsFoundConference = true;
+          }
+        },
+        error: (error: any) => {
+          console.error('Error al obtener los resultados filtrados:', error);
+        },
+        complete: () => {
+          this.filtrosBOX = ""; // Limpiar la entrada de texto
+          this.showAppend = true;
+        }
+      });
+    }
+  }
+
+  eliminarFiltro(filtro: string) {
+    const indice = this.filtrosList.indexOf(filtro);
+    if (indice !== -1) {
+      this.filtrosList.splice(indice, 1); // Elimina el filtro de la lista
+      const filtrosComoString = this.filtrosList.join(',');
+      this.filtros = filtrosComoString; 
+    }
+  }
+
+
   filter2(){
+    this.showButtons= true;
     this.clear()
     this.obtenerNodosFiltradosConference();
     this.obtenerNodosFiltradosJournal();
@@ -69,6 +114,7 @@ export class HomeComponent implements OnInit {
   }
 
   execFunctionsYear(){
+    this.showButtons= true;
     this.clear()
     this.obtenerNodosFiltradosJournal();
     this.obtenerNodosFiltradosConference();
@@ -76,6 +122,7 @@ export class HomeComponent implements OnInit {
   }
 
   execFunctionsDecades(){
+    this.showButtons= true;
     this.clear()
     this.obtenerNodosFiltradosJournal();
     this.obtenerNodosFiltradosConference();
@@ -99,6 +146,11 @@ export class HomeComponent implements OnInit {
   clear(){
     this.titulosFiltrados = [];
   }
+
+  clear2(){
+    this.titulosFiltrados = [];
+    this.showButtons= false;
+  }
   
   handleSelection() {
     // Lógica para manejar la opción seleccionada
@@ -111,9 +163,7 @@ export class HomeComponent implements OnInit {
   }
 
   obtenerNodosFiltradosConference() {
-    const filtrosSeparados = this.filtros.split(',').map(filter => filter.trim());
-
-    this.apiService.obtenerNodosFiltradosConference(filtrosSeparados).subscribe({
+    this.apiService.obtenerNodosFiltradosConference(this.filtrosList).subscribe({
       next: (response: any[]) => {
         // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
         this.resultadosFiltrados = response.map(item => item);
