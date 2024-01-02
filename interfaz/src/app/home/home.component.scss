@@ -5,10 +5,21 @@ body {
 }
 
 .button-add{
- margin-left: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  margin-left: 8px;
+  margin-bottom: 5px;
+  font-weight: bold; 
+
 }
 
-.container {
+
+
+
+.container { 
+  width: 70%;
   max-width: 600px;
   margin: 0 auto;
   padding-left: 20px;
@@ -18,6 +29,7 @@ body {
   background-color: #ffffff;
   border-radius: 5px;
   box-shadow: 0 2px 5px  rgb(0, 22, 68);
+
 }
 
 .button-delete{
@@ -27,12 +39,22 @@ body {
   padding-top: 2px;
   padding-bottom: 2px;
   margin-left: 8px;
+  font-weight: bold; 
 }
 
 .filtros-list ul li {
   margin-bottom: 8px; /* Ajusta el valor según el espacio que desees entre elementos */
 }
 
+
+.filtros-list{
+  float: right;
+  width: 20%;
+  box-shadow: 0 2px 5px  rgb(0, 22, 68);
+  background-color: #ffffff;
+  padding: 5px; /* Espaciado interno para que el borde no esté pegado al contenido */
+  border-radius: 5px;
+}
 
 p{
   font-weight: bold; /* Negrita */
@@ -231,4 +253,10 @@ span.selected {
 
 .close-icon {
   font-size: 18px; /* Cambia el tamaño del icono 'X' */
+}
+
+@media screen and (min-width: 1800px) {
+  .filtros-list {
+    width: 30%;
+  }
 }

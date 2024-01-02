@@ -19,6 +19,8 @@ export class HomeComponent implements OnInit {
   filtros: string = '';
   filtrosBOX: string = '';
   filtrosList: string[] = [];
+  sugerenciasVenues: string[] = [];
+
   publicaciones: string[] = [];
   resultadosFiltrados: string[] = [];
   titulosFiltrados: { title: string, pr_objeto: any, selected: boolean }[] = [];
@@ -57,6 +59,18 @@ export class HomeComponent implements OnInit {
     //INICIAL
   }
 
+  buscarVenues(term: string): void {
+    this.apiService.buscarVenues(term).subscribe({
+      next: (response: string[]) => {
+        this.sugerenciasVenues = response;
+      },
+      error: (error: any) => {
+        console.error('Error al obtener sugerencias de venues:', error);
+      }
+    });
+  }
+
+
   openModal(template: TemplateRef<any>) {
     this.modalRef = this.modalService.show(template)
   }
@@ -65,9 +79,9 @@ export class HomeComponent implements OnInit {
     this.modalRef?.hide();
   }
 
-  append() {
-    if (this.filtrosBOX && this.filtrosBOX.trim() !== '') {
-      const conferencia = this.filtrosBOX.trim();
+  append(sugerencia: string) {
+    if (sugerencia.trim() !== '') {
+      const conferencia = sugerencia.trim();
       // Realiza la verificación específica para la conferencia agregada
       this.apiService.obtenerNodosFiltradosConference([conferencia]).subscribe({
         next: (response: any[]) => {
@@ -106,11 +120,7 @@ export class HomeComponent implements OnInit {
 
 
   filter2(){
-    this.showButtons= true;
-    this.clear()
-    this.obtenerNodosFiltradosConference();
-    this.obtenerNodosFiltradosJournal();
-    this.toggleDecades();
+    this.append(this.filtrosBOX)
   }
 
   execFunctionsYear(){

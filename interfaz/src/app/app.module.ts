@@ -12,6 +12,7 @@ import { SeleccionService } from './seleccion.service';
 import { TagCloudComponent } from 'angular-tag-cloud-module';
 import { ConfigComponent } from './config/config.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 
@@ -29,7 +30,8 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     HttpClientModule,
     FormsModule,
     TagCloudComponent,
-    ModalModule
+    ModalModule,
+    NgSelectModule
   ],
   providers: [
     ApiService,

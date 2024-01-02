@@ -15,6 +15,11 @@ export class ApiService {
     return this.http.post<string[]>(`${this.baseUrl}/filtrar-conferences`, { filterNames: filtros });
   }
 
+  buscarVenues(term: string): Observable<string[]> {
+    const params = new HttpParams().set('term', term);
+    return this.http.get<string[]>(`${this.baseUrl}/buscar-venues/${term}`, { params });
+  }
+
   obtenerNodosFiltradosJournal(name: string): Observable<string[]> {
     return this.http.get<string[]>(`${this.baseUrl}//filtrar-journals/${name}`);
   }

@@ -24,6 +24,29 @@ router.get('/etiquetas', async (req, res) => {
   }
 });
 
+router.get('/buscar-venues/:term', async (req, res) => {
+  const searchTerm = req.params.term; // Término de búsqueda (puede ser el inicio de la Venue)
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
+      MATCH (v:Venue)
+      WHERE v.name STARTS WITH $searchTerm
+      RETURN DISTINCT v.name as venueName
+      LIMIT 10
+    `;
+    const result = await session.run(query, { searchTerm });
+    const venues = result.records.map(record => record.get('venueName'));
+
+    res.json(venues);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al buscar venues', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
 router.post('/filtrar-conferences', async (req, res) => {
   const session = driver.session({ database: 'neo4j' });
   const filterNames = req.body.filterNames; // Suponiendo que filterNames es un array de nombres de venues

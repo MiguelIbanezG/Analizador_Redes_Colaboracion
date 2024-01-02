@@ -66,6 +66,7 @@ app.get('/config', (req, res) => {
 // Endpoint para filtrar resultados
 app.get('/filtrar-conferences', apiRoutes);
 app.get('/filtrar-journals', apiRoutes);
+app.get('//buscar-venues/:term', apiRoutes);
 app.post('/estadisticas', apiRoutes);
 app.post('/config', apiRoutes);
 

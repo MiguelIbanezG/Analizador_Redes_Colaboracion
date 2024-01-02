@@ -1,3 +1,14 @@
+
+<div *ngIf="showAppend" class="filtros-list">
+  <p>Current Conferences:</p>
+  <ul>
+    <li *ngFor="let filtro of filtrosList">
+      {{ filtro }}
+      <button class="button-delete" (click)="eliminarFiltro(filtro)">X</button>
+    </li>
+  </ul>
+</div>
+
 <div class="container">
 
   <!-- Title -->
@@ -5,24 +16,21 @@
 
   <!-- Search Conference -->
   <div class="box-conference">
-    <input type="text" [(ngModel)]="filtrosBOX" placeholder="Enter the Conference or Journal" (keyup.enter)="filter2()">
-    <button class="button-add"  type="button" (click)="append()">Add</button>
+    <input type="text" [(ngModel)]="filtrosBOX" placeholder="Enter the Conference or Journal" (keyup.enter)="filter2()" (input)="buscarVenues(filtrosBOX)">
+    <div *ngIf="sugerenciasVenues.length > 0">
+      <ul>
+        <li *ngFor="let sugerencia of sugerenciasVenues">
+          {{ sugerencia }}
+          <button class="button-add"  type="button" (click)="append(sugerencia)">+</button>
+        </li>
+      </ul>
+    </div>
   </div>
 
   <div class="noResults" *ngIf="noResultsFoundConference">
     <p>Conference or Journal not found. Please try another Conference or Journal</p>
   </div>
 
-  <div *ngIf="showAppend" class="filtros-list">
-    <p>Current Conferences:</p>
-    <ul>
-      <li *ngFor="let filtro of filtrosList">
-        {{ filtro }}
-        <button class="button-delete" (click)="eliminarFiltro(filtro)">X</button>
-      </li>
-    </ul>
-  </div>
-  
 
   <!-- Buttons Filter -->
   <div class="buttons">
@@ -137,6 +145,11 @@
     </div>
   </div>
 </ng-template>
+
+
+
+
+
 
 
 
