@@ -67,6 +67,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   lineChart3!: Chart;
   barChart!: Chart;
   researchers: any[] = [];
+  researchers2: any[] = [];
   papersWithAuthors: any[] = [];
   autoresPorPapersTable: any[] = [];
   papersPorAutoresTable: any[] = [];
@@ -146,6 +147,29 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     }
   }
 
+  obtenerDatosEscuelas() {
+    this.apiService.obtenerSchools().subscribe({
+      next: (response: any[]) => {
+        this.researchers2 = response;
+        const table = document.querySelector('#tablaInstitution tbody');
+        if (table instanceof HTMLElement) {
+          this.researchers2.forEach(({ School, NumberOfAuthors, Country }) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${School}</td><td>${NumberOfAuthors}</td><td>${Country}</td>`;
+      
+            table.appendChild(row);
+          });
+        }
+
+        // Aquí puedes trabajar con los datos de los investigadores (this.researchers)
+        // por ejemplo, mostrarlos en la interfaz de usuario o realizar otras operaciones
+      },
+      error: (error: any) => {
+        console.error('Error al obtener datos de las escuelas:', error);
+      }
+    });
+  }
+
   obtenerResearchersConference() {
     this.apiService.obtenerResearchersConference(this.titulosSeleccionados).subscribe({
       next: (response: any) => {
@@ -171,6 +195,9 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     }
     
   }
+
+
+  
 
   combinarYMostrarDatos(researchersConference: any[], researchersJournals: any[]) {
     
@@ -431,6 +458,22 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       this.cloudData = wordCloudData;
      
   }
+
+  generarTablasDecadas2() {
+    const table = document.querySelector('#tablaInstitution tbody');
+    console.log("gwgiw"+this.researchers2)
+    if (table instanceof HTMLElement) {
+      this.researchers2.forEach(({ School, NumberOfAuthors, Country }) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${School}</td><td>${NumberOfAuthors}</td><td>${Country}</td>`;
+  
+        table.appendChild(row);
+      });
+    }
+  }
+  
+
+  
 
   calcularWeight(frecuencia: number, maxFrecuencia: number, minWeight: number, maxWeight: number): number {
     const peso = frecuencia / maxFrecuencia;
@@ -1017,6 +1060,9 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       this.obtenerColaboraciones();
       this.obtenerSingleAuthorPapers();
       this.obtenerResearchersConference();
+      this.obtenerDatosEscuelas();
+      console.log("eeee"+this.researchers)
+      this.generarTablasDecadas2();
       
 
      

@@ -69,6 +69,7 @@ app.get('/filtrar-journals', apiRoutes);
 app.get('//buscar-venues/:term', apiRoutes);
 app.post('/estadisticas', apiRoutes);
 app.post('/config', apiRoutes);
+app.post('/schools', apiRoutes);
 
 // Configurar otros endpoints y lógica adicional aquí
 // ...

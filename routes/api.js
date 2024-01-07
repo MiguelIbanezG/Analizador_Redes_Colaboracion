@@ -413,6 +413,84 @@ router.post('/searchbook', async (req, res) => {
   }
 });
 
-module.exports = router;
+router.post('/schools', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
 
+  try {
+    const query = `
+    MATCH (p:Publication)-[:PRESENTED_AT]->(s:School)
+    MATCH (p)-[:AUTHORED_BY]->(r:Researcher)
+    RETURN 
+      CASE 
+        WHEN s.name ENDS WITH 'USA' THEN 'USA'
+        WHEN s.name ENDS WITH 'Germany' THEN 'Germany'
+        WHEN s.name ENDS WITH 'UK' THEN 'UK'
+        WHEN s.name ENDS WITH 'Switzerland' THEN 'Switzerland'
+        WHEN s.name ENDS WITH 'India' THEN 'India'
+        WHEN s.name ENDS WITH 'Singapore' THEN 'Singapore'
+        WHEN s.name ENDS WITH 'Spain' THEN 'Spain'
+        WHEN s.name ENDS WITH 'Italy' THEN 'Italy'
+        WHEN s.name ENDS WITH 'Australia' THEN 'Australia'
+        WHEN s.name ENDS WITH 'Belgium' THEN 'Belgium'
+        WHEN s.name ENDS WITH 'Brazil' THEN 'Brazil'
+        WHEN s.name ENDS WITH 'Netherlands' THEN 'Netherlands'
+        WHEN s.name ENDS WITH 'France' THEN 'France'
+        WHEN s.name ENDS WITH 'China' THEN 'China'
+        WHEN s.name ENDS WITH 'Austria' THEN 'Austria'
+        WHEN s.name ENDS WITH 'Canada' THEN 'Canada'
+        WHEN s.name ENDS WITH 'Finland' THEN 'Finland'
+        WHEN s.name ENDS WITH 'Denmark' THEN 'Denmark'
+        WHEN s.name ENDS WITH 'South Africa' THEN 'South Africa'
+        WHEN s.name ENDS WITH 'Iran' THEN 'Iran'
+        ELSE 'Unknown' END AS Country,
+      CASE 
+        WHEN s.name ENDS WITH 'USA' THEN REPLACE(s.name, ', USA', '')
+        WHEN s.name ENDS WITH 'Germany' THEN REPLACE(s.name, ', Germany', '')
+        WHEN s.name ENDS WITH 'UK' THEN REPLACE(s.name, ', UK', '')
+        WHEN s.name ENDS WITH 'Switzerland' THEN REPLACE(s.name, ', Switzerland', '')
+        WHEN s.name ENDS WITH 'India' THEN REPLACE(s.name, ', India', '')
+        WHEN s.name ENDS WITH 'Singapore' THEN REPLACE(s.name, ', Singapore', '')
+        WHEN s.name ENDS WITH 'Spain' THEN REPLACE(s.name, ', Spain', '')
+        WHEN s.name ENDS WITH 'Italy' THEN REPLACE(s.name, ', Italy', '')
+        WHEN s.name ENDS WITH 'Australia' THEN REPLACE(s.name, ', Australia', '')
+        WHEN s.name ENDS WITH 'Belgium' THEN REPLACE(s.name, ', Belgium', '')
+        WHEN s.name ENDS WITH 'Brazil' THEN REPLACE(s.name, ', Brazil', '')
+        WHEN s.name ENDS WITH 'Netherlands' THEN REPLACE(s.name, ', Netherlands', '')
+        WHEN s.name ENDS WITH 'France' THEN REPLACE(s.name, ', France', '')
+        WHEN s.name ENDS WITH 'China' THEN REPLACE(s.name, ', China', '')
+        WHEN s.name ENDS WITH 'Austria' THEN REPLACE(s.name, ', Austria', '')
+        WHEN s.name ENDS WITH 'Canada' THEN REPLACE(s.name, ', Canada', '')
+        WHEN s.name ENDS WITH 'Finland' THEN REPLACE(s.name, ', Finland', '')
+        WHEN s.name ENDS WITH 'Denmark' THEN REPLACE(s.name, ', Denmark', '')
+        WHEN s.name ENDS WITH 'South Africa' THEN REPLACE(s.name, ', South Africa', '')
+        WHEN s.name ENDS WITH 'Iran' THEN REPLACE(s.name, ', Iran', '')
+        ELSE s.name END AS School,
+      count(DISTINCT r) AS NumberOfAuthors
+    ORDER BY NumberOfAuthors DESC
+    LIMIT 20
+    
+    `;
+
+    const result = await session.run(query);
+    const records = result.records.map(record => {
+      return {
+        Country: record.get('Country'),
+        School: record.get('School'),
+        NumberOfAuthors: record.get('NumberOfAuthors').toNumber()
+      };
+    });
+
+    res.json(records);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener los datos', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+  
+
+module.exports = router;
+  
 

@@ -1,8 +1,9 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { ApiService } from '../api.service';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription, map, startWith } from 'rxjs';
 import { Router } from '@angular/router';
 import { SeleccionService } from '../seleccion.service';
+import { FormControl } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { ModalModule } from 'ngx-bootstrap/modal';
@@ -43,6 +44,8 @@ export class HomeComponent implements OnInit {
   modalRef: BsModalRef | undefined;
   showButtons = false;
   showAppend = false;
+  filVenues: Observable<string[]> | undefined;
+  control = new FormControl();
 
 
   private nodosSubscription: Subscription | undefined;
@@ -56,7 +59,11 @@ export class HomeComponent implements OnInit {
   ) { }
   
   ngOnInit() {
-    //INICIAL
+    this.filVenues = this.control.valueChanges
+  }
+
+  seleccionarSugerencia(sugerencia: string) {
+    this.filtrosBOX = sugerencia; // Asigna la sugerencia seleccionada al cuadro de texto
   }
 
   buscarVenues(term: string): void {
@@ -68,6 +75,16 @@ export class HomeComponent implements OnInit {
         console.error('Error al obtener sugerencias de venues:', error);
       }
     });
+  }
+  
+  private _filter(val: string): string[]{
+    const formatVal = val.toLocaleLowerCase();
+
+    return this.sugerenciasVenues.filter( sugerencia => sugerencia.toLocaleLowerCase().indexOf(formatVal)===0)
+  }
+
+  completarTexto(sugerencia: string) {
+    this.filtrosBOX = sugerencia;
   }
 
 
@@ -336,8 +353,6 @@ export class HomeComponent implements OnInit {
     this.seleccionService.agregarTitulos(titulosSeleccionados);
     const filtrosSeparados = this.filtros.split(',').map(filter => filter.trim());
     this.seleccionService.marcarNombreVenue(filtrosSeparados);
-    console.log("hgeSEFWWSwgWE::::::"+this.filtros)
-
     // Redirige a la página de estadísticas
     this.router.navigateByUrl('/config');
   }

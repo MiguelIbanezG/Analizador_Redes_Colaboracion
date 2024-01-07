@@ -12,8 +12,7 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "neo4j": "^2.0.0-RC2",
-    "neo4j-driver": "^4.2.3"
+    "neo4j-driver": "^4.4.11"
   },
-  "description": "dblp ",
-  "devDependencies": {}
+  "description": "dblp "
 }

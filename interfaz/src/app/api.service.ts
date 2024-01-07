@@ -75,6 +75,10 @@ export class ApiService {
     console.log("rolerher"+venue)
     return this.http.post<any>(`${this.baseUrl}/searchbook`, { titulosSeleccionados, venue});
   }
+
+  obtenerSchools(): Observable<any[]> {
+    return this.http.post<any[]>(`${this.baseUrl}/schools`, {});
+  }
   
   
 }

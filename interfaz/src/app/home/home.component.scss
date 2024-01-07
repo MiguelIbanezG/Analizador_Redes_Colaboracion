@@ -5,18 +5,10 @@ body {
 }
 
 .button-add{
-  padding-left: 5px;
-  padding-right: 5px;
-  padding-top: 2px;
-  padding-bottom: 2px;
   margin-left: 8px;
   margin-bottom: 5px;
   font-weight: bold; 
-
 }
-
-
-
 
 .container { 
   width: 70%;
@@ -48,12 +40,11 @@ body {
 
 
 .filtros-list{
-  float: right;
-  width: 20%;
   box-shadow: 0 2px 5px  rgb(0, 22, 68);
   background-color: #ffffff;
   padding: 5px; /* Espaciado interno para que el borde no esté pegado al contenido */
   border-radius: 5px;
+  margin-bottom: 20px;
 }
 
 p{
@@ -102,6 +93,17 @@ button:disabled {
 .button-stats button{
   margin-bottom: 10px;
   margin-right: 10px;
+}
+
+.elemento-clicable {
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+
+.elemento-clicable:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+  font-weight: bold;
 }
 
 .stats{
@@ -253,10 +255,4 @@ span.selected {
 
 .close-icon {
   font-size: 18px; /* Cambia el tamaño del icono 'X' */
-}
-
-@media screen and (min-width: 1800px) {
-  .filtros-list {
-    width: 30%;
-  }
 }
