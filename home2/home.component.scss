@@ -1,0 +1,266 @@
+body {
+  font-family: "Roboto";
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.button-add{
+  margin-left: 8px;
+  margin-bottom: 5px;
+  font-weight: bold; 
+}
+
+.container { 
+  width: 70%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px  rgb(0, 22, 68);
+
+}
+
+.button-delete{
+  background-color: rgb(255, 0, 0);
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  margin-left: 8px;
+  font-weight: bold; 
+}
+
+.filtros-list ul li {
+  margin-bottom: 8px; /* Ajusta el valor según el espacio que desees entre elementos */
+}
+
+
+.filtros-list{
+  float: right;
+  width: 20%;
+  box-shadow: 0 2px 5px  rgb(0, 22, 68);
+  background-color: #ffffff;
+  padding: 5px; /* Espaciado interno para que el borde no esté pegado al contenido */
+  border-radius: 5px;
+}
+
+p{
+  font-weight: bold; /* Negrita */
+}
+
+h1 {
+  text-align: center;
+  font-size: 35px;
+}
+
+.box-conference{
+  margin-bottom: 10px;
+}
+
+.noResults p{
+  color: rgb(230, 59, 37);
+  margin-left: 10px;
+  font-size: 15px;
+  margin-top: -8px;
+}
+
+.buttons {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+button:disabled {
+  background-color: #cccccc; 
+  cursor: not-allowed;
+}
+
+.button-years,
+.button-decade {
+  margin-right: 10px; /* Espacio entre los botones */
+}
+
+.button-years:hover,
+.button-decade:hover,
+.button-add:hover,
+.button-delete:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.button-stats button{
+  margin-bottom: 10px;
+  margin-right: 10px;
+}
+
+.elemento-clicable {
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+
+.elemento-clicable:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+  font-weight: bold;
+}
+
+.stats{
+  display: flex;
+  flex-wrap: nowrap;
+  margin-top: 20px;
+}
+
+.button-clear button{
+  padding: 8px 16px;
+  background-color: rgb(255, 0, 0);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+}
+
+.button-stats button:disabled{
+  background-color: #cccccc;
+  margin-bottom: 10px;
+  cursor: not-allowed;
+}
+
+.button-stats button:hover{
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.modal-button button:hover{
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.modal-button {
+  text-align: right; /* Alinea el botón a la derecha */
+  margin-top: -20px;
+}
+
+.help {
+  font-size: 16px; /* Tamaño de fuente */
+  font-weight: bold; /* Negrita */
+}
+
+input[type="text"] {
+  padding: 8px;
+  width: 70%;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+}
+
+button {
+  padding: 8px 16px;
+  background-color: rgb(0, 22, 68);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+}
+
+.title-select{
+  margin-bottom: 2px;
+}
+
+select {
+  padding: 8px;
+  width: 85%;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+span.selected {
+  font-weight: bold;
+}
+
+.columns {
+  column-count: 6; /* Define el número de columnas */
+}
+
+.custom-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4); /* Fondo semitransparente */
+}
+
+.modal-container {
+  position: absolute;
+  top: 50%; /* Ajusta el valor según desees */
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.modal-content {
+  /* Estilos del contenido del modal */
+  width: 300px; /* Ancho del modal */
+  height: 350px; /* Altura del modal */
+  border: 2px solid black; /* Borde negro */
+  background-color: white;
+  padding: 20px;
+  /* Otros estilos... */
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid black; /* Borde inferior en la cabecera */
+  margin-bottom: 15px; /* Margen inferior para separar la cabecera del contenido */
+  margin-top: 10px;
+  font-size: 25px;
+}
+
+
+.modal-header button:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+
+.modal-title {
+  margin: 0;
+}
+
+.modal-body {
+  overflow-y: auto; /* Scroll si el contenido es demasiado grande */
+  height: calc(100% - 40px); /* Altura del contenido del modal */
+  font-size: 20px;
+}
+
+.close-btn {
+  padding: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-top: -20px;
+}
+
+.close-icon {
+  font-size: 18px; /* Cambia el tamaño del icono 'X' */
+}
+
+@media screen and (min-width: 1800px) {
+  .filtros-list {
+    width: 30%;
+  }
+}
+

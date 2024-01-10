@@ -128,6 +128,17 @@ div {
   margin-bottom: 40px;
 }
 
+#tablaInstitution th:nth-child(3){
+  padding-left: 120px; /* Ajusta el valor de píxeles según lo necesites */
+}
+
+#degree th:nth-child(2),
+#degree th:nth-child(3){
+  padding-left: 60px;
+}
+#degree th:nth-child(4) {
+  padding-left: 90px;
+}
 
 .hombres {
   background-color: rgb(255, 87, 51);
@@ -161,6 +172,12 @@ div {
     border-right: none; /* Elimina el borde derecho en pantallas pequeñas */
     padding-right: 0; /* Elimina el padding derecho en pantallas pequeñas */
     padding-bottom: 20px; /* Agrega espacio entre las tablas en pantallas pequeñas */
+  }
+  #tablaInstitution th:nth-child(3){
+    padding-left: 0px; /* Ajusta el valor de píxeles según lo necesites */
+  }
+  #tablaInstitution td:nth-child(3){
+    padding-left: 0px; /* Ajusta el valor de píxeles según lo necesites */
   }
   
 }

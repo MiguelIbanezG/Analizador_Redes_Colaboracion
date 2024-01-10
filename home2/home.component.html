@@ -1,0 +1,155 @@
+<div *ngIf="showAppend" class="filtros-list">
+  <p>Current Conferences:</p>
+  <ul>
+    <li *ngFor="let filtro of filtrosList">
+      {{ filtro }}
+      <button class="button-delete" (click)="eliminarFiltro(filtro)">X</button>
+    </li>
+  </ul>
+</div>
+
+<div class="container">
+
+  <!-- Title -->
+  <h1>Collaboration Networks</h1>
+
+  <!-- Search Conference -->
+  <div class="box-conference">
+    <input type="text" [(ngModel)]="filtrosBOX" placeholder="Enter the Conference or Journal" (keyup.enter)="filter2()" (input)="buscarVenues(filtrosBOX)">
+    <button class="button-add"  type="button" (click)="append(filtrosBOX)">Add</button>
+    <div *ngIf="sugerenciasVenues.length > 0">
+      <ul>
+        <li class="elemento-clicable" *ngFor="let sugerencia of sugerenciasVenues" (click)="completarTexto(sugerencia)">
+          {{ sugerencia }}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="noResults" *ngIf="noResultsFoundConference">
+    <p>Conference or Journal not found. Please try another Conference or Journal</p>
+  </div>
+
+
+  <!-- Buttons Filter -->
+  <div class="buttons">
+    <div class="button-years">
+      <button (click)="execFunctionsYear()" [disabled]="filtrosList.length === 0">Filter by years</button>
+    </div>
+    <div class="button-decade">
+      <button (click)="execFunctionsDecades()" [disabled]="filtrosList.length === 0">Filter by decades</button>
+    </div>
+  </div>
+
+
+ 
+  <!-- Filter by Decade -->
+  <div class="decades" *ngIf="mostrarDecadas && !mostrarAnios">
+    <div *ngIf="titulosFiltrados.length > 0 ">
+      <label>
+        <input type="checkbox" [(ngModel)]="selccionarDecadas" (change)="seleccionarDecadas()">
+        <span>1989-1999</span>
+      </label>
+    </div>
+  
+    <div *ngIf="titulosFiltrados.length > 0">
+      <label>
+        <input type="checkbox" [(ngModel)]="selccionarDecadas2" (change)="seleccionarDecadas2()">
+        <span>1999-2009</span>
+      </label>
+    </div>
+  
+    <div *ngIf="titulosFiltrados.length > 0">
+      <label>
+        <input type="checkbox" [(ngModel)]="selccionarDecadas3" (change)="seleccionarDecadas3()">
+        <span>2009-2019</span>
+      </label>
+    </div>
+  
+    <div *ngIf="titulosFiltrados.length > 0">
+      <label>
+        <input type="checkbox" [(ngModel)]="selccionarDecadas4" (change)="seleccionarDecadas4()">
+        <span>2019-2024</span>
+      </label>
+    </div>
+  </div>
+      
+  <!-- Select All -->
+  <div *ngIf="(titulosFiltrados.length > 0) && !mostrarDecadas">
+    <label>
+      <input type="checkbox" [(ngModel)]="seleccionarTodos" (change)="seleccionarTodosChanged()">
+      <span>All</span>
+    </label>
+  </div>
+  
+  <!-- Filter by Year -->
+  <div *ngIf="!mostrarDecadas">
+    <div class="columns">
+      <div class="column" *ngFor="let titulo of titulosFiltrados; let i = index">
+        <label>
+          <input type="checkbox" [(ngModel)]="titulo.selected" (change)="tituloChanged()">
+          <span [ngClass]="{ 'selected': titulo.selected }">{{ titulo.title }}</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+   <!-- Generate Stats -->
+   <div class="stats" >
+    <div class="button-stats" *ngIf="showButtons">
+      <button [hidden]="(this.noResultsFoundConference === true) ||
+      (this.noResultsFoundConference === undefined)" [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generate Stats</button>
+    </div>
+    <div class="button-stats" *ngIf="showButtons">
+      <button [hidden]="(this.noResultsFoundConference === true) ||
+      (this.noResultsFoundConference === undefined)" [disabled]="!hayTitulosSeleccionados()" (click)="generarconf()">Info</button>
+    </div>
+    <div class="button-clear" *ngIf="titulosFiltrados.length > 0  ">
+      <button (click)="clear2()">Cancel</button>
+    </div>
+    
+  </div>
+  <div class="modal-button">
+    <button class="help" (click)="openModal(template)">?</button>
+  </div>
+
+
+</div>
+
+
+<ng-template #template>
+  <div class="custom-modal">
+    <div class="modal-container">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title pull-left">Help</h4>
+          <button type="button" class="close-btn" aria-label="Close" (click)="closeModal()">
+            <span class="close-icon" aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Buscar solo uno:</p>
+          <ul>
+            <li>ER</li>
+            <li>World Wide Web</li>
+            <!-- Agrega más elementos de la lista aquí -->
+          </ul>
+          <p>Buscar mas de uno (separar por comas):</p>
+          <ul>
+            <li>ER, 3DOR, BDM</li>
+            <!-- Agrega más elementos de la lista aquí -->
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+
+
+
+
+
+
+
+

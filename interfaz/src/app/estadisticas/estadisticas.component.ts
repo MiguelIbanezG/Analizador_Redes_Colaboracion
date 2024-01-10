@@ -25,6 +25,13 @@ interface DecadeStats {
   authors: Author[];
 }
 
+interface YearStats {
+  label: string;
+  startYear: number;
+  endYear: number;
+  authors: Author[];
+}
+
 interface GeneroCounts {
   hombres: number;
   mujeres: number;
@@ -72,6 +79,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   autoresPorPapersTable: any[] = [];
   papersPorAutoresTable: any[] = [];
   decadeStats: any[] = [];
+  yearStats: any[] = [];
   commonNames: { [key: string]: { frec_paises: { [key: string]: number }, genero: string } } = {};
   options: CloudOptions = {
     // if width is between 0 and 1 it will be set to the width of the upper element multiplied by the value
@@ -155,14 +163,12 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         if (table instanceof HTMLElement) {
           this.researchers2.forEach(({ School, NumberOfAuthors, Country }) => {
             const row = document.createElement('tr');
-            row.innerHTML = `<td>${School}</td><td>${NumberOfAuthors}</td><td>${Country}</td>`;
+            row.innerHTML = `
+            <td>${School}</td><td>${NumberOfAuthors}</td><td style="padding-left: 100px">${Country}</td>`;
       
             table.appendChild(row);
           });
         }
-
-        // Aquí puedes trabajar con los datos de los investigadores (this.researchers)
-        // por ejemplo, mostrarlos en la interfaz de usuario o realizar otras operaciones
       },
       error: (error: any) => {
         console.error('Error al obtener datos de las escuelas:', error);
@@ -227,7 +233,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   obtenerColaboraciones() {
     this.apiService.obtenerColaboraciones(this.titulosSeleccionados, this.conferenceOption, this.venueName).subscribe({
       next: (response: any) => {
-        console.log("resss"+response)
         this.colaboraciones = response;
         this.statsColaboraciones();
         this.generarGrafico3('lineChart3', 'Density', this.estadisticas[3].anios, this.estadisticas[3].densidades);
@@ -459,9 +464,9 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
      
   }
 
+
   generarTablasDecadas2() {
     const table = document.querySelector('#tablaInstitution tbody');
-    console.log("gwgiw"+this.researchers2)
     if (table instanceof HTMLElement) {
       this.researchers2.forEach(({ School, NumberOfAuthors, Country }) => {
         const row = document.createElement('tr');
@@ -708,6 +713,43 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   
     // Devolver las décadas con los autores ordenados
     return decades;
+  }
+
+  statsProlificAuthors2(selectedYears: number[]) {
+    const startYear = Math.min(...selectedYears);
+    const endYear = Math.max(...selectedYears);
+  
+    const allAuthors = this.filterAuthorsByDecade(this.singleAuthor, startYear, endYear);
+    const topAuthors = allAuthors.sort((a, b) => b.numPublications - a.numPublications).slice(0, 20);
+  
+    const tablas = {
+      'degree': document.querySelector('#degree tbody'),
+    };
+  
+    for (const author of topAuthors) {
+      const tabla = tablas['degree'];
+  
+      if (tabla instanceof HTMLElement) {
+        const yearsArray = author.year.split(",").map(Number);
+        const minYear = Math.min(...yearsArray);
+        const maxYear = Math.max(...yearsArray);
+  
+        const row = document.createElement('tr');
+        row.innerHTML = `
+  
+                         <td >${author.researcher}</td>
+                         <td style="padding-left: 50px" >${author.numPublications}</td>
+                         <td style="padding-left: 50px">${minYear}</td> 
+                         <td style="padding-left: 80px">${maxYear}</td>`;
+  
+        tabla.appendChild(row);
+      }
+    }
+  }
+  
+
+  generarDegreeAnalisis(years: any[]){
+    
   }
 
   generarTablasDecadas(decadeStats: any[]){
@@ -1061,7 +1103,6 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       this.obtenerSingleAuthorPapers();
       this.obtenerResearchersConference();
       this.obtenerDatosEscuelas();
-      console.log("eeee"+this.researchers)
       this.generarTablasDecadas2();
       
 
@@ -1091,6 +1132,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         this.decadeStats = this.statsProlificAuthors(this.yearsSeleccionados);
         this.generarTablasDecadas(this.decadeStats)
       }
+      this.statsProlificAuthors2(this.yearsSeleccionados);
+ 
 
   } catch (error) {
     console.error('Error al obtener los datos:', error);
