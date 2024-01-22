@@ -7,12 +7,12 @@
 
   <!-- Search Conference -->
   <div class="box-conference">
-    <input type="text" [(ngModel)]="filtrosBOX" placeholder="Enter the Conference or Journal" (keyup.enter)="filter2()" (input)="buscarVenues(filtrosBOX)">
-    <button class="button-add"  type="button" (click)="append(filtrosBOX)">Add</button>
-    <div *ngIf="sugerenciasVenues.length > 0">
+    <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Conference or Journal" (keyup.enter)="completeSuggestion(filtersBOX)" (input)="autocompleteConference(filtersBOX)">
+    <button class="button-add"  type="button" (click)="completeSuggestion(filtersBOX)">Add</button>
+    <div *ngIf="autocompleteConference.length > 0">
       <ul>
-        <li class="elemento-clicable" *ngFor="let sugerencia of sugerenciasVenues" (click)="seleccionarSugerencia(sugerencia)">
-          {{ sugerencia }}
+        <li class="click-element " *ngFor="let suggestion of completeConference" (click)="selectSuggestion(suggestion)">
+          {{ suggestion }}
         </li>
       </ul>
     </div>
@@ -22,76 +22,74 @@
     <p>Conference or Journal not found. Please try another Conference or Journal</p>
   </div>
 
-  <div *ngIf="showAppend" class="filtros-list">
+  <div *ngIf="showAppend" class="filters-list">
     <p>Current Conferences:</p>
     <ul>
-      <li *ngFor="let filtro of filtrosList">
-        {{ filtro }}
-        <button class="button-delete" (click)="eliminarFiltro(filtro)">X</button>
+      <li *ngFor="let filter of filtersList">
+        {{ filter }}
+        <button class="button-delete" (click)="deleteFilter(filter)">X</button>
       </li>
     </ul>
   </div>
   
 
-
   <!-- Buttons Filter -->
   <div class="buttons">
     <div class="button-years">
-      <button (click)="execFunctionsYear()" [disabled]="filtrosList.length === 0">Filter by years</button>
+      <button (click)="execFunctionsYear()" [disabled]="filtersList.length === 0">Filter by years</button>
     </div>
     <div class="button-decade">
-      <button (click)="execFunctionsDecades()" [disabled]="filtrosList.length === 0">Filter by decades</button>
+      <button (click)="execFunctionsDecades()" [disabled]="filtersList.length === 0">Filter by decades</button>
     </div>
   </div>
 
 
- 
   <!-- Filter by Decade -->
-  <div class="decades" *ngIf="mostrarDecadas && !mostrarAnios">
-    <div *ngIf="titulosFiltrados.length > 0 ">
+  <div class="decades" *ngIf="showDecades && !showYears">
+    <div *ngIf="filteredTitles.length > 0 ">
       <label>
-        <input type="checkbox" [(ngModel)]="selccionarDecadas" (change)="seleccionarDecadas()">
+        <input type="checkbox" [(ngModel)]="selectDecades" (change)="selectDecade()">
         <span>1989-1999</span>
       </label>
     </div>
   
-    <div *ngIf="titulosFiltrados.length > 0">
+    <div *ngIf="filteredTitles.length > 0">
       <label>
-        <input type="checkbox" [(ngModel)]="selccionarDecadas2" (change)="seleccionarDecadas2()">
+        <input type="checkbox" [(ngModel)]="selectDecades2" (change)="selectDecade2()">
         <span>1999-2009</span>
       </label>
     </div>
   
-    <div *ngIf="titulosFiltrados.length > 0">
+    <div *ngIf="filteredTitles.length > 0">
       <label>
-        <input type="checkbox" [(ngModel)]="selccionarDecadas3" (change)="seleccionarDecadas3()">
+        <input type="checkbox" [(ngModel)]="selectDecades3" (change)="selectDecade3()">
         <span>2009-2019</span>
       </label>
     </div>
   
-    <div *ngIf="titulosFiltrados.length > 0">
+    <div *ngIf="filteredTitles.length > 0">
       <label>
-        <input type="checkbox" [(ngModel)]="selccionarDecadas4" (change)="seleccionarDecadas4()">
+        <input type="checkbox" [(ngModel)]="selectDecades4" (change)="selectDecade4()">
         <span>2019-2024</span>
       </label>
     </div>
   </div>
       
   <!-- Select All -->
-  <div *ngIf="(titulosFiltrados.length > 0) && !mostrarDecadas">
+  <div *ngIf="(filteredTitles.length > 0) && !showDecades">
     <label>
-      <input type="checkbox" [(ngModel)]="seleccionarTodos" (change)="seleccionarTodosChanged()">
+      <input type="checkbox" [(ngModel)]="selectAll" (change)="selectAlls()">
       <span>All</span>
     </label>
   </div>
   
   <!-- Filter by Year -->
-  <div *ngIf="!mostrarDecadas">
+  <div *ngIf="!showDecades">
     <div class="columns">
-      <div class="column" *ngFor="let titulo of titulosFiltrados; let i = index">
+      <div class="column" *ngFor="let title of filteredTitles; let i = index">
         <label>
-          <input type="checkbox" [(ngModel)]="titulo.selected" (change)="tituloChanged()">
-          <span [ngClass]="{ 'selected': titulo.selected }">{{ titulo.title }}</span>
+          <input type="checkbox" [(ngModel)]="title.selected" (change)="titleChanged()">
+          <span [ngClass]="{ 'selected': title.selected }">{{ title.title }}</span>
         </label>
       </div>
     </div>
@@ -101,13 +99,13 @@
    <div class="stats" >
     <div class="button-stats" *ngIf="showButtons">
       <button [hidden]="(this.noResultsFoundConference === true) ||
-      (this.noResultsFoundConference === undefined)" [disabled]="!hayTitulosSeleccionados()" (click)="generarEstadisticas()">Generate Stats</button>
+      (this.noResultsFoundConference === undefined)" [disabled]="!existSelectTitle()" (click)="generateStatistics()">Generate Stats</button>
     </div>
     <div class="button-stats" *ngIf="showButtons">
       <button [hidden]="(this.noResultsFoundConference === true) ||
-      (this.noResultsFoundConference === undefined)" [disabled]="!hayTitulosSeleccionados()" (click)="generarconf()">Info</button>
+      (this.noResultsFoundConference === undefined)" [disabled]="!existSelectTitle()" (click)="generateConf()">Info</button>
     </div>
-    <div class="button-clear" *ngIf="titulosFiltrados.length > 0  ">
+    <div class="button-clear" *ngIf="filteredTitles.length > 0  ">
       <button (click)="clear2()">Cancel</button>
     </div>
     

@@ -105,7 +105,7 @@ canvas {
 }
 
 
-.tabla{
+.table{
   text-align: center;
 
 }
@@ -124,11 +124,11 @@ div {
   margin-right: 5px;
 }
 
-.especial{
+.special{
   margin-bottom: 40px;
 }
 
-#tablaInstitution th:nth-child(3){
+#tableInstitution th:nth-child(3){
   padding-left: 120px; /* Ajusta el valor de píxeles según lo necesites */
 }
 
@@ -140,12 +140,12 @@ div {
   padding-left: 90px;
 }
 
-.hombres {
-  background-color: rgb(255, 87, 51);
+.men {
+  background-color: rgb(51, 153, 255);
   
 }
-.mujeres {
-  background-color: rgb(51, 153, 255);
+.women {
+  background-color: rgb(255, 87, 51);
   margin-left: 20PX;
 }
 
@@ -163,21 +163,21 @@ div {
     margin-bottom: 20px;
   }
   .container-table {
-    flex-direction: column; /* Apila las tablas una encima de la otra en pantallas pequeñas */
+    flex-direction: column; 
   }
   .container-table2 {
-    flex-direction: column; /* Apila las tablas una encima de la otra en pantallas pequeñas */
+    flex-direction: column; 
   }
-  .tabla {
-    border-right: none; /* Elimina el borde derecho en pantallas pequeñas */
-    padding-right: 0; /* Elimina el padding derecho en pantallas pequeñas */
-    padding-bottom: 20px; /* Agrega espacio entre las tablas en pantallas pequeñas */
+  .table {
+    border-right: none; 
+    padding-right: 0; 
+    padding-bottom: 20px;
   }
-  #tablaInstitution th:nth-child(3){
-    padding-left: 0px; /* Ajusta el valor de píxeles según lo necesites */
+  #tableInstitution th:nth-child(3){
+    padding-left: 0px; 
   }
-  #tablaInstitution td:nth-child(3){
-    padding-left: 0px; /* Ajusta el valor de píxeles según lo necesites */
+  #tableInstitution td:nth-child(3){
+    padding-left: 0px;
   }
   
 }

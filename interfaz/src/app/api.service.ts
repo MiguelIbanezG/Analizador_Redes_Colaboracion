@@ -11,72 +11,53 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  obtenerNodosFiltradosConference(filtros: string[]): Observable<string[]> {
-    return this.http.post<string[]>(`${this.baseUrl}/filtrar-conferences`, { filterNames: filtros });
-  }
-
-  buscarVenues(term: string): Observable<string[]> {
+  autocompleteConference(term: string): Observable<string[]> {
     const params = new HttpParams().set('term', term);
-    return this.http.get<string[]>(`${this.baseUrl}/buscar-venues/${term}`, { params });
+    return this.http.get<string[]>(`${this.baseUrl}/autocompleteConference/${term}`, { params });
   }
 
-  obtenerNodosFiltradosJournal(name: string): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}//filtrar-journals/${name}`);
+  getFilteredNodesConference(filtros: string[]): Observable<string[]> {
+    return this.http.post<string[]>(`${this.baseUrl}/filterConferences`, { filterNames: filtros });
   }
 
-  generarEstadisticas(titulosSeleccionados: any[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/estadisticas`, { titulosSeleccionados });
+  getFilteredNodesJournal(name: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/filterJournals/${name}`);
   }
 
-  obtenerEstadisticas(): Observable<any> {
-    const url = `${this.baseUrl}/estadisticas`;
-    return this.http.get<any>(url);
+  getResearchersConference(titulosSeleccionados: any[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/researchersConference`, { titulosSeleccionados });
   }
 
-
-  generarconf(titulosSeleccionados: any[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/config`, { titulosSeleccionados });
+  getResearchersJournals(titulosSeleccionados: any[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/researchersJournals`, { titulosSeleccionados });
   }
 
-  obtenerConfig(): Observable<any> {
-    const url = `${this.baseUrl}/config`;
-    return this.http.get<any>(url);
-  }
-
-  obtenerResearchersConference(titulosSeleccionados: any[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/researchersconference`, { titulosSeleccionados });
-  }
-
-  obtenerResearchersJournals(titulosSeleccionados: any[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/researchersjournals`, { titulosSeleccionados });
-  }
-
-  obtenerPapers(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
+  getPapers(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/papers`, { titulosSeleccionados, option, venue });
   }
 
-  obtenerColaboraciones(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/colaboraciones`, { titulosSeleccionados, option, venue });
+  getCollaborations(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/collaborations`, { titulosSeleccionados, option, venue });
   }
 
-  obtenerAuthorsPapers(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
+  getAuthorsPapers(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/AuthorsPapers`, { titulosSeleccionados, option, venue });
   }
 
-  obtenerAuthorsNames(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
+  getAuthorsNames(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/SearchNames`, { titulosSeleccionados, option, venue });
   }
 
-  obtenerAuthorsGrade(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
+  getAuthorsDegree(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/AuthorsDegree`, { titulosSeleccionados, option, venue });
   }
 
-  obtenerbooks(titulosSeleccionados: any[], venue: string[]): Observable<any> {
+  getBooks(titulosSeleccionados: any[], venue: string[]): Observable<any> {
     console.log("rolerher"+venue)
-    return this.http.post<any>(`${this.baseUrl}/searchbook`, { titulosSeleccionados, venue});
+    return this.http.post<any>(`${this.baseUrl}/searchBook`, { titulosSeleccionados, venue});
   }
 
-  obtenerSchools(): Observable<any[]> {
+  getSchools(): Observable<any[]> {
     return this.http.post<any[]>(`${this.baseUrl}/schools`, {});
   }
   

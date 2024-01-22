@@ -7,8 +7,8 @@ import { AppComponent } from './app.component';
 import { ApiService } from './api.service';
 import { HomeComponent } from './home/home.component';
 import { FormsModule } from '@angular/forms';
-import { EstadisticasComponent } from './estadisticas/estadisticas.component';
-import { SeleccionService } from './seleccion.service';
+import { StatisticsComponent } from './estadisticas/statistics.component';
+import { SelectionService } from './selection.service';
 import { TagCloudComponent } from 'angular-tag-cloud-module';
 import { ConfigComponent } from './config/config.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
@@ -24,7 +24,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   declarations: [
     AppComponent,
     HomeComponent,
-    EstadisticasComponent,
+    StatisticsComponent,
     ConfigComponent
   
   ],
@@ -44,7 +44,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   ],
   providers: [
     ApiService,
-    SeleccionService
+    SelectionService
   ],
   bootstrap: [AppComponent]
 })

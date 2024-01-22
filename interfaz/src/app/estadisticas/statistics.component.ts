@@ -1,12 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../api.service';
-import { SeleccionService } from '../seleccion.service';
+import { SelectionService } from '../selection.service';
 //import { Chart, CategoryScale, LineController  } from 'chart.js';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map, tap, throwError } from 'rxjs';
 import { CloudData, CloudOptions } from 'angular-tag-cloud-module';
 import { singular } from 'pluralize';
 import { ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
@@ -25,50 +24,23 @@ interface DecadeStats {
   authors: Author[];
 }
 
-interface YearStats {
-  label: string;
-  startYear: number;
-  endYear: number;
-  authors: Author[];
-}
-
-interface GeneroCounts {
-  hombres: number;
-  mujeres: number;
-  desconocidos: number;
-}
-
-interface GeneroData {
-  [anio: string]: GeneroCounts;
-}
-
-
 @Component({
-  selector: 'app-estadisticas',
-  templateUrl: './estadisticas.component.html',
-  styleUrls: ['./estadisticas.component.scss'],
-  template: `
-    <div>
-      <angular-tag-cloud
-        [data]="data"
-        [width]="options.width"
-        [height]="options.height"
-        [overflow]="options.overflow">
-      </angular-tag-cloud>
-    </div>
-  `
+  selector: 'app-statistics',
+  templateUrl: './statistics.component.html',
+  styleUrls: ['./statistics.component.scss'],
 })
-export class EstadisticasComponent implements OnInit, AfterViewInit {
+
+export class StatisticsComponent implements OnInit, AfterViewInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
 
-  titulosSeleccionados: any[] = [];
-  yearsSeleccionados: any[] = [];
+  selectedTitles: any[] = [];
+  selectedYears: any[] = [];
   conferenceOption: string = "";
   venueName: any[] = [];
   papers: any[] = [];
-  colaboraciones: any[] = [];
+  collaborations: any[] = [];
   singleAuthor: any[] = [];
-  estadisticas: any[] = [];
+  statistics: any[] = [];
   lineChart!: Chart;
   lineChart2!: Chart;
   lineChart3!: Chart;
@@ -76,10 +48,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   researchers: any[] = [];
   researchers2: any[] = [];
   papersWithAuthors: any[] = [];
-  autoresPorPapersTable: any[] = [];
-  papersPorAutoresTable: any[] = [];
   decadeStats: any[] = [];
-  yearStats: any[] = [];
   commonNames: { [key: string]: { frec_paises: { [key: string]: number }, genero: string } } = {};
   options: CloudOptions = {
     // if width is between 0 and 1 it will be set to the width of the upper element multiplied by the value
@@ -94,52 +63,14 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   cloudData: CloudData[] = []
 
   constructor(
-    private route: ActivatedRoute,
     private apiService: ApiService,
-    private seleccionService: SeleccionService,
+    private selectionService: SelectionService,
     private http: HttpClient
   ) {}
 
-  loadCommonNames() {
-    this.http.get('assets/common_names.txt', { responseType: 'text' }).subscribe(
-      (data: string) => {
-        this.commonNames = this.parseCommonNames(data);
-      },
-      (error: any) => {
-        console.error('Error al cargar los datos:', error);
-      }
-    );
-  }
-
-  parseCommonNames(data: string) {
-    const lineas = data.split('\n');
-    const diccionario: { [key: string]: { frec_paises: { [key: string]: number }, genero: string } } = {};
-    let nombreActual = '';
-    let datosActuales: { frec_paises: { [key: string]: number }, genero: string } = {
-      frec_paises: {},
-      genero: ''
-    };
-  
-    for (const linea of lineas) {
-      if (linea.startsWith('nombre:')) {
-        nombreActual = linea.split(':')[1].trim();
-        datosActuales = { frec_paises: {}, genero: '' };
-      } else if (linea.startsWith('frec_paises:')) {
-        const frec_paisesStr = linea.substring(linea.indexOf('{'), linea.lastIndexOf('}') + 1);
-        const frec_paises = JSON.parse(frec_paisesStr);
-        datosActuales.frec_paises = frec_paises;
-      } else if (linea.startsWith('genero:')) {
-        datosActuales.genero = linea.split(':')[1].trim();
-      } else if (linea.trim() === '') {
-        diccionario[nombreActual] = datosActuales;
-      }
-    }
-    return diccionario;
-  }
 
   ngOnInit() {
     this.loadCommonNames();
-    //LLamada a la funcion principal para la ejecucion de todo
     this.main();
   }
 
@@ -149,17 +80,17 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     // como ajustes de estilo, cambios dinámicos en los datos, etc.
   }
 
-  async esperarResearcherNoVacio() {
+  async waitResearcherNoEmpty() {
     while (!this.researchers || this.researchers.length === 0) {
       await new Promise(resolve => setTimeout(resolve, 100)); 
     }
   }
 
-  obtenerDatosEscuelas() {
-    this.apiService.obtenerSchools().subscribe({
+  getSchools() {
+    this.apiService.getSchools().subscribe({
       next: (response: any[]) => {
         this.researchers2 = response;
-        const table = document.querySelector('#tablaInstitution tbody');
+        const table = document.querySelector('#tableInstitution tbody');
         if (table instanceof HTMLElement) {
           this.researchers2.forEach(({ School, NumberOfAuthors, Country }) => {
             const row = document.createElement('tr');
@@ -171,181 +102,173 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         }
       },
       error: (error: any) => {
-        console.error('Error al obtener datos de las escuelas:', error);
+        console.error('Error in getSchools:', error);
       }
     });
   }
 
-  obtenerResearchersConference() {
-    this.apiService.obtenerResearchersConference(this.titulosSeleccionados).subscribe({
+  getResearchersConference() {
+    this.apiService.getResearchersConference(this.selectedTitles).subscribe({
       next: (response: any) => {
         this.researchers = response;
         this.statsResearchers();
-        this.combinarYMostrarDatos(this.estadisticas[0].anios, this.estadisticas[0].numResearchers);
+        this.combineAndShowData(this.statistics[0].years, this.statistics[0].numResearchers);
       },
       error: (error: any) => {
-        console.error('Error al obtener los researchers:', error);
+        console.error('Error in getResearchersConference:', error);
       }
     });
     if(this.researchers.length < 1){
-      this.apiService.obtenerResearchersJournals(this.titulosSeleccionados).subscribe({
+      this.apiService.getResearchersJournals(this.selectedTitles).subscribe({
         next: (response: any) => {
           this.researchers = response;
           this.statsResearchers();
-          this.combinarYMostrarDatos(this.estadisticas[0].anios, this.estadisticas[0].numResearchers);
+          this.combineAndShowData(this.statistics[0].years, this.statistics[0].numResearchers);
         },
         error: (error: any) => {
-          console.error('Error al obtener los researchers:', error);
+          console.error('Error in getResearchersJournals:', error);
         }
       });
     }
     
   }
 
-
-  
-
-  combinarYMostrarDatos(researchersConference: any[], researchersJournals: any[]) {
+  combineAndShowData(researchersConference: any[], researchersJournals: any[]) {
     
     if(this.lineChart){
       this.lineChart.destroy();
     }
   
-    this.generarGrafico3('lineChart1', 'Number of authors', researchersConference, researchersJournals);
+    this.generateChart3('lineChart1', 'Number of authors', researchersConference, researchersJournals);
 
   }
 
-  obtenerPapers() {
-    this.apiService.obtenerPapers(this.titulosSeleccionados, this.conferenceOption, this.venueName).subscribe({
+  getPapers() {
+    this.apiService.getPapers(this.selectedTitles, this.conferenceOption, this.venueName).subscribe({
       next: (response: any) => {
         
         this.papers = response;
         this.statsPapers();
-        this.generarGrafico3('lineChart2', 'Number of papers', this.estadisticas[1].anios, this.estadisticas[1].numPapers);
+        this.generateChart3('lineChart2', 'Number of papers', this.statistics[1].years, this.statistics[1].numPapers);
       },
       error: (error: any) => {
-        console.error('Error al obtener los papers:', error);
+        console.error('Error in getPapers:', error);
       }
     });
   }
 
-
-  obtenerColaboraciones() {
-    this.apiService.obtenerColaboraciones(this.titulosSeleccionados, this.conferenceOption, this.venueName).subscribe({
+  getCollaborations() {
+    this.apiService.getCollaborations(this.selectedTitles, this.conferenceOption, this.venueName).subscribe({
       next: (response: any) => {
-        this.colaboraciones = response;
+        this.collaborations = response;
         this.statsColaboraciones();
-        this.generarGrafico3('lineChart3', 'Density', this.estadisticas[3].anios, this.estadisticas[3].densidades);
+        this.generateChart3('lineChart3', 'Density', this.statistics[3].years, this.statistics[3].densidades);
       },
       error: (error: any) => {
-        console.error('Error al obtener las colaboraciones:', error);
+        console.error('Error in getCollaborations:', error);
       }
     });
   }
 
-  obtenerInstituciones(){
-    // que son las instituciones?
-  }
-
-  async esperarAuthorsWithPapersNoVacio(){
+  async waitAuthorsWithPapersNoEmpty(){
     while (!this.papersWithAuthors || this.papersWithAuthors.length === 0) {
       await new Promise(resolve => setTimeout(resolve, 100)); 
     }
   }
 
-  async esperarSingleAuthorsNoVacio(){
+  async waitSingleAuthorsNoEmpty(){
     while (!this.singleAuthor || this.singleAuthor.length === 0) {
       await new Promise(resolve => setTimeout(resolve, 100)); 
     }
   }
 
-  obtenerSingleAuthorPapers() {
-      this.apiService.obtenerAuthorsPapers(this.titulosSeleccionados, this.conferenceOption, this.venueName)
+  getAuthorsPapers() {
+      this.apiService.getAuthorsPapers(this.selectedTitles, this.conferenceOption, this.venueName)
         .subscribe({
           next: async (response: any) => {
             this.singleAuthor = response;
             this.statsSingleAuthor();
-            this.generarGraficoBarras('barChart1', 'Single Author Papers', this.estadisticas[4].anios, this.estadisticas[4].porcentajes);          
+            this.generateBarChart('barChart1', 'Single Author Papers', this.statistics[4].years, this.statistics[4].porcentajes);          
           },
           error: (error: any) => {
-            console.error('Error al obtener los Author Papers:', error);
+            console.error('Error in getAuthorsPapers:', error);
           }
         });
   }
 
-  /**
-   * Función para obtener las distribuciones tanto de autores por papers como de papers por autores
+  /**Function to obtain the distributions of both authors by papers and papers by authors
+   * 
    */
-  obtenerDistribuciones(){
+  getDistributions(){
     const labels: string[] = ['1', '2', '3', '4', '5 o más'];
 
-    // Este representa el número de autores que tiene cada paper
-    const autoresPorPaper: number[] = [1, 2, 3, 4].map((numAuthors) =>
+    // This represents the number of authors that each paper has.
+    const authorsByPaper: number[] = [1, 2, 3, 4].map((numAuthors) =>
     this.papersWithAuthors.filter((paper) => paper.numAuthors === numAuthors).length
     );
-    autoresPorPaper[4] = this.papersWithAuthors.filter((paper) => paper.numAuthors >= 5).length;
-    let totalPapers = this.papers.reduce((total, paper) => total + paper.numPapers, 0);
+    authorsByPaper[4] = this.papersWithAuthors.filter((paper) => paper.numAuthors >= 5).length;
+    let allPapers = this.papers.reduce((all, paper) => all + paper.numPapers, 0);
 
-    // Ese representa el número de papers publicados que tiene cada autor
-    const papersPorAutor: number[] = [1, 2, 3, 4].map((numPubs) =>
+    // This represents the number of published papers that each author has.
+    const papersByAuthor: number[] = [1, 2, 3, 4].map((numPubs) =>
     this.singleAuthor.filter((paper) => paper.numPublications === numPubs).length
     );
-    papersPorAutor[4] = this.singleAuthor.filter((paper) => paper.numPublications >= 5).length
-    const totalAutores = this.singleAuthor.length;
+    papersByAuthor[4] = this.singleAuthor.filter((paper) => paper.numPublications >= 5).length
+    const allAuthors = this.singleAuthor.length;
 
-    // Creamos las dos tablas que se vinculan con los ids del html
-    const autoresTabla = document.querySelector('#autoresTabla tbody');
-    const papersTabla = document.querySelector('#papersTabla tbody');
+    // We create the two tables that are linked with the ids of the html
+    const authorsTable = document.querySelector('#authorsTable tbody');
+    const papersTable = document.querySelector('#papersTable tbody');
     
-    if (autoresTabla !== null) {
-      autoresPorPaper.forEach((cantidad, index) => {
+    if (authorsTable !== null) {
+      authorsByPaper.forEach((amount, index) => {
         const row = document.createElement('tr');
-        const porcentaje = (cantidad / totalPapers * 100).toFixed(2);
-        const valor = cantidad.toString() + "(" + porcentaje + ")";
-        row.innerHTML = `<td>${labels[index]}</td><td>${valor}</td>`;
-        autoresTabla.appendChild(row);
+        const percentage = (amount / allPapers * 100).toFixed(2);
+        const worth = amount.toString() + "(" + percentage + ")";
+        row.innerHTML = `<td>${labels[index]}</td><td>${worth}</td>`;
+        authorsTable.appendChild(row);
       });
     }
 
-    if (papersTabla !== null) {
-      papersPorAutor.forEach((cantidad, index) => {
+    if (papersTable !== null) {
+      papersByAuthor.forEach((amount, index) => {
         const row = document.createElement('tr');
-        const porcentaje = (cantidad / totalAutores * 100).toFixed(2);
-        const valor = cantidad.toString() + "(" + porcentaje + ")";
-        row.innerHTML = `<td>${labels[index]}</td><td>${valor}</td>`;
-        papersTabla.appendChild(row);
+        const percentage = (amount / allAuthors * 100).toFixed(2);
+        const worth = amount.toString() + "(" + percentage + ")";
+        row.innerHTML = `<td>${labels[index]}</td><td>${worth}</td>`;
+        papersTable.appendChild(row);
       });
     }
   }
 
-  obtenerDatosDemograficos(){
+  getDemographicData(){
       const datasets = this.researchers.map(researcher => {
-        let nombre = researcher.researcher.properties.name.split(' ')[0];
-        if(nombre.includes("-")){
-          nombre = nombre.split('-')[0];
+        let name = researcher.researcher.properties.name.split(' ')[0];
+        if(name.includes("-")){
+          name = name.split('-')[0];
         }
-        const anios = Array.isArray(researcher.years) ? researcher.years : [researcher.years];
+        const years = Array.isArray(researcher.years) ? researcher.years : [researcher.years];
       
-        const datasetPorAnio = anios.map((year: any) => {
-          const info = this.commonNames[nombre];
-          const genero = info ? info.genero : 'Desconocido';
+        const datasetByYear = years.map((year: any) => {
+          const info = this.commonNames[name];
+          const genero = info ? info.genero : 'Unknown';
           const frecuencias = info ? info.frec_paises : {};
       
           return {
             year,
-            nombre,
+            name,
             genero,
             frecuencias
           };
         });
-        return datasetPorAnio;
+        return datasetByYear;
       }).flat(); 
 
-      this.statsGenero(datasets);
-      this.statsGeografia(datasets);
+      this.statsGender(datasets);
+      this.statsGeography(datasets);
   }
 
-  generarNGrams(titles: string[], n: number): string[] {
+  generateNGrams(titles: string[], n: number): string[] {
     const ngrams: string[] = [];
     titles.forEach((title) => {
       const words = title.toLowerCase().split(" ");
@@ -365,21 +288,21 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     return frequencies;
   }
 
-  limpiarTitulo(titulo: string, stopwords: string[]) {
-    // Separar el título en palabras
-    const palabras = titulo.toLowerCase().split(" ").map(palabra => palabra.replace(/[^\w\s]/g, ""));
+  clearTitle(title: string, stopwords: string[]) {
+    // Separate the title into words
+    const words = title.toLowerCase().split(" ").map(word => word.replace(/[^\w\s]/g, ""));
 
-    // Eliminamos repeticiones de letras y plurales para hacer mejor la frecuencia
-    const palabrasSinRepetir = palabras.map(palabra => palabra.replace(/(.)\1+/g, "$1"));
-    const palabrasSingulares = palabrasSinRepetir.map(palabra => singular(palabra));
+    // We eliminate repetitions of letters and plurals to improve frequency
+    const wordsNoRepeat = words.map(word => word.replace(/(.)\1+/g, "$1"));
+    const singularWords = wordsNoRepeat.map(word => singular(word));
     
-    // Filtrar las palabras para eliminar las stopwords
-    const palabrasFiltradas = palabrasSingulares.filter(palabra => !stopwords.includes(palabra));
+    // Filter words to remove stopwords
+    const filteredWords = singularWords.filter(word => !stopwords.includes(word));
   
-    // Unir las palabras filtradas en un nuevo título
-    const nuevoTitulo = palabrasFiltradas.join(' ');
-  
-    return nuevoTitulo;
+    // Join the filtered words into a new title
+    const newTitle = filteredWords.join(' ');
+    
+    return newTitle;
   }
 
   getTopN(frequencies: Map<string, number>, n: number): [string, number][] {
@@ -387,19 +310,19 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     return sortedFrequencies.slice(0, n);
   }
 
-  obtenerTopicAnalisis(){
+  getTopicAnalysis(){
 
-      // Requerimos natural para tokenizar y eliminar las stopwords, y calcular frecuencias
+      // We require natural to tokenize and remove stopwords, and calculate frequencies
       const stopwords = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now', '.', ','];
 
-      const titulosLimpios = this.papersWithAuthors.map(paper => {
-        const ipName = this.limpiarTitulo(paper.ipName, stopwords);
+      const cleanTitles = this.papersWithAuthors.map(paper => {
+        const ipName = this.clearTitle(paper.ipName, stopwords);
         const year = parseInt(paper.year);
         return { ipName, year };
       });
 
-      const bigrams = this.generarNGrams(titulosLimpios.map((paper) => paper.ipName), 2);
-      const trigrams = this.generarNGrams(titulosLimpios.map((paper) => paper.ipName), 3);
+      const bigrams = this.generateNGrams(cleanTitles.map((paper) => paper.ipName), 2);
+      const trigrams = this.generateNGrams(cleanTitles.map((paper) => paper.ipName), 3);
 
       const bigramFrequencies = this.countFrequencies(bigrams);
       const trigramFrequencies = this.countFrequencies(trigrams);
@@ -411,17 +334,17 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       const top20BigramsWithYears = top20Bigrams.map(([ngram, count]) => ({
         ngram,
         count,
-        years: titulosLimpios.filter((paper) => paper.ipName.includes(ngram)).map((paper) => paper.year),
+        years: cleanTitles.filter((paper) => paper.ipName.includes(ngram)).map((paper) => paper.year),
       }));
     
       const top20TrigramsWithYears = top20Trigrams.map(([ngram, count]) => ({
         ngram,
         count,
-        years: titulosLimpios.filter((paper) => paper.ipName.includes(ngram)).map((paper) => paper.year),
+        years: cleanTitles.filter((paper) => paper.ipName.includes(ngram)).map((paper) => paper.year),
       }));
 
-      const table1 = document.querySelector('#tablaBigramas tbody');
-      const table2 = document.querySelector('#tablaTrigramas tbody');
+      const table1 = document.querySelector('#tableBigramas tbody');
+      const table2 = document.querySelector('#tableTrigramas tbody');
     
       if (table1 instanceof HTMLElement && table2 instanceof HTMLElement) {
         top20BigramsWithYears.forEach(({ ngram, count, years }) => {
@@ -456,7 +379,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
       const wordCloudData = combinedData.map((item, index) => ({
         text: item.ngram,
-        weight: this.calcularWeight(item.count, maxFrecuencia, minWeight, maxWeight),
+        weight: this.calculateWeight(item.count, maxFrecuencia, minWeight, maxWeight),
         color: this.randomColor()
       }));
 
@@ -464,9 +387,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
      
   }
 
-
-  generarTablasDecadas2() {
-    const table = document.querySelector('#tablaInstitution tbody');
+  generateTablesDecades() {
+    const table = document.querySelector('#tableInstitution tbody');
     if (table instanceof HTMLElement) {
       this.researchers2.forEach(({ School, NumberOfAuthors, Country }) => {
         const row = document.createElement('tr');
@@ -477,13 +399,10 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     }
   }
   
-
-  
-
-  calcularWeight(frecuencia: number, maxFrecuencia: number, minWeight: number, maxWeight: number): number {
-    const peso = frecuencia / maxFrecuencia;
-    const pesoNormalizado = peso * (maxWeight - minWeight) + minWeight;
-    return Math.round(pesoNormalizado);
+  calculateWeight(frec: number, maxFrec: number, minWeight: number, maxWeight: number): number {
+    const weight = frec / maxFrec;
+    const normWeight = weight * (maxWeight - minWeight) + minWeight;
+    return Math.round(normWeight);
   }
 
   /**
@@ -491,43 +410,31 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
    */
 
   statsResearchers() {
-    const numResearchers = this.researchers.length;
-    const anios = this.titulosSeleccionados.map(titulo => titulo.properties.name);
-    this.yearsSeleccionados = anios;
+    const years = this.selectedTitles.map(titulo => titulo.properties.name);
+    this.selectedYears = years;
 
-    const numResearchersPorAnio = anios.map(anio =>
+    const numResearchersPorAnio = years.map(anio =>
       this.researchers.filter(researcher => researcher.years.includes(anio)).length
     );
-    this.estadisticas[0] = {
-      anios: anios,
+    this.statistics[0] = {
+      years: years,
       numResearchers: numResearchersPorAnio
     };
   }
 
   statsPapers() {
-    const anios = this.papers.map(paper => paper.year); // Extraer los años de this.numPapers
+    const years = this.papers.map(paper => paper.year); 
     const numPapers = this.papers.map(paper => paper.numPapers); 
 
-    this.estadisticas[1] = {
-      anios: anios,
+    this.statistics[1] = {
+      years: years,
       numPapers: numPapers
     };
   }  
-  
-  statsInstitutions() {
-    const anios = this.papers.map(paper => paper.year); 
-    // Extraer los años de this.numPapers
-    // const numPapers = this.papers.map(paper => paper.numPapers); 
-
-    this.estadisticas[2] = {
-      anios: anios,
-      numPapers: anios
-    };
-  }
 
   statsColaboraciones(){    
     const colabsXtotal = this.papers.map(paper => {
-      const colab = this.colaboraciones.find(c => c.year === paper.year);
+      const colab = this.collaborations.find(c => c.year === paper.year);
       return {
         year: paper.year,
         numColabs: colab ? colab.numColabs : 0,
@@ -535,15 +442,15 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       };
     });
 
-    const densidad = colabsXtotal.map(dato => {
+    const density = colabsXtotal.map(dato => {
       const { year, numColabs, numPapers } = dato;
-      const densidad = numColabs / numPapers;
-      return { densidad, year };
+      const density = numColabs / numPapers;
+      return { density, year };
     });
 
-    this.estadisticas[3] = {
-      anios: densidad.map(dato => dato.year),
-      densidades: densidad.map(dato => dato.densidad)
+    this.statistics[3] = {
+      years: density.map(dato => dato.year),
+      densidades: density.map(dato => dato.density)
     };
   }
 
@@ -551,8 +458,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     
     const papersWithAuthors: { ipName: string, numAuthors: number, authorNames: string[], year: string }[] = [];
 
-    // Mapea todos los researchers, para crear papersWithAuthors, que es un array que tiene el nombre de una publicacion
-    // y los autores que han contribuido él.
+    // Map all the researchers, to create papersWithAuthors, which is an array that has the name of a publication
+    // and the authors who have contributed to it.
     this.singleAuthor.forEach((author: { ipNames: string[], researcher: string, year: string }) => {
       author.ipNames.forEach(ipName => {
         const paperIndex = papersWithAuthors.findIndex(paper => paper.ipName === ipName);
@@ -572,100 +479,97 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
     this.papersWithAuthors = papersWithAuthors;
 
-    // Conseguimos todas las entradas cuyo autor sea uno, para las estadisticas
+    // We get all the entries whose author is one, for the statistics
     const papersWithOneAuthor = papersWithAuthors.filter(paper => paper.numAuthors === 1);
 
     const porcentajeByYear = this.papers.map(paper => {
       const year = paper.year;
       const numPapers = paper.numPapers;
       const numPapersWithSingleAuthor = papersWithOneAuthor.filter(paper => paper.year === year).length;
-      const porcentaje = (numPapersWithSingleAuthor / numPapers) * 100;
+      const percentage = (numPapersWithSingleAuthor / numPapers) * 100;
     
-      return { year, porcentaje };
+      return { year, percentage };
     });
     
-    this.estadisticas[4] = {
-      anios: porcentajeByYear.map(dato => dato.year),
-      porcentajes: porcentajeByYear.map(dato => dato.porcentaje)
+    this.statistics[4] = {
+      years: porcentajeByYear.map(dato => dato.year),
+      porcentajes: porcentajeByYear.map(dato => dato.percentage)
     };
   }  
 
-
- 
-
-  statsGeografia(datasets: any[]){
-    const mapeoFecha: {[fecha: string]: {[pais: string]: number}} = {};
-    const datasetFiltrado = datasets.filter((objeto: any) => Object.keys(objeto.frecuencias).length > 0);
+  statsGeography(datasets: any[]){
+    const mappingDate: {[date: string]: {[country: string]: number}} = {};
+    const datasetFiltered = datasets.filter((object: any) => Object.keys(object.frecuencias).length > 0);
     
     // Obtener todas las fechas únicas
-    const fechasUnicas = [...new Set(datasetFiltrado.map(dato => dato.year))];
+    const uniqueDates = [...new Set(datasetFiltered.map(dato => dato.year))];
 
     // Iterar sobre las fechas
-    for (const fecha of fechasUnicas) {
-      const objetosFecha = datasetFiltrado.filter(dato => dato.year === fecha);
+    for (const date of uniqueDates) {
+      const objectDate = datasetFiltered.filter(dato => dato.year === date);
 
       // Crear objeto de mapeo para la fecha actual
-      mapeoFecha[fecha] = {};
+      mappingDate[date] = {};
   
-    for (const objeto of objetosFecha) {
-      let paisMasAlto = '';
-      let frecuenciaMasAlta = -1;
+    for (const object of objectDate) {
+      let countryHighest = '';
+      let highestFrequency = -1;
 
-      for (const pais in objeto.frecuencias) {
-          if (objeto.frecuencias[pais] > frecuenciaMasAlta) {
-            paisMasAlto = pais;
-            frecuenciaMasAlta = objeto.frecuencias[pais];
+      for (const country in object.frecuencias) {
+          if (object.frecuencias[country] > highestFrequency) {
+            countryHighest = country;
+            highestFrequency = object.frecuencias[country];
           }
         }
-        if(!(paisMasAlto in mapeoFecha[fecha])){
-          mapeoFecha[fecha][paisMasAlto] = 1;
+        if(!(countryHighest in mappingDate[date])){
+          mappingDate[date][countryHighest] = 1;
         }else{
-          mapeoFecha[fecha][paisMasAlto] = mapeoFecha[fecha][paisMasAlto] + 1;
+          mappingDate[date][countryHighest] = mappingDate[date][countryHighest] + 1;
         }
       }
     }
 
-    // Normalizamos valores según su total
-    for (const year in mapeoFecha) {
+    // We normalize values according to their total
+    for (const year in mappingDate) {
       let total = 0;
-      for (const country in mapeoFecha[year]) {
-        total += mapeoFecha[year][country];
+      for (const country in mappingDate[year]) {
+        total += mappingDate[year][country];
       }
-      for (const country in mapeoFecha[year]) {
-        mapeoFecha[year][country] = Number((mapeoFecha[year][country]/total).toFixed(4));
+      for (const country in mappingDate[year]) {
+        mappingDate[year][country] = Number((mappingDate[year][country]/total).toFixed(4));
       }
     }
 
-    const years = Object.keys(mapeoFecha); // Obtener las llaves de los años
-    const countries = Object.keys(mapeoFecha[years[0]]); // Obtener los nombres de los países
-    const datasetsLabels = countries; // Etiquetas de los conjuntos de datos serán los nombres de los países
+    const years = Object.keys(mappingDate); // Get the keys of the years
+    const countries = Object.keys(mappingDate[years[0]]); // Get country names
+    const datasetsLabels = countries; // Labels of the data sets will be the names of the countries 
 
-    // Crear la matriz de datos para los países
+    // Create the data matrix for the countries
     const datasetsData = countries.map((country) =>
-      years.map((year) => mapeoFecha[year][country])
+      years.map((year) => mappingDate[year][country])
     );
 
-    this.generarGraficoMultiple('lineChart5', years, datasetsLabels, datasetsData);
+    this.generateMultipleGraph('lineChart5', years, datasetsLabels, datasetsData);
     
   }
 
   filterAuthorsByDecade(authors: Author[], startYear: number, endYear: number): Author[] {
     const filteredAuthors: Author[] = [];
   
-    // Recorrer los autores originales
+    // Browse the original authors
     authors.forEach((author) => {
-      // Verificar si el autor está dentro de la década especificada
+      // Check if the author is within the specified decade
       const authorYears = author.year.split(",").map(Number).filter((year) => year >= startYear && year <= endYear);
 
       if (authorYears.length > 0) {
-        // Buscar si ya existe un autor fusionado con el mismo nombre y década
+        // Search if there is already a merged author with the same name and decade
         const existingAuthor = filteredAuthors.find((filteredAuthor) => filteredAuthor.researcher === author.researcher);
         if (existingAuthor) {
-          // Fusionar las entradas del autor existente con las del autor actual
+          // Merge the existing author's entries with the current author's entries
           existingAuthor.numPublications += author.numPublications;
           existingAuthor.year += `, ${author.year}`;
         } else {
-          // Agregar el autor actual a la lista de autores filtrados
+          // Add the current author to the list of filtered authors
           filteredAuthors.push({
             ipNames: author.ipNames,
             numPublications: author.numPublications,
@@ -680,15 +584,15 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
   }
 
   statsProlificAuthors(selectedYears: number[]): DecadeStats[] {
-    // Obtener el rango de años seleccionados por el usuario
+    // Get the range of years selected by the user
     const startYear = Math.min(...selectedYears);
     const endYear = Math.max(...selectedYears);
   
-    // Calcular las décadas correspondientes al rango de años seleccionados
+    // Calculate the decades corresponding to the selected range of years
     const startDecade = Math.floor(startYear / 10) * 10;
     const endDecade = Math.floor(endYear / 10) * 10;
   
-    // Generar las décadas dentro del rango de años seleccionados
+    // Generate the decades within the selected year range
     const decades: DecadeStats[] = [];
     for (let decade = startDecade; decade <= endDecade; decade += 10) {
       const decadeLabel = `${decade}s`;
@@ -703,7 +607,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         authors: decadeAuthors
       });
     }  
-    // Ordenar los autores por número de publicaciones en cada década
+    // Sort authors by number of publications in each decade
     decades.forEach((decade) => {
       decade.authors.sort((a, b) => b.numPublications - a.numPublications);
       if (decade.authors.length > 20){
@@ -711,7 +615,7 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       } 
     });
   
-    // Devolver las décadas con los autores ordenados
+    // Return the decades with the authors ordered
     return decades;
   }
 
@@ -722,14 +626,14 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     const allAuthors = this.filterAuthorsByDecade(this.singleAuthor, startYear, endYear);
     const topAuthors = allAuthors.sort((a, b) => b.numPublications - a.numPublications).slice(0, 20);
   
-    const tablas = {
+    const tables = {
       'degree': document.querySelector('#degree tbody'),
     };
   
     for (const author of topAuthors) {
-      const tabla = tablas['degree'];
+      const table = tables['degree'];
   
-      if (tabla instanceof HTMLElement) {
+      if (table instanceof HTMLElement) {
         const yearsArray = author.year.split(",").map(Number);
         const minYear = Math.min(...yearsArray);
         const maxYear = Math.max(...yearsArray);
@@ -742,38 +646,33 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
                          <td style="padding-left: 50px">${minYear}</td> 
                          <td style="padding-left: 80px">${maxYear}</td>`;
   
-        tabla.appendChild(row);
+        table.appendChild(row);
       }
     }
   }
-  
 
-  generarDegreeAnalisis(years: any[]){
-    
-  }
-
-  generarTablasDecadas(decadeStats: any[]){
-    const tablas: { [key: string]: HTMLElement | null } = {
-      '1990s': document.querySelector('#tabla90 tbody'),
-      '2000s': document.querySelector('#tabla00 tbody'),
-      '2010s': document.querySelector('#tabla10 tbody'),
-      '2020s': document.querySelector('#tabla20 tbody'),
+  generateTablesDecades2(decadeStats: any[]){
+    const tables: { [key: string]: HTMLElement | null } = {
+      '1990s': document.querySelector('#table90 tbody'),
+      '2000s': document.querySelector('#table00 tbody'),
+      '2010s': document.querySelector('#table10 tbody'),
+      '2020s': document.querySelector('#table20 tbody'),
     };
-    for (const decada of decadeStats) {
-      const tabla = tablas[decada.label];
+    for (const decade of decadeStats) {
+      const table = tables[decade.label];
   
-      if (tabla instanceof HTMLElement) {
-        decada.authors.slice(0, 20).forEach((autor: { researcher: any; numPublications: any; year: any; }) => {
+      if (table instanceof HTMLElement) {
+        decade.authors.slice(0, 20).forEach((autor: { researcher: any; numPublications: any; year: any; }) => {
           const row = document.createElement('tr');
           row.innerHTML = `<td>${autor.researcher}</td><td>${autor.numPublications}</td>`;
   
-          tabla.appendChild(row);
+          table.appendChild(row);
         });
       }
     }
   }
 
-  generarGrafico3(idChart: string, label: string, labels: any[], data: any[]) {
+  generateChart3(idChart: string, label: string, labels: any[], data: any[]) {
     if(idChart=="lineChart1"){
       this.lineChart = new Chart(idChart, {
         type: 'line',
@@ -888,8 +787,8 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
   }
 
-  statsGenero(datasets: any[]){
-    const datasetsPorGenero: { [genero: string]: { year: string; count: number }[] } = {};
+  statsGender(datasets: any[]){
+    const datasetsByGenre: { [genero: string]: { year: string; count: number }[] } = {};
 
       datasets.forEach((data: { year: any; genero: any; }) => {
         const { year, genero } = data;
@@ -897,69 +796,69 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
         let genderKey = '';
         
         if (genero == 'M' || genero == '?M' || genero == '1M' || genero == '?') {
-          genderKey = 'Hombres';
+          genderKey = 'Men';
         } else if (genero == 'F' || genero == '?F' || genero == '1F') {
-          genderKey = 'Mujeres';
+          genderKey = 'Women';
         } else{
-          genderKey = 'Desconocido';
+          genderKey = 'Unknown';
         }
         
-        if (!datasetsPorGenero[genderKey]) {
-          datasetsPorGenero[genderKey] = [];
+        if (!datasetsByGenre[genderKey]) {
+          datasetsByGenre[genderKey] = [];
         }
         
-        const existingData = datasetsPorGenero[genderKey].find(d => d.year === year);
+        const existingData = datasetsByGenre[genderKey].find(d => d.year === year);
         
         if (existingData) {
           existingData.count++;
         } else {
-          datasetsPorGenero[genderKey].push({
+          datasetsByGenre[genderKey].push({
             year,
             count: 1
           });
         }
       });
 
-      // Crear un objeto para almacenar los datos ordenados
-      const datosOrdenados: { [anio: string]: { hombres: number; mujeres: number; total: number} } = {};
-      const hombres = datasetsPorGenero['Hombres'];
-      const mujeres = datasetsPorGenero['Mujeres'];
+      // Create an object to store the ordered data
+      const sortedData: { [anio: string]: { hombres: number; mujeres: number; total: number} } = {};
+      const men = datasetsByGenre['Men'];
+      const women = datasetsByGenre['Women'];
 
-      // Ordenar los datos de hombres
-      hombres.forEach(dato => {
-        const anio = dato.year;
-        const conteo = dato.count;
+      // Sort men's data
+      men.forEach(dato => {
+        const year = dato.year;
+        const count = dato.count;
 
-        datosOrdenados[anio] = { hombres: conteo, mujeres: 0, total: conteo };
+        sortedData[year] = { hombres: count, mujeres: 0, total: count };
       });
 
-      // Ordenar los datos de mujeres y combinarlos con los datos de hombres
-      mujeres.forEach(dato => {
-        const anio = dato.year;
-        const conteo = dato.count;
+      // Sort the women's data and combine it with the men's data
+      women.forEach(dato => {
+        const year = dato.year;
+        const count = dato.count;
 
-        if (datosOrdenados[anio]) {
-          datosOrdenados[anio].mujeres = conteo;
-          datosOrdenados[anio].total += conteo;
+        if (sortedData[year]) {
+          sortedData[year].mujeres = count;
+          sortedData[year].total += count;
         } else {
-          datosOrdenados[anio] = { mujeres: conteo, hombres: 0, total: conteo };
+          sortedData[year] = { mujeres: count, hombres: 0, total: count };
         }
       });
 
 
-      // Obtener los años ordenados
-      const aniosOrdenados = Object.keys(datosOrdenados).sort();
+      // Get the years sorted
+      const organizedYears = Object.keys(sortedData).sort();
 
 
-      const conteosHombres = aniosOrdenados.map(anio => Number((datosOrdenados[anio].hombres/(datosOrdenados[anio].total)).toFixed(4)));
-      const conteosMujeres = aniosOrdenados.map(anio => Number((datosOrdenados[anio].mujeres/(datosOrdenados[anio].total)).toFixed(4)));
+      const countMen = organizedYears.map(anio => Number((sortedData[anio].hombres/(sortedData[anio].total)).toFixed(4)));
+      const countWoman = organizedYears.map(anio => Number((sortedData[anio].mujeres/(sortedData[anio].total)).toFixed(4)));
 
       
-      this.generarGraficoCircular('lineChart4', aniosOrdenados, ['Hombres', 'Mujeres'], [conteosHombres, conteosMujeres]);
-      this.generarGraficoMultiple('lineChart8', aniosOrdenados, ['Hombres', 'Mujeres'], [conteosHombres, conteosMujeres]);
+      this.generateCircularChart('lineChart4', organizedYears, ['Hombres', 'Mujeres'], [countMen, countWoman]);
+      this.generateMultipleGraph('lineChart8', organizedYears, ['Hombres', 'Mujeres'], [countMen, countWoman]);
   }
 
-  generarGraficoMultiple(chartId: string, labels: string[], datasetsLabels: string[], datasetsData: number[][]) {
+  generateMultipleGraph(chartId: string, labels: string[], datasetsLabels: string[], datasetsData: number[][]) {
     const datasets = datasetsLabels.map((label, index) => ({
       label: label,
       data: datasetsData[index],
@@ -994,18 +893,17 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
       },
     };
   
-    // Crear el gráfico
     const ctx = document.getElementById(chartId) as HTMLCanvasElement;
     new Chart(ctx, chartConfig);
   }
 
-  generarGraficoCircular(chartId: string, labels: string[], datasetsLabels: string[], datasetsData: number[][]) {
-    const colores = ['#FF5733', '#3399FF'];
+  generateCircularChart(chartId: string, labels: string[], datasetsLabels: string[], datasetsData: number[][]) {
+    const colors = ['#FF5733', '#3399FF'];
 
     const datasets = datasetsLabels.map((label, index) => ({
       label: label,
       data: datasetsData[index],
-      backgroundColor: colores[index],  // Cambia la opacidad a un valor más alto
+      backgroundColor: colors[index],  // Cambia la opacidad a un valor más alto
       borderColor: 'black',
     }));
   
@@ -1032,12 +930,9 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
     };
     const ctx = document.getElementById(chartId) as HTMLCanvasElement;
     new Chart(ctx, chartConfig);
+  }
 
-  
-
-}
-
-  generarGraficoBarras(idChart: string, label: string, labels: any[], data: any[]) {
+  generateBarChart(idChart: string, label: string, labels: any[], data: any[]) {
     this.barChart = new Chart(idChart, {
       type: 'bar',
       data: {
@@ -1092,51 +987,87 @@ export class EstadisticasComponent implements OnInit, AfterViewInit {
 
     return colors[index];
   }
+
+  loadCommonNames() {
+    this.http.get('assets/common_names.txt', { responseType: 'text' }).subscribe(
+      (data: string) => {
+        this.commonNames = this.parseCommonNames(data);
+      },
+      (error: any) => {
+        console.error('Error al cargar los datos:', error);
+      }
+    );
+  }
+
+  parseCommonNames(data: string) {
+
+    const lines = data.split('\n');
+    const dict: { [key: string]: { frec_paises: { [key: string]: number }, genero: string } } = {};
+    let currentName = '';
+    let currentData: { frec_paises: { [key: string]: number }, genero: string } = {
+      frec_paises: {},
+      genero: ''
+    };
+  
+    for (const linea of lines) {
+      if (linea.startsWith('nombre:')) {
+        currentName = linea.split(':')[1].trim();
+        currentData = { frec_paises: {}, genero: '' };
+      } else if (linea.startsWith('frec_paises:')) {
+        const frec_paisesStr = linea.substring(linea.indexOf('{'), linea.lastIndexOf('}') + 1);
+        const frec_paises = JSON.parse(frec_paisesStr);
+        currentData.frec_paises = frec_paises;
+      } else if (linea.startsWith('genero:')) {
+        currentData.genero = linea.split(':')[1].trim();
+      } else if (linea.trim() === '') {
+        dict[currentName] = currentData;
+      }
+    }
+    return dict;
+  }
+
   async main(){
     try {
-      this.titulosSeleccionados = this.seleccionService.obtenerTitulosSeleccionados();
-      this.conferenceOption = this.seleccionService.obtenerOpcionConferencia();
-      this.venueName = this.seleccionService.obtenerNombreVenue();
+      this.selectedTitles = this.selectionService.getSelectedTitles();
+      this.conferenceOption = this.selectionService.getConferenceOption();
+      this.venueName = this.selectionService.getVenueName();
 
-      this.obtenerPapers();
-      this.obtenerColaboraciones();
-      this.obtenerSingleAuthorPapers();
-      this.obtenerResearchersConference();
-      this.obtenerDatosEscuelas();
-      this.generarTablasDecadas2();
-      
-
-     
+      this.getPapers();
+      this.getCollaborations();
+      this.getAuthorsPapers();
+      this.getResearchersConference();
+      this.getSchools();
+      this.generateTablesDecades();
 
       if(this.researchers.length == 0){
-        await this.esperarResearcherNoVacio();
-        this.obtenerDatosDemograficos();
+        await this.waitResearcherNoEmpty();
+        this.getDemographicData();
       } else{
-        this.obtenerDatosDemograficos();
+        this.getDemographicData();
       }      
 
       if(this.papersWithAuthors.length == 0){
-        await this.esperarAuthorsWithPapersNoVacio();
-        this.obtenerTopicAnalisis();
-        this.obtenerDistribuciones();
+        await this.waitAuthorsWithPapersNoEmpty();
+        this.getTopicAnalysis();
+        this.getDistributions();
       }else{
-        this.obtenerTopicAnalisis();
-        this.obtenerDistribuciones();
+        this.getTopicAnalysis();
+        this.getDistributions();
       }
       
       if(this.singleAuthor.length == 0){
-        await this.esperarSingleAuthorsNoVacio();
-        this.decadeStats = this.statsProlificAuthors(this.yearsSeleccionados);
-        this.generarTablasDecadas(this.decadeStats)
+        await this.waitSingleAuthorsNoEmpty();
+        this.decadeStats = this.statsProlificAuthors(this.selectedYears);
+        this.generateTablesDecades2(this.decadeStats)
       }else{
-        this.decadeStats = this.statsProlificAuthors(this.yearsSeleccionados);
-        this.generarTablasDecadas(this.decadeStats)
+        this.decadeStats = this.statsProlificAuthors(this.selectedYears);
+        this.generateTablesDecades2(this.decadeStats)
       }
-      this.statsProlificAuthors2(this.yearsSeleccionados);
+      this.statsProlificAuthors2(this.selectedYears);
  
 
   } catch (error) {
-    console.error('Error al obtener los datos:', error);
+    console.error('Error in getData with:', error);
   }
   }
 

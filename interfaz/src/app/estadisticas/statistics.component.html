@@ -44,10 +44,10 @@
   </div>
 
   <hr class="line">
-  <h3 class="especial">Distributions of authors per paper and of papers per author</h3>
+  <h3 class="special">Distributions of authors per paper and of papers per author</h3>
   <div class="container-table">
-    <div class="tabla">
-      <table id="autoresTabla">
+    <div class="table">
+      <table id="authorsTable">
         <thead>
           <tr>
             <th>Author</th>
@@ -58,8 +58,8 @@
       </table>
     </div>
     <div class="linev"></div>
-    <div class="tabla">
-      <table id="papersTabla">
+    <div class="table">
+      <table id="papersTable">
         <thead>
           <tr>
             <th>Papers</th>
@@ -73,15 +73,15 @@
 
   <hr class="line">
 
-  <h3 class="especial"> Percentage of Publications Men-Women / Year</h3>
+  <h3 class="special"> Percentage of Publications Men-Women / Year</h3>
   <div class="flex-container2">
 
     <div class="graph-bars">
 
         <div class="canvas-container1">
           <div class="legend">
-            <div class="hombres"></div> Men
-            <div class="mujeres"></div> Women
+            <div class="men"></div> Men
+            <div class="women"></div> Women
           </div>
           <canvas class="circular" id="lineChart4"></canvas>
         </div>
@@ -108,10 +108,10 @@
 
   <hr class="line">
 
-  <h3 class="especial">Most frequent Bigrams and Trigrams</h3>
+  <h3 class="special">Most frequent Bigrams and Trigrams</h3>
   <div class="container-table">
-    <div class="tabla">
-        <table id="tablaBigramas">
+    <div class="table">
+        <table id="tableBigramas">
           <thead>
             <tr>
               <th>Bigrams</th>
@@ -124,8 +124,8 @@
         </table>
     </div>
     <div class="linev"></div>
-    <div class="tabla">
-        <table id="tablaTrigramas">
+    <div class="table">
+        <table id="tableTrigramas">
           <thead>
             <tr>
               <th>Trigrams</th>
@@ -140,17 +140,17 @@
   </div>
 
   <hr class="line">
-  <h3 class="especial">Frequent terms from all titles of papers</h3>
+  <h3 class="special">Frequent terms from all titles of papers</h3>
   <div class="conceptual">
     <angular-tag-cloud [config]="options" [data]="cloudData"></angular-tag-cloud>
   </div>
 
   <hr class="line">
 
-  <h3 class="especial">Most prolific authors according to their number of publications accumulated by decade</h3>
+  <h3 class="special">Most prolific authors according to their number of publications accumulated by decade</h3>
   <div class="container-table2">
-    <div class="tabla">
-        <table id="tabla90">
+    <div class="table">
+        <table id="table90">
           <thead>
             <tr>
               <th colspan="2">
@@ -167,8 +167,8 @@
         </table>
     </div>
     <div class="linev"></div>
-    <div class="tabla">
-        <table id="tabla00">
+    <div class="table">
+        <table id="table00">
           <thead>
             <tr>
               <th colspan="2">
@@ -185,8 +185,8 @@
         </table>
     </div>
     <div class="linev"></div>
-    <div class="tabla">
-      <table id="tabla10" class="centered-table">
+    <div class="table">
+      <table id="table10" class="centered-table">
         <thead>
           <tr>
             <th colspan="2">
@@ -203,8 +203,8 @@
       </table>
   </div>
   <div class="linev"></div>
-  <div class="tabla">
-      <table id="tabla20" class="centered-table">
+  <div class="table">
+      <table id="table20" class="centered-table">
         <thead>
           <tr>
             <th colspan="2">
@@ -224,26 +224,9 @@
 
   <hr class="line3">
 
-  <div class="container-table2">
-    <div class="tabla">
-      <table id="tablaInstitution">
-        <thead>
-          <tr>
-            <th>Institution</th>
-            <th>Number of Authors</th>
-            <th>Country</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <hr class="line3">
-
   <h3>Authors with their first and most recent year of publication</h3>
   <div class="container-table2">
-    <div class="tabla">
+    <div class="table">
         <table id="degree">
           <thead>
             <tr>
@@ -257,6 +240,25 @@
         </table>
     </div>
   </div>
+
+  <hr class="line3">
+
+  <div class="container-table2">
+    <div class="table">
+      <table id="tableInstitution">
+        <thead>
+          <tr>
+            <th>Institution</th>
+            <th>Number of Authors</th>
+            <th>Country</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+
 
 
   
