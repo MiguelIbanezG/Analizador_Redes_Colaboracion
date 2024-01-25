@@ -39,11 +39,11 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   venueName: any[] = [];
   papers: any[] = [];
   collaborations: any[] = [];
+  connectedComponents: any[] = [];
   singleAuthor: any[] = [];
   statistics: any[] = [];
   lineChart!: Chart;
   lineChart2!: Chart;
-  lineChart3!: Chart;
   barChart!: Chart;
   researchers: any[] = [];
   researchers2: any[] = [];
@@ -169,6 +169,39 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  getConnectedComponents(){
+    this.apiService.getConnectedComponents(this.selectedTitles, this.venueName).subscribe({
+      next: (response: any) => {
+        this.connectedComponents = response;
+        console.log(response);
+        console.log(this.connectedComponents);
+        this.statsConnectedComponents();
+        this.generateChart3('lineChart11', 'Number of Connected Components', this.statistics[5].years, this.statistics[5].connectedComponents);
+      },
+      error: (error: any) => {
+        console.error('Error in getConnectedComponents:', error);
+      }
+    });
+  }
+
+  getConnectedComponentsByvenue(){
+    this.apiService.getConnectedComponentsByvenue(this.selectedTitles, this.venueName).subscribe({
+      next: (response: any) => {
+        this.connectedComponents = response;
+        console.log(response);
+        console.log(this.connectedComponents);
+        this.statsConnectedComponentsByvenue();
+        this.generateChart4('lineChart12', 'Number of Connected Components', this.statistics[6]);
+        this.generateChart4('lineChart13', 'Number of Connected Components', this.statistics[7]);
+        
+      },
+      error: (error: any) => {
+        console.error('Error in getConnectedComponents:', error);
+      }
+    });
+  }
+
 
   async waitAuthorsWithPapersNoEmpty(){
     while (!this.papersWithAuthors || this.papersWithAuthors.length === 0) {
@@ -454,6 +487,83 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     };
   }
 
+  statsConnectedComponents() {
+    // Copiar los datos originales para no afectar el orden original
+    const copiedData = [...this.connectedComponents];
+
+    // Ordenar los datos por año
+    copiedData.sort((a, b) => a.year - b.year);
+
+    // Extraer los años y componentes conectados ordenados
+    const years = copiedData.map(item => item.year);
+    const connectedComponents = copiedData.map(item => item.connectedComponents);
+  
+    this.statistics[5] = {
+        years: years,
+        connectedComponents: connectedComponents
+        // Puedes agregar otras propiedades si es necesario
+    };
+}
+
+  statsConnectedComponentsByvenue() {
+    const venueDataMap: Map<string, { years: any[], connectedComponents: any[], venueName: string, index?: number } | undefined> = new Map();
+    const venueDataMapRelative: Map<string, { years: any[], connectedComponents: any[], venueName: string, index?: number } | undefined> = new Map();
+
+    let currentIndex = 0;
+    let currentIndex2 = 0;
+
+    this.connectedComponents.forEach((item) => {
+      const venueName = item.venueName;
+
+      if (!venueDataMap.has(venueName)) {
+        venueDataMap.set(venueName, {
+          years: [],
+          connectedComponents: [],
+          venueName: venueName,
+          index: currentIndex
+        });
+
+        currentIndex++;  
+      }
+
+      const venueData = venueDataMap.get(venueName);
+      if (venueData) {
+        venueData.years.push(item.year);
+        venueData.connectedComponents.push(item.connectedComponents);
+      }
+    });
+
+    this.connectedComponents.forEach((item) => {
+      const venueName = item.venueName;
+
+      if (!venueDataMapRelative.has(venueName)) {
+        venueDataMapRelative.set(venueName, {
+          years: [],
+          connectedComponents: [],
+          venueName: venueName,
+          index: currentIndex2
+        });
+
+        currentIndex2++;  
+      }
+
+      const venueData = venueDataMapRelative.get(venueName);
+      if (venueData) {
+        venueData.years.push(item.year);
+        let adjustedComponents = item.connectedComponents;
+        while (adjustedComponents > 1) {
+          adjustedComponents /= 10;
+        }
+  
+        venueData.connectedComponents.push(adjustedComponents);
+      }
+    });
+
+    this.statistics[6] = Array.from(venueDataMap.values());
+    this.statistics[7] = Array.from(venueDataMapRelative.values());
+  }
+  
+
   statsSingleAuthor() {
     
     const papersWithAuthors: { ipName: string, numAuthors: number, authorNames: string[], year: string }[] = [];
@@ -637,6 +747,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         const yearsArray = author.year.split(",").map(Number);
         const minYear = Math.min(...yearsArray);
         const maxYear = Math.max(...yearsArray);
+
   
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -649,6 +760,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         table.appendChild(row);
       }
     }
+
   }
 
   generateTablesDecades2(decadeStats: any[]){
@@ -709,7 +821,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         }
       });
     }
-    if(idChart=="lineChart2"){
+    if(idChart=="lineChart2" || idChart=="lineChart11" || idChart=="lineChart3"){
       this.lineChart2 = new Chart(idChart, {
         type: 'line',
         data: {
@@ -745,47 +857,71 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         }
       });
     }
-    if(idChart=="lineChart3"){
-      this.lineChart3 = new Chart(idChart, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: label,
-              data: data,
-              fill: false,
-              borderColor: 'rgb(0, 22, 68)',
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: {
-                color: 'black',
-                font: {
-                  size: 18, 
-                  family: 'Roboto',
-                }
+    
+   
+  }
+
+  generateChart4(idChart: string, label: string, venueDataMap: any) {
+    const datasets = venueDataMap.map((venue: any) => {
+      return {
+        label: venue.venueName,
+        data: venue.connectedComponents,
+        years: venue.years,
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        borderColor: this.getRandomColor(venue.index)
+      };
+    });
+  
+    const allYears = Array.from(new Set([].concat(...datasets.map((dataset: any) => dataset.years))));
+    allYears.sort();
+  
+    this.lineChart = new Chart(idChart, {
+      type: 'line',
+      data: {
+        labels: allYears,
+        datasets: datasets.map((dataset: any) => {
+          return {
+            label: dataset.label,
+            data: allYears.map(year => {
+              const index = dataset.years.indexOf(year);
+              return index !== -1 ? dataset.data[index] : null;
+            }),
+            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+            borderColor: dataset.borderColor,
+          };
+        })
+      },
+      options: {
+        plugins: {
+          legend: {
+            labels: {
+              color: 'black',
+              font: {
+                size: 18,
+                family: 'Roboto',
               }
             }
-          },
-          scales: {
-            y: {
-              type: 'linear',
-              display: true
-            }
-          },
-        }
-      });
-    }
-
-
-   
-
+          }
+        },
+        scales: {
+          y: {
+            type: 'linear',
+            display: true
+          }
+        },
+      }
+    });
   }
+
+  getRandomColor2(seed: string) {
+    const colorSeed = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const randomColor = Math.floor(Math.abs(Math.sin(colorSeed) * 16777215) % 16777215).toString(16);
+    return '#' + randomColor;
+}
+  
+  
+  
+  
 
   statsGender(datasets: any[]){
     const datasetsByGenre: { [genero: string]: { year: string; count: number }[] } = {};
@@ -1038,6 +1174,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
       this.getResearchersConference();
       this.getSchools();
       this.generateTablesDecades();
+      
 
       if(this.researchers.length == 0){
         await this.waitResearcherNoEmpty();
@@ -1065,7 +1202,8 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
       }
       this.statsProlificAuthors2(this.selectedYears);
  
-
+      this.getConnectedComponents();
+      this.getConnectedComponentsByvenue();
   } catch (error) {
     console.error('Error in getData with:', error);
   }

@@ -427,6 +427,77 @@ router.post('/searchBook', async (req, res) => {
   }
 });
 
+router.post('/connectedComponents', async (req, res) => {
+  const venueNames = req.body.venue;
+  const titulosSeleccionados = req.body.titulosSeleccionados;
+  const yearIds = titulosSeleccionados.map(titulo => parseInt(titulo.properties.name, 10)); 
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
+      MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)
+      WHERE v.name IN $venueNames AND toInteger(y.name) IN $yearIds
+      WITH y
+      MATCH p = (y)-[:HAS_PROCEEDING]->(proceeding)-[:HAS_IN_PROCEEDING]->(inproceeding)-[:AUTHORED_BY]->(r:Researcher)
+      RETURN y.name AS year, count(DISTINCT ID(r)) AS connectedComponents
+    `;
+    
+    const result = await session.run(query, { yearIds, venueNames });
+    const connectedComponents = result.records.map(record => {
+      return {
+        year: record.get('year'),
+        connectedComponents: record.get('connectedComponents').low,
+      };
+    });
+  
+  
+    res.json(connectedComponents);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error in connectedComponents', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+
+router.post('/connectedComponentsBYvenue', async (req, res) => {
+  const venueNames = req.body.venue;
+  const titulosSeleccionados = req.body.titulosSeleccionados;
+  const yearIds = titulosSeleccionados.map(titulo => parseInt(titulo.properties.name, 10)); 
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
+      MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)
+      WHERE v.name IN $venueNames AND toInteger(y.name) IN $yearIds
+      WITH y, v.name AS venueName
+      MATCH p = (y)-[:HAS_PROCEEDING]->(proceeding)-[:HAS_IN_PROCEEDING]->(inproceeding)-[:AUTHORED_BY]->(r:Researcher)
+      RETURN y.name AS year, venueName, count(DISTINCT ID(r)) AS connectedComponents
+    `;
+    
+    const result = await session.run(query, { yearIds, venueNames });
+    const connectedComponents = result.records.map(record => {
+      return {
+        year: record.get('year'),
+        venueName: record.get('venueName'),
+        connectedComponents: record.get('connectedComponents').low,
+      };
+    });
+  
+
+  
+    res.json(connectedComponents);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error in connectedComponents', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+
+
 
   
 
