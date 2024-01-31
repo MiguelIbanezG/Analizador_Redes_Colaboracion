@@ -18,6 +18,10 @@ export class HomeComponent implements OnInit {
   filtersString : string = '';
   filtersBOX: string = '';
   filtersList: string[] = [];
+  communities: { name: string, filtersList: string[] }[] = [];
+  selectedCommunities: { name: string, selectedFilter: string }[] = [];
+  filterComunities: string[] = [];
+  nameCommunity: string = '';
   completeConference: string[] = [];
   filteredResults: string[] = [];
   filteredTitles: { title: string, pr_objeto: any, selected: boolean }[] = [];
@@ -34,6 +38,7 @@ export class HomeComponent implements OnInit {
   modalRef: BsModalRef | undefined;
   showButtons = false;
   showAppend = false;
+  showComunities = false;
   filVenues: Observable<string[]> | undefined;
   control = new FormControl();
 
@@ -59,6 +64,23 @@ export class HomeComponent implements OnInit {
       }
     });
   }
+
+  isSelected(item: { name: string, selectedFilter: string }): boolean {
+    return this.selectedCommunities.some(selectedItem => selectedItem.name === item.name);
+  }
+
+  toggleSelection(item: { name: string, selectedFilter: string }): void {
+    const index = this.selectedCommunities.findIndex(selectedItem => selectedItem.name === item.name);
+
+    if (index !== -1) {
+      // Desseleccionar si ya está seleccionado
+      this.selectedCommunities.splice(index, 1);
+    } else {
+      // Seleccionar si no está seleccionado
+      this.selectedCommunities.push(item);
+    }
+  }
+
 
   completeSuggestion(suggestion: string) {
 
@@ -101,6 +123,39 @@ export class HomeComponent implements OnInit {
       this.filtersList.splice(i, 1); 
       this.filtersString = this.filtersList.join(',');
     }
+  }
+
+  deleteCommunity(communityToDelete: { name: string, selectedFilter: string }) {
+    // Filtrar las comunidades para excluir la que se va a eliminar
+    this.selectedCommunities = this.selectedCommunities.filter(community => {
+      // Devolver true si la comunidad actual no coincide con la comunidad a eliminar
+      return !(community.name === communityToDelete.name && community.selectedFilter === communityToDelete.selectedFilter);
+    });
+  }
+
+
+
+  createCommunity(filtersList: string[]){
+    this.communities.push({ name: this.nameCommunity, filtersList: filtersList });
+    this.closeModal()
+  }
+
+  onFilterSelected(selectedCommunities: { name: string, selectedFilter: string }[]) {
+ 
+    selectedCommunities.forEach(community => {
+      this.filterComunities.push(community.selectedFilter);
+    });
+    this.showAppend = false;
+    this.showComunities= true;
+
+    this.filtersList = [];
+
+    this.closeModal();
+
+  
+  
+    
+
   }
 
   execFunctionsYear(){

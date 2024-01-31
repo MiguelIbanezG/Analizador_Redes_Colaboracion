@@ -1,3 +1,4 @@
+
 body {
   font-family: "Roboto";
   margin: 0 auto;
@@ -90,6 +91,16 @@ button:disabled {
   transition: transform 0.3s ease;
 }
 
+.button-community {
+  margin: 10px; /* Espacio entre los botones */
+  margin-top: 40px;
+}
+
+.button-community:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
 .button-stats button{
   margin-bottom: 10px;
   margin-right: 10px;
@@ -140,6 +151,7 @@ button:disabled {
   text-align: right; /* Alinea el botón a la derecha */
   margin-top: -20px;
 }
+
 
 .help {
   font-size: 16px; /* Tamaño de fuente */
@@ -202,6 +214,39 @@ span.selected {
   background-color: rgba(0, 0, 0, 0.4); /* Fondo semitransparente */
 }
 
+/* Estilo para el select */
+select {
+  width: 300px; /* Ajusta el ancho según tu diseño */
+  appearance: none; /* Oculta el estilo por defecto del sistema operativo */
+  padding: 5px;
+  background-color: transparent; /* Fondo transparente */
+  border: 1px solid #ccc; /* Borde simple */
+  border-radius: 5px; /* Esquinas redondeadas */
+}
+
+/* Estilo para las opciones */
+option {
+  padding: 5px;
+}
+
+/* Estilo para las opciones seleccionadas */
+select[multiple] option:checked {
+  background-color: #f0f0f0; /* Color de fondo para las opciones seleccionadas */
+}
+
+/* Estilo para las casillas de verificación */
+select[multiple] option::before {
+  content: '\2610'; /* Caracter Unicode para una casilla vacía */
+  margin-right: 5px;
+}
+
+select[multiple] option:checked::before {
+  content: '\2611'; /* Caracter Unicode para una casilla marcada */
+}
+
+.selectCommunities{
+  margin-bottom: 50px;
+}
 .modal-container {
   position: absolute;
   top: 50%; /* Ajusta el valor según desees */
@@ -211,8 +256,8 @@ span.selected {
 
 .modal-content {
   /* Estilos del contenido del modal */
-  width: 300px; /* Ancho del modal */
-  height: 350px; /* Altura del modal */
+  min-width: 300px; /* Ancho del modal */
+  min-height: 350px; /* Altura del modal */
   border: 2px solid black; /* Borde negro */
   background-color: white;
   padding: 20px;
@@ -243,7 +288,8 @@ span.selected {
 .modal-body {
   overflow-y: auto; /* Scroll si el contenido es demasiado grande */
   height: calc(100% - 40px); /* Altura del contenido del modal */
-  font-size: 20px;
+  font-size: 18px;
+  padding: 20px;
 }
 
 .close-btn {

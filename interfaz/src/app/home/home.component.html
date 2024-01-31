@@ -22,15 +22,69 @@
     <p>Conference or Journal not found. Please try another Conference or Journal</p>
   </div>
 
-  <div *ngIf="showAppend" class="filters-list">
-    <p>Current Conferences:</p>
-    <ul>
-      <li *ngFor="let filter of filtersList">
-        {{ filter }}
-        <button class="button-delete" (click)="deleteFilter(filter)">X</button>
-      </li>
-    </ul>
+
+  <div *ngIf="showAppend || showComunities" class="filters-list">
+    <div *ngIf="showComunities">
+      <p>Communities</p>
+      <ul>
+        <li *ngFor="let filter of selectedCommunities">
+          {{ filter.name }}
+          {{filter.selectedFilter}}
+          <button class="button-delete" (click)="deleteCommunity(filter)">X</button>
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="showAppend && showComunities">
+      <hr>
+    </div>
+
+    <div *ngIf="showAppend">
+      <p>Current Conferences:</p>
+      <ul>
+        <li *ngFor="let filter of filtersList">
+          {{ filter }}
+          <button class="button-delete" (click)="deleteFilter(filter)">X</button>
+        </li>
+      </ul>
+
+      <div class="buttons">
+        <div class="button-community">
+          <button (click)="openModal(community)" [disabled]="filtersList.length === 0">Create Community</button>
+        </div>
+      </div>
+    </div>
+    
   </div>
+
+
+
+  <ng-template #community>
+    <div class="custom-modal">
+      <div class="modal-container">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title pull-left">Create Community</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="closeModal()">
+              <span class="close-icon" aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <input type="text" [(ngModel)]="nameCommunity" placeholder="Add name Community">
+            <ul>
+              <li *ngFor="let filter of filtersList">
+                {{ filter }}
+                <button class="button-delete" (click)="deleteFilter(filter)">X</button>
+              </li>
+            </ul>
+            <div class="button-community">
+              <button (click)="createCommunity(filtersList)">Create</button>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
   
 
   <!-- Buttons Filter -->
@@ -41,7 +95,47 @@
     <div class="button-decade">
       <button (click)="execFunctionsDecades()" [disabled]="filtersList.length === 0">Filter by decades</button>
     </div>
+    <div class="button-decade">
+      <button (click)="openModal(selectCommunity)" [disabled]="filtersList.length === 0">SelectCommunity</button>
+    </div>
   </div>
+
+  <ng-template #selectCommunity>
+    <div class="custom-modal">
+      <div class="modal-container">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title pull-left">Create Community</h4>
+            <button type="button" class="close-btn" aria-label="Close" (click)="closeModal()">
+              <span class="close-icon" aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Select communities:</p>
+            <!-- <ng-select
+              [items]="communities"
+              [(ngModel)]="selectedCommunities"
+              [multiple]="true"
+              bindLabel="name"
+              placeholder="Select Communities"
+              class="selectCommunities"
+            >
+            
+            </ng-select> -->
+            <select name="communitySelect" [(ngModel)]="selectedCommunities" multiple>
+              <option *ngFor="let community of communities" [ngValue]="community">
+                {{ community.name }} {{community.filtersList}}
+              </option>
+            </select>
+        
+            <div class="button-decade">
+              <button (click)="onFilterSelected(selectedCommunities)">Search Communities</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
 
 
   <!-- Filter by Decade -->
