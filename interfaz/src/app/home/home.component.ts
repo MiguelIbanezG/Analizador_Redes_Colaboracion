@@ -19,12 +19,14 @@ export class HomeComponent implements OnInit {
   filtersBOX: string = '';
   filtersList: string[] = [];
   communities: { name: string, filtersList: string[] }[] = [];
-  selectedCommunities: { name: string, selectedFilter: string }[] = [];
+  selectedCommunities: { name: string, filtersList: string[] }[] = [];
   filterComunities: string[] = [];
+  currentConferences: string[] = [];
   nameCommunity: string = '';
   completeConference: string[] = [];
   filteredResults: string[] = [];
   filteredTitles: { title: string, pr_objeto: any, selected: boolean }[] = [];
+  commitiesTitles: { title: string, pr_objeto: any, selected: boolean }[] = [];
   selectAll = false;
   selectDecades = false;
   selectDecades2 = false;
@@ -33,6 +35,7 @@ export class HomeComponent implements OnInit {
   conferenceOption: string = "main";
   showYears: boolean = false;
   showDecades: boolean = false;
+  repeated: boolean = false;
   noResultsFoundConference: boolean | undefined;
   noResultsFoundJournal: boolean | undefined;
   modalRef: BsModalRef | undefined;
@@ -65,11 +68,11 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  isSelected(item: { name: string, selectedFilter: string }): boolean {
+  isSelected(item: { name: string, filtersList: string []}): boolean {
     return this.selectedCommunities.some(selectedItem => selectedItem.name === item.name);
   }
 
-  toggleSelection(item: { name: string, selectedFilter: string }): void {
+  toggleSelection(item: { name: string, filtersList: string[] }): void {
     const index = this.selectedCommunities.findIndex(selectedItem => selectedItem.name === item.name);
 
     if (index !== -1) {
@@ -84,8 +87,16 @@ export class HomeComponent implements OnInit {
 
   completeSuggestion(suggestion: string) {
 
+
     if (suggestion.trim() !== '') {
       const conference = suggestion.trim();
+
+    if(this.filterComunities.includes(conference)){
+      this.repeated = true;
+    }else{
+      this.repeated = false;
+    }
+    
    
       this.apiService.getFilteredNodesConference([conference]).subscribe({
         next: (response: any[]) => {
@@ -96,11 +107,35 @@ export class HomeComponent implements OnInit {
      
             if (!this.filtersList.includes(conference)) {
               this.filtersList.push(conference);
+              const newFilters = this.filterComunities.filter(item => !this.filtersList.includes(item));
+
+              // Concatena los elementos filtrados a this.filtersList
+              this.filtersList = this.filtersList.concat(newFilters);
               this.filtersString  = this.filtersList.join(','); 
             }
           } else {
             this.noResultsFoundConference = true;
           }
+          for (const filter of this.filtersList) {
+            
+            // Verifica si el elemento no está presente en currentConferences
+            if (!this.filterComunities.includes(filter)) {
+
+                
+                // Agrega el elemento a currentConferences
+                this.currentConferences.push(filter);
+           
+               
+            }
+            // Utilizando la función filter junto con indexOf
+            const filtersListSinDuplicados: string[] = this.currentConferences.filter((valor, indice, self) => {
+              return self.indexOf(valor) === indice;
+            });
+
+            this.currentConferences = filtersListSinDuplicados
+
+        }
+         
         },
         error: (error: any) => {
           console.error('Error in getFilteredNodesConference:', error);
@@ -123,39 +158,58 @@ export class HomeComponent implements OnInit {
       this.filtersList.splice(i, 1); 
       this.filtersString = this.filtersList.join(',');
     }
+
+    const R = this.currentConferences.indexOf(filter);
+    if (R !== -1) {
+      this.currentConferences.splice(i, 1); 
+    }
+    console.log("rrrr" +this.filtersList)
   }
 
-  deleteCommunity(communityToDelete: { name: string, selectedFilter: string }) {
-    // Filtrar las comunidades para excluir la que se va a eliminar
+  deleteCommunity(communityToDelete: { name: string, filtersList: string[] }) {
+ 
     this.selectedCommunities = this.selectedCommunities.filter(community => {
-      // Devolver true si la comunidad actual no coincide con la comunidad a eliminar
-      return !(community.name === communityToDelete.name && community.selectedFilter === communityToDelete.selectedFilter);
+
+      return !(community.name === communityToDelete.name && community.filtersList === communityToDelete.filtersList);
     });
+    
+
+    for (const filter of communityToDelete.filtersList) {
+            
+      const i = this.filtersList.indexOf(filter);
+      if (i !== -1) {
+        this.filtersList.splice(i, 1); 
+        this.filtersString = this.filtersList.join(',');
+      }
+
+
+    }
+
+    console.log("fi" +this.filtersList)
   }
 
 
 
   createCommunity(filtersList: string[]){
     this.communities.push({ name: this.nameCommunity, filtersList: filtersList });
+
     this.closeModal()
+    this.nameCommunity = '';
   }
 
-  onFilterSelected(selectedCommunities: { name: string, selectedFilter: string }[]) {
- 
-    selectedCommunities.forEach(community => {
-      this.filterComunities.push(community.selectedFilter);
-    });
-    this.showAppend = false;
-    this.showComunities= true;
-
-    this.filtersList = [];
-
-    this.closeModal();
-
-  
-  
+  onFilterSelected(selected: { name: string, filtersList: string[] }[]) {
+    selected.forEach(community => {
     
-
+      this.filterComunities = this.filterComunities.concat(community.filtersList);
+  });
+  
+    this.showAppend = false;
+    this.showComunities = true;
+  
+    this.filtersList = [];
+    this.currentConferences = [];
+  
+    this.closeModal();
   }
 
   execFunctionsYear(){
@@ -198,6 +252,9 @@ export class HomeComponent implements OnInit {
   }
 
   getFilteredNodesConference() {
+
+    this.filtersList = this.filtersList.concat(this.filterComunities);
+    
     this.apiService.getFilteredNodesConference(this.filtersList).subscribe({
       next: (response: any[]) => {
         // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
@@ -218,13 +275,15 @@ export class HomeComponent implements OnInit {
             this.noResultsFoundConference = false;
           }
           console.log(this.noResultsFoundConference)
+
         }
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);
       }
-        
+      
     });
+
   }
 
   getFilteredNodesJournal() {
@@ -337,12 +396,16 @@ export class HomeComponent implements OnInit {
 
   generateStatistics() {
 
-    const titles = this.filteredTitles
-    .filter(titulo => titulo.selected).map(titulo => titulo.pr_objeto);
+    const titles = this.filteredTitles.
+    filter(titulo => titulo.selected).map(titulo => titulo.pr_objeto);
+
+    console.log("quepasa"+titles)
     
+   
     this.selectionService.addTitles(titles);
     const splitFilters = this.filtersString.split(',').map(filtersString => filtersString.trim());
     this.selectionService.flagNameVenue(splitFilters);
+    console.log("aa"+splitFilters)
 
     this.router.navigateByUrl('/statistics');
   }

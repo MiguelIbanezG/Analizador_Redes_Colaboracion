@@ -22,26 +22,34 @@
     <p>Conference or Journal not found. Please try another Conference or Journal</p>
   </div>
 
+  <div class="noResults" *ngIf="repeated">
+    <p>This conference is in one of the selected communities</p>
+  </div>
 
-  <div *ngIf="showAppend || showComunities" class="filters-list">
-    <div *ngIf="showComunities">
+
+
+  <div *ngIf="this.filtersList.length > 0 || this.selectedCommunities.length >0 " class="filters-list">
+    <div *ngIf="this.selectedCommunities.length >0">
       <p>Communities</p>
-      <ul>
+
         <li *ngFor="let filter of selectedCommunities">
-          {{ filter.name }}
-          {{filter.selectedFilter}}
+          <strong>{{ filter.name }}</strong>
           <button class="button-delete" (click)="deleteCommunity(filter)">X</button>
+          <ul>
+            <li *ngFor="let filterItem of filter.filtersList">{{ filterItem }}</li>
+          </ul>
+          
         </li>
-      </ul>
     </div>
-    <div *ngIf="showAppend && showComunities">
+
+    <div *ngIf="this.filtersList.length > 0 && this.selectedCommunities.length >0">
       <hr>
     </div>
 
-    <div *ngIf="showAppend">
+    <div *ngIf="this.filtersList.length > 0">
       <p>Current Conferences:</p>
       <ul>
-        <li *ngFor="let filter of filtersList">
+        <li *ngFor="let filter of currentConferences">
           {{ filter }}
           <button class="button-delete" (click)="deleteFilter(filter)">X</button>
         </li>
@@ -71,7 +79,7 @@
           <div class="modal-body">
             <input type="text" [(ngModel)]="nameCommunity" placeholder="Add name Community">
             <ul>
-              <li *ngFor="let filter of filtersList">
+              <li *ngFor="let filter of currentConferences">
                 {{ filter }}
                 <button class="button-delete" (click)="deleteFilter(filter)">X</button>
               </li>
@@ -90,13 +98,13 @@
   <!-- Buttons Filter -->
   <div class="buttons">
     <div class="button-years">
-      <button (click)="execFunctionsYear()" [disabled]="filtersList.length === 0">Filter by years</button>
+      <button (click)="execFunctionsYear()" [disabled]="filtersList.length === 0 && selectedCommunities.length === 0">Filter by years</button>
     </div>
     <div class="button-decade">
-      <button (click)="execFunctionsDecades()" [disabled]="filtersList.length === 0">Filter by decades</button>
+      <button (click)="execFunctionsDecades()" [disabled]="filtersList.length  === 0 && selectedCommunities.length === 0">Filter by decades</button>
     </div>
     <div class="button-decade">
-      <button (click)="openModal(selectCommunity)" [disabled]="filtersList.length === 0">SelectCommunity</button>
+      <button (click)="openModal(selectCommunity)" [disabled]="communities.length === 0">Select Community</button>
     </div>
   </div>
 
