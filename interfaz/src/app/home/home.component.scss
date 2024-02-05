@@ -27,12 +27,12 @@ body {
 
 .button-delete{
   background-color: rgb(255, 0, 0);
-  padding-left: 5px;
-  padding-right: 5px;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 1px;
+  padding-bottom: 1px;
   margin-left: 5px;
-  margin: 3px;
+  margin: 2px;
   font-weight: bold; 
 }
 
@@ -40,13 +40,14 @@ body {
   margin-bottom: 2px; 
 }
 
-
-
-strong {
-  margin-bottom: -10px; /* Ajusta el margen derecho según tus preferencias */
+.filter-item {
+  margin-bottom: 10px;
+  margin-left: 30px;
 }
 
-
+.filter-name {
+  margin-right: 10px;
+}
 
 .filters-list{
   box-shadow: 0 2px 5px  rgb(0, 22, 68);
@@ -58,6 +59,12 @@ strong {
 
 p{
   font-weight: bold; 
+  margin: 0;
+  margin-top: 10px;
+}
+
+.community-container{
+  margin-bottom: 30px;
 }
 
 h1 {
@@ -310,4 +317,23 @@ select[multiple] option:checked::before {
 
 .close-icon {
   font-size: 18px; 
+}
+
+hr {
+  border: 0.5;
+  border-color: black;
+  height: 1px;
+  background-color: black; /* Adjust the color as needed */
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+.slim{
+
+  border: 0;
+  border-color: black;
+  height: 1px;
+  background-color: black; /* Adjust the color as needed */
+  margin: 0;
+
 }

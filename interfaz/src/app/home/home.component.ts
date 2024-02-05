@@ -18,15 +18,13 @@ export class HomeComponent implements OnInit {
   filtersString : string = '';
   filtersBOX: string = '';
   filtersList: string[] = [];
-  communities: { name: string, filtersList: string[] }[] = [];
-  selectedCommunities: { name: string, filtersList: string[] }[] = [];
+  communities: { name: string, filtersList: string[], selected: boolean  }[] = [];
   filterComunities: string[] = [];
   currentConferences: string[] = [];
   nameCommunity: string = '';
   completeConference: string[] = [];
   filteredResults: string[] = [];
   filteredTitles: { title: string, pr_objeto: any, selected: boolean }[] = [];
-  commitiesTitles: { title: string, pr_objeto: any, selected: boolean }[] = [];
   selectAll = false;
   selectDecades = false;
   selectDecades2 = false;
@@ -40,8 +38,6 @@ export class HomeComponent implements OnInit {
   noResultsFoundJournal: boolean | undefined;
   modalRef: BsModalRef | undefined;
   showButtons = false;
-  showAppend = false;
-  showComunities = false;
   filVenues: Observable<string[]> | undefined;
   control = new FormControl();
 
@@ -68,22 +64,9 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  isSelected(item: { name: string, filtersList: string []}): boolean {
-    return this.selectedCommunities.some(selectedItem => selectedItem.name === item.name);
+  isFilteringDisabled(): boolean {
+    return this.filtersList.length === 0 && this.communities.every(community => !community.selected);
   }
-
-  toggleSelection(item: { name: string, filtersList: string[] }): void {
-    const index = this.selectedCommunities.findIndex(selectedItem => selectedItem.name === item.name);
-
-    if (index !== -1) {
-      // Desseleccionar si ya está seleccionado
-      this.selectedCommunities.splice(index, 1);
-    } else {
-      // Seleccionar si no está seleccionado
-      this.selectedCommunities.push(item);
-    }
-  }
-
 
   completeSuggestion(suggestion: string) {
 
@@ -104,9 +87,10 @@ export class HomeComponent implements OnInit {
           if (response.length !== 0) {
 
             this.noResultsFoundConference = false;
-     
+
             if (!this.filtersList.includes(conference)) {
               this.filtersList.push(conference);
+              
               const newFilters = this.filterComunities.filter(item => !this.filtersList.includes(item));
 
               // Concatena los elementos filtrados a this.filtersList
@@ -121,7 +105,6 @@ export class HomeComponent implements OnInit {
             // Verifica si el elemento no está presente en currentConferences
             if (!this.filterComunities.includes(filter)) {
 
-                
                 // Agrega el elemento a currentConferences
                 this.currentConferences.push(filter);
            
@@ -142,7 +125,6 @@ export class HomeComponent implements OnInit {
         },
         complete: () => {
           this.filtersBOX = "";
-          this.showAppend = true;
         }
       });
     }
@@ -163,14 +145,13 @@ export class HomeComponent implements OnInit {
     if (R !== -1) {
       this.currentConferences.splice(i, 1); 
     }
-    console.log("rrrr" +this.filtersList)
   }
 
-  deleteCommunity(communityToDelete: { name: string, filtersList: string[] }) {
+  deleteCommunity(communityToDelete: { name: string, filtersList: string[], selected: boolean }) {
  
-    this.selectedCommunities = this.selectedCommunities.filter(community => {
+    this.communities = this.communities.filter(community => {
 
-      return !(community.name === communityToDelete.name && community.filtersList === communityToDelete.filtersList);
+      return !(community.name === communityToDelete.name && community.filtersList === communityToDelete.filtersList && community.selected === communityToDelete.selected);
     });
     
 
@@ -185,31 +166,19 @@ export class HomeComponent implements OnInit {
 
     }
 
-    console.log("fi" +this.filtersList)
   }
 
 
 
   createCommunity(filtersList: string[]){
-    this.communities.push({ name: this.nameCommunity, filtersList: filtersList });
+    this.communities.push({ name: this.nameCommunity, filtersList: filtersList, selected: false });
 
     this.closeModal()
     this.nameCommunity = '';
-  }
 
-  onFilterSelected(selected: { name: string, filtersList: string[] }[]) {
-    selected.forEach(community => {
-    
-      this.filterComunities = this.filterComunities.concat(community.filtersList);
-  });
-  
-    this.showAppend = false;
-    this.showComunities = true;
-  
     this.filtersList = [];
     this.currentConferences = [];
-  
-    this.closeModal();
+
   }
 
   execFunctionsYear(){
@@ -253,7 +222,43 @@ export class HomeComponent implements OnInit {
 
   getFilteredNodesConference() {
 
+    console.log("filtersList0: " + this.filtersList)
+    console.log("filterComunities: " + this.filterComunities)
+
+    console.log("communities: " + JSON.stringify(this.communities))
+
+    this.communities.forEach(community => {
+
+      if(community.selected == true){
+        console.log("ddd" + community.selected)
+        this.filterComunities = this.filterComunities.concat(community.filtersList);
+      }else{
+        // Puedes utilizar filter para eliminar elementos de this.filterComunities que estén en community.filtersList
+        this.filterComunities = this.filterComunities.filter(filterItem => !community.filtersList.includes(filterItem));
+        this.filtersList = this.filtersList.filter(filterItem => !community.filtersList.includes(filterItem));
+      }
+    
+    });
+
+
+    console.log("filterComunities2: " + this.filterComunities)
+    console.log("filtersList2: " + this.filtersList)
+
     this.filtersList = this.filtersList.concat(this.filterComunities);
+    this.filtersString  = this.filtersList.join(','); 
+
+    this.filtersList = this.filtersList.filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+
+    this.filterComunities = this.filterComunities.filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+
+
+    console.log("filterComunities3: " + this.filterComunities)
+
+    console.log("filtersList3: " + this.filtersList)
     
     this.apiService.getFilteredNodesConference(this.filtersList).subscribe({
       next: (response: any[]) => {
@@ -399,13 +404,13 @@ export class HomeComponent implements OnInit {
     const titles = this.filteredTitles.
     filter(titulo => titulo.selected).map(titulo => titulo.pr_objeto);
 
-    console.log("quepasa"+titles)
+    console.log("quepasa"+JSON.stringify(titles))
     
    
     this.selectionService.addTitles(titles);
     const splitFilters = this.filtersString.split(',').map(filtersString => filtersString.trim());
     this.selectionService.flagNameVenue(splitFilters);
-    console.log("aa"+splitFilters)
+    console.log("aaTT"+splitFilters)
 
     this.router.navigateByUrl('/statistics');
   }

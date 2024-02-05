@@ -17,7 +17,7 @@ router.get('/autocompleteConference/:term', async (req, res) => {
       MATCH (v:Venue)
       WHERE v.name STARTS WITH $searchTerm
       RETURN DISTINCT v.name as venueName
-      LIMIT 10
+      LIMIT 5
     `;
     const result = await session.run(query, { searchTerm });
     const venues = result.records.map(record => record.get('venueName'));

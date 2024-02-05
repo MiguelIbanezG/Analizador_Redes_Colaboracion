@@ -9,7 +9,7 @@
   <div class="box-conference">
     <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Conference or Journal" (keyup.enter)="completeSuggestion(filtersBOX)" (input)="autocompleteConference(filtersBOX)">
     <button class="button-add"  type="button" (click)="completeSuggestion(filtersBOX)">Add</button>
-    <div *ngIf="autocompleteConference.length > 0">
+    <div *ngIf="autocompleteConference.length > 0 && filtersBOX.length > 0">
       <ul>
         <li class="click-element " *ngFor="let suggestion of completeConference" (click)="selectSuggestion(suggestion)">
           {{ suggestion }}
@@ -28,26 +28,25 @@
 
 
 
-  <div *ngIf="this.filtersList.length > 0 || this.selectedCommunities.length >0 " class="filters-list">
-    <div *ngIf="this.selectedCommunities.length >0">
+  <div *ngIf="this.filtersList.length > 0 || this.communities.length >0 " class="filters-list">
+    
+    <div *ngIf="this.communities.length > 0" class="community-container">
       <p>Communities</p>
-
-        <li *ngFor="let filter of selectedCommunities">
-          <strong>{{ filter.name }}</strong>
-          <button class="button-delete" (click)="deleteCommunity(filter)">X</button>
-          <ul>
-            <li *ngFor="let filterItem of filter.filtersList">{{ filterItem }}</li>
-          </ul>
-          
-        </li>
-    </div>
-
-    <div *ngIf="this.filtersList.length > 0 && this.selectedCommunities.length >0">
       <hr>
+      <div *ngFor="let filter of communities; let last = last" class="filter-item">
+        <input type="checkbox" [(ngModel)]="filter.selected" />
+        <span class="filter-name">{{ filter.name }}</span>
+        <button class="button-delete" (click)="deleteCommunity(filter)">X</button>
+        <ul>
+          <li *ngFor="let filterItem of filter.filtersList">{{ filterItem }}</li>
+        </ul>
+        <hr class="slim" *ngIf="!last">
+      </div>
     </div>
 
-    <div *ngIf="this.filtersList.length > 0">
+    <div *ngIf="this.currentConferences.length > 0">
       <p>Current Conferences:</p>
+      <hr>
       <ul>
         <li *ngFor="let filter of currentConferences">
           {{ filter }}
@@ -85,7 +84,7 @@
               </li>
             </ul>
             <div class="button-community">
-              <button (click)="createCommunity(filtersList)">Create</button>
+              <button (click)="createCommunity(currentConferences)">Create</button>
             </div>
             
           </div>
@@ -98,53 +97,12 @@
   <!-- Buttons Filter -->
   <div class="buttons">
     <div class="button-years">
-      <button (click)="execFunctionsYear()" [disabled]="filtersList.length === 0 && selectedCommunities.length === 0">Filter by years</button>
+      <button (click)="execFunctionsYear()" [disabled]="filtersList.length === 0 && communities.length === 0">Filter by years</button>
     </div>
     <div class="button-decade">
-      <button (click)="execFunctionsDecades()" [disabled]="filtersList.length  === 0 && selectedCommunities.length === 0">Filter by decades</button>
-    </div>
-    <div class="button-decade">
-      <button (click)="openModal(selectCommunity)" [disabled]="communities.length === 0">Select Community</button>
+      <button (click)="execFunctionsDecades()" [disabled]="filtersList.length  === 0 && communities.length === 0">Filter by decades</button>
     </div>
   </div>
-
-  <ng-template #selectCommunity>
-    <div class="custom-modal">
-      <div class="modal-container">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title pull-left">Create Community</h4>
-            <button type="button" class="close-btn" aria-label="Close" (click)="closeModal()">
-              <span class="close-icon" aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p>Select communities:</p>
-            <!-- <ng-select
-              [items]="communities"
-              [(ngModel)]="selectedCommunities"
-              [multiple]="true"
-              bindLabel="name"
-              placeholder="Select Communities"
-              class="selectCommunities"
-            >
-            
-            </ng-select> -->
-            <select name="communitySelect" [(ngModel)]="selectedCommunities" multiple>
-              <option *ngFor="let community of communities" [ngValue]="community">
-                {{ community.name }} {{community.filtersList}}
-              </option>
-            </select>
-        
-            <div class="button-decade">
-              <button (click)="onFilterSelected(selectedCommunities)">Search Communities</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </ng-template>
-
 
   <!-- Filter by Decade -->
   <div class="decades" *ngIf="showDecades && !showYears">
