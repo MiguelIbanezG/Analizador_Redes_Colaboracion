@@ -9,7 +9,7 @@
   <div class="box-conference">
     <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Conference or Journal" (keyup.enter)="completeSuggestion(filtersBOX)" (input)="autocompleteConference(filtersBOX)">
     <button class="button-add"  type="button" (click)="completeSuggestion(filtersBOX)">Add</button>
-    <div *ngIf="autocompleteConference.length > 0 && filtersBOX.length > 0">
+    <div *ngIf="autocompleteConference.length > 0">
       <ul>
         <li class="click-element " *ngFor="let suggestion of completeConference" (click)="selectSuggestion(suggestion)">
           {{ suggestion }}
@@ -54,11 +54,10 @@
         </li>
       </ul>
 
-      <div class="buttons">
-        <div class="button-community">
-          <button (click)="openModal(community)" [disabled]="filtersList.length === 0">Create Community</button>
-        </div>
+      <div class="button-community">
+        <button (click)="openModal(community)" [disabled]="filtersList.length === 0">Create Community</button>
       </div>
+
     </div>
     
   </div>

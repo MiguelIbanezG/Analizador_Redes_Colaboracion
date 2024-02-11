@@ -360,72 +360,157 @@ router.post('/schools', async (req, res) => {
   }
 });
 
-// Query to find the name of the books by author
-router.post('/SearchNames', async (req, res) => {
-  const titulosSeleccionados = req.body.titulosSeleccionados;
-  const option = req.body.option;
-  const venueName = req.body.venue;
-  const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low);
-  const session = driver.session({ database: 'neo4j' });
 
-  try {
-    let query = ` 
-    MATCH (v:Venue)
-    WHERE v.name IN $venueName
-    MATCH (v)-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(ip:Inproceeding)-[:AUTHORED_BY]->(r1:Researcher)
-    WHERE id(y) IN $yearIds
-    ${option === 'main' ? `AND p.bookTitle = $venueName` : ''}
-    RETURN r1.name AS researcher, ip.title AS ipName
-    `;
-
-    const result = await session.run(query, { yearIds, venueName });
-    const autxpub = result.records.map(record => {
-      return {
-        researcher: record.get('researcher'),
-        ipName: record.get('ipName')
-      };
-    });
-
-    res.json(autxpub);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });
-  } finally {
-    session.close();
-  }
-});
-
-router.post('/searchBook', async (req, res) => {
-  const titulosSeleccionados = req.body.titulosSeleccionados;
-  const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); 
-  const venueName = req.body.venue; 
+router.post('/searchPublications', async (req, res) => {
   const session = driver.session({ database: 'neo4j' });
 
   try {
     const query = `
-    MATCH (p:Proceeding)-[:HAS_PROCEEDING]-(y:Year) 
-    WHERE (p.bookTitle is null or p.bookTitle = $venueName) 
-    AND y.name IN $yearIds
-    RETURN p, y.name AS yearName
-    ORDER BY y.name
+    MATCH (y:Year)-[:PUBLISHED_BOOK|HAS_PROCEEDING|HAS_ARTICLE|PUBLISHED_THESIS]->(p:Publication) 
+    RETURN y.name AS yearName, COUNT(p) AS totalPublications
     `;
 
-    const result = await session.run(query, { yearIds, book });
-    const proceedings = result.records.map(record => {
+    const result = await session.run(query);
+    const records = result.records.map(record => {
       return {
-        proceeding: record.get('p').properties,
         yearName: record.get('yearName'),
+        allPublications: record.get('totalPublications').toNumber(),
       };
     });
 
-    res.json(proceedings);
+    res.json(records);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener los procedimientos', details: error.message });
+    res.status(500).json({ error: 'Error al obtener las publicaciones por año', details: error.message });
   } finally {
     session.close();
   }
 });
+
+router.post('/allPublications', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
+    MATCH (p:Publication) RETURN COUNT(p) AS all_publications
+    `;
+
+    const result = await session.run(query);
+    const records = result.records.map(record => {
+      return {
+        all_publications: record.get('all_publications').toNumber(),
+      };
+    });
+
+    res.json(records);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener las publicaciones por año', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+router.post('/searchAuthors', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
+    MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(ip:Inproceeding)-[:AUTHORED_BY]->(r1:Researcher) 
+    RETURN y.name AS yearName, COUNT(r1) AS total_authors
+    `;
+
+    const result = await session.run(query);
+    const records = result.records.map(record => {
+      return {
+        yearName: record.get('yearName'),
+        allAuthors: record.get('total_authors').toNumber(),
+      };
+    });
+
+    res.json(records);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener las publicaciones por año', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+router.post('/allAuthors', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
+    MATCH (r:Researcher) RETURN COUNT(r) AS all_authors
+    `;
+
+    const result = await session.run(query);
+    const records = result.records.map(record => {
+      return {
+        all_authors: record.get('all_authors').toNumber(),
+      };
+    });
+
+    res.json(records);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener las publicaciones por año', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+router.post('/searchConference', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
+    MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year) 
+    RETURN y.name AS yearName, COUNT(v) AS total_conferences
+    `;
+
+    const result = await session.run(query);
+    const records = result.records.map(record => {
+      return {
+        yearName: record.get('yearName'),
+        allConferences: record.get('total_conferences').toNumber(),
+      };
+    });
+
+    res.json(records);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener las publicaciones por año', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+router.post('/allConferences', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
+    MATCH (v:Venue) RETURN COUNT(v) AS all_conferences
+    `;
+
+    const result = await session.run(query);
+    const records = result.records.map(record => {
+      return {
+        all_conferences: record.get('all_conferences').toNumber(),
+      };
+    });
+
+    res.json(records);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener las publicaciones por año', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
 
 router.post('/connectedComponents', async (req, res) => {
   const venueNames = req.body.venue;

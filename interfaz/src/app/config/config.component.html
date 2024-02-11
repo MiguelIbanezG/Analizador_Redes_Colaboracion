@@ -1,16 +1,59 @@
-<div class="tabla">
-  <table id="autoresTabla">
-    <thead>
-      <tr>
-        <th class="tabla1">Paper</th>
-        <th class="tabla2" >Author</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let paper of papersWithAuthors">
-        <td>{{ paper.ipName }}</td>
-        <td>{{ paper.authorName }}</td>
-      </tr>
-    </tbody>
-  </table>
+<div class="allNumbers">
+    <ul>
+        <li class="click-element" ># of Publications: {{allPublications}}</li>
+        <li class="click-element"># of Authors: {{allAuthors}}</li>
+        <li class="click-element"># of Conferences: {{allConferences}}</li>
+      </ul>
 </div>
+
+<div class="flex-container" >
+
+    <div class="flex-item">
+      <h3>Number of Publications by Year</h3>
+
+      <div class="canvas-container">
+        <canvas id="barChart1"></canvas>
+      </div>
+    </div>
+   
+</div>
+<div class="flex-container" >
+
+    <div class="flex-item">
+        <h3>Number of Authors by Year</h3>
+  
+        <div class="canvas-container">
+          <canvas id="barChart2"></canvas>
+        </div>
+    </div>
+ 
+</div>
+
+<div class="flex-container" >
+
+
+    <div class="flex-item">
+        <h3>Number of Conferences by Year</h3>
+  
+        <div class="canvas-container">
+          <canvas id="barChart3"></canvas>
+        </div>
+    </div>
+ 
+   
+</div>
+
+<div class="flex-container" >
+
+
+    <div class="flex-item">
+        <h3>Number of Conferences, Authors and Publications by Year</h3>
+  
+        <div class="canvas-container">
+          <canvas id="tripleBarChart"></canvas>
+        </div>
+    </div>
+ 
+   
+</div>
+
