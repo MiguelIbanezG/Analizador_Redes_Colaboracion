@@ -2,14 +2,14 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { StatisticsComponent } from './estadisticas/statistics.component';
-import { ConfigComponent } from './config/config.component';
+import { InfoComponent } from './info/info.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'statistics', component: StatisticsComponent },
-  { path: 'config', component: ConfigComponent },
+  { path: 'info', component: InfoComponent },
 ];
 
 @NgModule({

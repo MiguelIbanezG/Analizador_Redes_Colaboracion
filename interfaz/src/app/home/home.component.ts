@@ -1,10 +1,12 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
-import { ApiService } from '../api.service';
+import { ApiService } from '../services/api.service';
 import { Observable, Subscription, map, startWith } from 'rxjs';
 import { Router } from '@angular/router';
-import { SelectionService } from '../selection.service';
+import { StadisticsService } from '../services/stadistics.service';
 import { FormControl } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { InfoService } from '../services/info.service';
+import { HomeService } from '../services/home.service';
 
 
 @Component({
@@ -13,7 +15,6 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
-
 
   filtersString : string = '';
   filtersBOX: string = '';
@@ -41,16 +42,35 @@ export class HomeComponent implements OnInit {
   filVenues: Observable<string[]> | undefined;
   control = new FormControl();
 
+  //info
+
 
   constructor(
     private apiService: ApiService, 
     private router: Router,
-    private selectionService: SelectionService,
+    private stadisticsService: StadisticsService,
     private modalService: BsModalService,
+    private infoService: InfoService,
+    public homeService: HomeService
   ) { }
   
-  ngOnInit() {
+  async ngOnInit() {
+    this.communities = this.homeService.Communities
     this.filVenues = this.control.valueChanges
+    
+    if(this.infoService.AllPublications < 1 && this.infoService.AllAuthors < 1 
+      && this.infoService.AllAuthors < 1){
+        this.getPublications();
+        this.getAuthors();
+        this.getConferences();
+    }
+
+    await Promise.all([
+      this.getPublicationsbyYear(),
+      this.getAuthorsbyYear(),
+      this.getConferencesbyYear()
+    ]);
+    
   }
 
   autocompleteConference(term: string): void {
@@ -65,7 +85,7 @@ export class HomeComponent implements OnInit {
   }
 
   isFilteringDisabled(): boolean {
-    return this.filtersList.length === 0 && this.communities.every(community => !community.selected);
+    return this.filtersList.length === 0 && this.homeService.Communities.every(community => !community.selected);
   }
 
   completeSuggestion(suggestion: string) {
@@ -93,7 +113,6 @@ export class HomeComponent implements OnInit {
               
               const newFilters = this.filterComunities.filter(item => !this.filtersList.includes(item));
 
-              // Concatena los elementos filtrados a this.filtersList
               this.filtersList = this.filtersList.concat(newFilters);
               this.filtersString  = this.filtersList.join(','); 
             }
@@ -102,15 +121,13 @@ export class HomeComponent implements OnInit {
           }
           for (const filter of this.filtersList) {
             
-            // Verifica si el elemento no está presente en currentConferences
             if (!this.filterComunities.includes(filter)) {
 
-                // Agrega el elemento a currentConferences
                 this.currentConferences.push(filter);
            
                
             }
-            // Utilizando la función filter junto con indexOf
+
             const filtersListSinDuplicados: string[] = this.currentConferences.filter((valor, indice, self) => {
               return self.indexOf(valor) === indice;
             });
@@ -149,12 +166,11 @@ export class HomeComponent implements OnInit {
 
   deleteCommunity(communityToDelete: { name: string, filtersList: string[], selected: boolean }) {
  
-    this.communities = this.communities.filter(community => {
+    this.homeService.Communities = this.homeService.Communities.filter(community => {
 
       return !(community.name === communityToDelete.name && community.filtersList === communityToDelete.filtersList && community.selected === communityToDelete.selected);
     });
     
-
     for (const filter of communityToDelete.filtersList) {
             
       const i = this.filtersList.indexOf(filter);
@@ -168,11 +184,10 @@ export class HomeComponent implements OnInit {
 
   }
 
-
-
   createCommunity(filtersList: string[]){
-    this.communities.push({ name: this.nameCommunity, filtersList: filtersList, selected: false });
-
+   
+    this.homeService.Communities.push({ name: this.nameCommunity, filtersList: filtersList, selected: false });
+    this.communities = this.homeService.Communities
     this.closeModal()
     this.nameCommunity = '';
 
@@ -222,12 +237,7 @@ export class HomeComponent implements OnInit {
 
   getFilteredNodesConference() {
 
-    console.log("filtersList0: " + this.filtersList)
-    console.log("filterComunities: " + this.filterComunities)
-
-    console.log("communities: " + JSON.stringify(this.communities))
-
-    this.communities.forEach(community => {
+    this.homeService.Communities.forEach(community => {
 
       if(community.selected == true){
         console.log("ddd" + community.selected)
@@ -240,10 +250,6 @@ export class HomeComponent implements OnInit {
     
     });
 
-
-    console.log("filterComunities2: " + this.filterComunities)
-    console.log("filtersList2: " + this.filtersList)
-
     this.filtersList = this.filtersList.concat(this.filterComunities);
     this.filtersString  = this.filtersList.join(','); 
 
@@ -255,11 +261,6 @@ export class HomeComponent implements OnInit {
       return self.indexOf(value) === index;
     });
 
-
-    console.log("filterComunities3: " + this.filterComunities)
-
-    console.log("filtersList3: " + this.filtersList)
-    
     this.apiService.getFilteredNodesConference(this.filtersList).subscribe({
       next: (response: any[]) => {
         // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
@@ -319,6 +320,106 @@ export class HomeComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);
+      }
+    });
+  }
+
+  getPublicationsbyYear() {
+
+    this.apiService.getPublicationsbyYear().subscribe({
+      next: (response: any[]) => {
+        this.infoService.PublicationsByYear = response; 
+        this.infoService.PublicationsByYear.sort((a, b) => {
+          return parseInt(a.yearName) - parseInt(b.yearName);
+        });
+        this.infoService.PublicationsCombined = this.infoService.PublicationsByYear.map(item => item.allPublications);  
+      },
+      error: (error: any) => {
+        console.error('Error al obtener las publicaciones en getPublicationsbyYear:', error);
+      }
+    });
+  }
+
+  getAuthorsbyYear() {
+
+    this.apiService.getAuthorsbyYear().subscribe({
+      next: (response: any[]) => {
+        this.infoService.AuthorsByYear = response; 
+        this.infoService.AuthorsByYear.sort((a, b) => {
+          return parseInt(a.yearName) - parseInt(b.yearName);
+        });
+
+        this.infoService.AuthorsCombined = this.infoService.AuthorsByYear.map(item => item.allAuthors);
+  
+      },
+      error: (error: any) => {
+        console.error('Error al obtener los autores en getAuthorsbyYear:', error);
+      }
+    });
+  }
+
+  getConferencesbyYear() {
+ 
+    this.apiService.getConferencesbyYear().subscribe({
+      next: (response: any[]) => {
+        this.infoService.ConferencesByYear = response; 
+        this.infoService.ConferencesByYear .sort((a, b) => {
+          return parseInt(a.yearName) - parseInt(b.yearName);
+        });
+    
+        this.infoService.ConferencesCombineds  = this.infoService.ConferencesByYear.map(item => item.allConferences);
+ 
+      },
+      error: (error: any) => {
+        console.error('Error al obtener las conferencias en getConferencesbyYear:', error);
+      }
+    });
+  }
+
+  getPublications() {
+    this.apiService.getPublications().subscribe({
+      next: (response: any[]) => {
+  
+        if (response.length > 0) {
+          this.infoService.AllPublications = response[0].all_publications;
+        } else {
+          this.infoService.AllPublications = 0;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error al obtener las publicaciones en getPublications:', error);
+      }
+    });
+  }
+
+  getConferences() {
+    this.apiService.getConferences().subscribe({
+      next: (response: any[]) => {
+  
+        if (response.length > 0) {
+          this.infoService.AllConferences = response[0].all_conferences;
+        } else {
+          this.infoService.AllConferences = 0;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error al obtener las conferencias en getConferences:', error);
+      }
+    });
+  }
+
+  getAuthors() {
+    this.apiService.getAuthors().subscribe({
+      next: (response: any[]) => {
+  
+        if (response.length > 0) {
+          this.infoService.AllAuthors = response[0].all_authors;
+        } else {
+          this.infoService.AllAuthors = 0;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error al obtener las publicaciones en getBooks:', error);
       }
     });
   }
@@ -407,22 +508,15 @@ export class HomeComponent implements OnInit {
     console.log("quepasa"+JSON.stringify(titles))
     
    
-    this.selectionService.addTitles(titles);
+    this.stadisticsService.addTitles(titles);
     const splitFilters = this.filtersString.split(',').map(filtersString => filtersString.trim());
-    this.selectionService.flagNameVenue(splitFilters);
+    this.stadisticsService.flagNameVenue(splitFilters);
     console.log("aaTT"+splitFilters)
 
     this.router.navigateByUrl('/statistics');
   }
 
   generateConf() {
-
-    const titles = this.filteredTitles
-    .filter(titulo => titulo.selected).map(titulo => titulo.pr_objeto);
-    
-    this.selectionService.addTitles(titles);
-    const splitFilters = this.filtersString.split(',').map(filtersString => filtersString.trim());
-    this.selectionService.flagNameVenue(splitFilters);
 
     this.router.navigateByUrl('/config');
   }

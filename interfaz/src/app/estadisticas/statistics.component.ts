@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ApiService } from '../api.service';
-import { SelectionService } from '../selection.service';
+import { ApiService } from '../services/api.service';
+import { StadisticsService } from '../services/stadistics.service';
 //import { Chart, CategoryScale, LineController  } from 'chart.js';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
@@ -51,9 +51,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   decadeStats: any[] = [];
   commonNames: { [key: string]: { frec_paises: { [key: string]: number }, genero: string } } = {};
   options: CloudOptions = {
-    // if width is between 0 and 1 it will be set to the width of the upper element multiplied by the value
     width: 500,
-    // if height is between 0 and 1 it will be set to the height of the upper element multiplied by the value
     height: 200,
     overflow: false,
     realignOnResize: false,
@@ -64,7 +62,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
   constructor(
     private apiService: ApiService,
-    private selectionService: SelectionService,
+    private stadisticsService: StadisticsService,
     private http: HttpClient
   ) {}
 
@@ -1164,9 +1162,9 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
   async main(){
     try {
-      this.selectedTitles = this.selectionService.getSelectedTitles();
-      this.conferenceOption = this.selectionService.getConferenceOption();
-      this.venueName = this.selectionService.getVenueName();
+      this.selectedTitles = this.stadisticsService.getSelectedTitles();
+      this.conferenceOption = this.stadisticsService.getConferenceOption();
+      this.venueName = this.stadisticsService.getVenueName();
 
       this.getPapers();
       this.getCollaborations();
