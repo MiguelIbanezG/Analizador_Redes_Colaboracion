@@ -9,6 +9,7 @@ import { HttpClient } from '@angular/common/http';
 import { CloudData, CloudOptions } from 'angular-tag-cloud-module';
 import { singular } from 'pluralize';
 import { ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
+import { SpinnerService } from '../services/spinner.service';
 
 interface Author {
   ipNames: string[];
@@ -25,12 +26,12 @@ interface DecadeStats {
 }
 
 @Component({
-  selector: 'app-statistics',
+  selector: 'istics',
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.scss'],
 })
 
-export class StatisticsComponent implements OnInit, AfterViewInit {
+export class StatisticsComponent implements OnInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
 
   selectedTitles: any[] = [];
@@ -49,6 +50,9 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   researchers2: any[] = [];
   papersWithAuthors: any[] = [];
   decadeStats: any[] = [];
+  loadingTable1 = true;
+  loadingTable2 = true;
+  conferenceName: string[] = [];
   commonNames: { [key: string]: { frec_paises: { [key: string]: number }, genero: string } } = {};
   options: CloudOptions = {
     width: 500,
@@ -63,19 +67,14 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   constructor(
     private apiService: ApiService,
     private stadisticsService: StadisticsService,
-    private http: HttpClient
+    private http: HttpClient,
+    private spinnerService: SpinnerService,
   ) {}
 
 
   ngOnInit() {
     this.loadCommonNames();
     this.main();
-  }
-
-  ngAfterViewInit() {
-    // Este método se ejecutará después de que Angular haya inicializado la vista
-    // Perfe para realizar cualquier manipulación adicional del DOM relacionada con el gráfico
-    // como ajustes de estilo, cambios dinámicos en los datos, etc.
   }
 
   async waitResearcherNoEmpty() {
@@ -116,19 +115,6 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         console.error('Error in getResearchersConference:', error);
       }
     });
-    if(this.researchers.length < 1){
-      this.apiService.getResearchersJournals(this.selectedTitles).subscribe({
-        next: (response: any) => {
-          this.researchers = response;
-          this.statsResearchers();
-          this.combineAndShowData(this.statistics[0].years, this.statistics[0].numResearchers);
-        },
-        error: (error: any) => {
-          console.error('Error in getResearchersJournals:', error);
-        }
-      });
-    }
-    
   }
 
   combineAndShowData(researchersConference: any[], researchersJournals: any[]) {
@@ -172,8 +158,6 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     this.apiService.getConnectedComponents(this.selectedTitles, this.venueName).subscribe({
       next: (response: any) => {
         this.connectedComponents = response;
-        console.log(response);
-        console.log(this.connectedComponents);
         this.statsConnectedComponents();
         this.generateChart3('lineChart11', 'Number of Connected Components', this.statistics[5].years, this.statistics[5].connectedComponents);
       },
@@ -187,8 +171,6 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     this.apiService.getConnectedComponentsByvenue(this.selectedTitles, this.venueName).subscribe({
       next: (response: any) => {
         this.connectedComponents = response;
-        console.log(response);
-        console.log(this.connectedComponents);
         this.statsConnectedComponentsByvenue();
         this.generateChart4('lineChart12', 'Number of Connected Components', this.statistics[6]);
         this.generateChart4('lineChart13', 'Number of Connected Components', this.statistics[7]);
@@ -199,6 +181,164 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  getConferencebyProceeding(){
+    this.apiService.getConferencebyProceeding(this.selectedTitles, this.venueName).subscribe({
+      next: (response: any) => {
+        this.stadisticsService.conferencesNames = [];
+        this.stadisticsService.years = [];
+        this.stadisticsService.inprocedings = [];
+      
+        response.forEach(({ title, year, numberOfInProceedings }: { title: string, year: string, numberOfInProceedings: number}) => {
+          this.stadisticsService.conferencesNames.push(title);
+          this.stadisticsService.years.push(year);
+          this.stadisticsService.inprocedings.push(numberOfInProceedings);
+        });
+        this.loadingTable1 = false;
+        console.log(this.loadingTable1)
+      
+        this.generateTablesProceeding(this.stadisticsService.conferencesNames, this.stadisticsService.years, this.stadisticsService.inprocedings);
+     
+      },
+      error: (error: any) => {
+        console.error('Error in getConferencebyProceeding:', error);
+      }
+    });
+  }
+
+  
+  generateTablesProceeding(venueTitles: string[], years: string[], numberOfInProceedings: number[]) {
+    const table = document.querySelector('#tableProceeding tbody');
+    if (table instanceof HTMLElement) {
+      table.innerHTML = ''; // Limpiar tabla existente antes de agregar nuevas filas
+  
+      venueTitles.forEach((venueTitle, index) => {
+        // Divide el título en partes usando la coma como delimitador
+        const parts = venueTitle.split(',');
+
+        if( parts.length== 6){
+            
+          parts[4]= parts[4].replace("Proceedings","");
+          const date = parts[4].split('.')
+          
+
+          // Construye el objeto que contiene los datos para la tabla
+          const rowData = {
+            name: parts[0] + '-' + parts[1].trim(),
+            location: parts[2] + ',' + parts[3],
+            date: date.slice(0).join(' ')
+          };
+
+          // Crea una fila para la tabla y agrega los datos
+          const row = document.createElement('tr');
+          row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
+          
+
+          // Agrega la fila a la tabla
+          table.appendChild(row);
+        }
+
+
+        if( parts.length== 5){
+          
+            
+          parts[3] = parts[3].replace("Proceedings","").trim();
+          const date = parts[3].split('.')
+          const hasNumber = /\d/.test(date[0]);
+
+          if(hasNumber){
+
+            // Construye el objeto que contiene los datos para la tabla
+            const rowData = {
+              name: parts[0] + '-' + parts[1].trim(),
+              location: parts[2],
+              date: date[0]
+            };
+            // Crea una fila para la tabla y agrega los datos
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
+            // Agrega la fila a la tabla
+            table.appendChild(row);
+
+          }else{
+
+            // Construye el objeto que contiene los datos para la tabla
+            const rowData = {
+              name: parts[0] + '-' + parts[1].trim(),
+              location: parts[2] + ', ' + parts[3],
+              date: parts[4] 
+            };
+
+            // Crea una fila para la tabla y agrega los datos
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
+            // Agrega la fila a la tabla
+            table.appendChild(row);
+          }
+
+        }
+
+
+        if( parts.length== 7){
+            
+          parts[5]= parts[5].replace("Proceedings","");
+          const date = parts[5].split('.')
+
+          if(parts[2].length > 15){
+                  // Construye el objeto que contiene los datos para la tabla
+          const rowData = {
+            name: parts[0] + '-' + parts[1].trim(),
+            location: parts[3] + ', ' + parts[4],
+            date: date[0]
+          };
+
+          // Crea una fila para la tabla y agrega los datos
+          const row = document.createElement('tr');
+          row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
+
+          // Agrega la fila a la tabla
+          table.appendChild(row);
+          }else{
+
+            const isValidFormat = /^[a-zA-Z]+\s+\d{1,2}(-\d{1,2}|\d{1,2}[a-zA-Z]+\s+\d{1,2})$/.test(date[0].trim());
+
+            if(isValidFormat){
+                        // Construye el objeto que contiene los datos para la tabla
+            const rowData = {
+              name: parts[0] + '-' + parts[1].trim(),
+              location: parts[2] + ', ' + parts[3] + ', ' + parts[4],
+              date: date[0]
+            };
+
+            // Crea una fila para la tabla y agrega los datos
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
+
+            // Agrega la fila a la tabla
+            table.appendChild(row);
+            }else{
+                               // Construye el objeto que contiene los datos para la tabla
+            const rowData = {
+              name: parts[0] + '-' + parts[1].trim(),
+              location: parts[2] + ', ' + parts[3],
+              date: parts[4] + ', ' + date[0]
+            };
+
+            // Crea una fila para la tabla y agrega los datos
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
+
+            // Agrega la fila a la tabla
+            table.appendChild(row);
+            }
+  
+          }       
+        }  
+      });
+    }
+  }
+  
+  
 
 
   async waitAuthorsWithPapersNoEmpty(){
@@ -1165,6 +1305,11 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
       this.selectedTitles = this.stadisticsService.getSelectedTitles();
       this.conferenceOption = this.stadisticsService.getConferenceOption();
       this.venueName = this.stadisticsService.getVenueName();
+      if(this.stadisticsService.venueNameConfirm != this.stadisticsService.getVenueName()){
+        this.getConferencebyProceeding();
+      }else{
+        this.generateTablesProceeding(this.stadisticsService.conferencesNames, this.stadisticsService.years, this.stadisticsService.inprocedings);
+      }
 
       this.getPapers();
       this.getCollaborations();
@@ -1172,7 +1317,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
       this.getResearchersConference();
       this.getSchools();
       this.generateTablesDecades();
-      
+      this.getConferencebyProceeding();
 
       if(this.researchers.length == 0){
         await this.waitResearcherNoEmpty();
@@ -1202,6 +1347,16 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
  
       this.getConnectedComponents();
       this.getConnectedComponentsByvenue();
+
+      while(this.stadisticsService.conferencesNames.length <1){
+        this.loadingTable1 = true;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        this.spinnerService.show()
+      }
+      this.loadingTable1 = false;
+      this.stadisticsService.venueNameConfirm = this.stadisticsService.getVenueName();
+
+     
   } catch (error) {
     console.error('Error in getData with:', error);
   }

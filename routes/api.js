@@ -17,7 +17,14 @@ router.get('/autocompleteConference/:term', async (req, res) => {
       MATCH (v:Venue)
       WHERE v.name STARTS WITH $searchTerm
       RETURN DISTINCT v.name as venueName
-      LIMIT 5
+      LIMIT 3
+      
+      UNION
+      
+      MATCH (j:Journal)
+      WHERE j.name STARTS WITH $searchTerm
+      RETURN DISTINCT j.name as venueName
+      LIMIT 3
     `;
     const result = await session.run(query, { searchTerm });
     const venues = result.records.map(record => record.get('venueName'));
@@ -57,18 +64,18 @@ router.post('/filterConferences', async (req, res) => {
   }
 });
 
-// Query to find the Journals
-router.get('/filterJournals/:filterName', async (req, res) => {
+// Query to find the conferences
+router.post('/filterJournals', async (req, res) => {
   const session = driver.session({ database: 'neo4j' });
-  const filterName = req.params.filterName;
+  const filterNames = req.body.filterNames; 
 
   try {
     const query = `
-      MATCH (j:Journal)-[:PUBLISHED_IN]->(a:Year)
-      WHERE j.name = $filterName
-      RETURN a
+      MATCH (v:Journal)-[:PUBLISHED_IN]->(a:Year)
+      WHERE v.name IN $filterNames
+      RETURN DISTINCT a
     `;
-    const result = await session.run(query, { filterName });
+    const result = await session.run(query, { filterNames });
     const years = result.records.map(record => {
       const yearNode = record.get('a');
       return yearNode;
@@ -89,46 +96,13 @@ router.post('/researchersConference', async (req, res) => {
   const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); 
   const session = driver.session({ database: 'neo4j' });
 
+
   try {
     const query = `
     MATCH (y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:EDITED_BY]-(r1:Researcher)
     WHERE id(y) IN $yearIds
     WITH COLLECT(DISTINCT { researcher: r1, year: y.name }) AS researchers1
     MATCH (w:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(:Inproceeding)-[:AUTHORED_BY]-(r2:Researcher)
-    WHERE id(w) IN $yearIds
-    WITH researchers1, COLLECT(DISTINCT { researcher: r2, year: w.name }) AS researchers2
-    WITH researchers1 + researchers2 AS allResearchers
-    UNWIND allResearchers AS researcherData
-    RETURN researcherData.researcher AS researcher, COLLECT(DISTINCT researcherData.year) AS years    
-    `;
-    const result = await session.run(query, { yearIds });
-    const researchers = result.records.map(record => {
-      return {
-        researcher: record.get('researcher'),
-        years: record.get('years')
-      };
-    });
-    res.json(researchers);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });
-  } finally {
-    session.close();
-  }
-});
-
-// Query to search the authors of the Journals by year
-router.post('/researchersJournals', async (req, res) => {
-  const titulosSeleccionados = req.body.titulosSeleccionados;
-  const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low); 
-  const session = driver.session({ database: 'neo4j' });
-
-  try {
-    const query = `
-    MATCH (y:Year)-[:HAS_ARTICLE]->(:Article)-[:EDITED_BY]-(r1:Researcher)
-    WHERE id(y) IN $yearIds
-    WITH COLLECT(DISTINCT { researcher: r1, year: y.name }) AS researchers1
-    MATCH (w:Year)-[:HAS_ARTICLE]->(:Article)-[:AUTHORED_BY]-(r2:Researcher)
     WHERE id(w) IN $yearIds
     WITH researchers1, COLLECT(DISTINCT { researcher: r2, year: w.name }) AS researchers2
     WITH researchers1 + researchers2 AS allResearchers
@@ -209,7 +183,7 @@ router.post('/collaborations', async (req, res) => {
     res.json(colaboraciones);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });
+    res.status(500).json({ error: 'Error in Researchers', details: error.message });
   } finally {
     session.close();
   }
@@ -366,15 +340,21 @@ router.post('/searchPublications', async (req, res) => {
 
   try {
     const query = `
-    MATCH (y:Year)-[:PUBLISHED_BOOK|HAS_PROCEEDING|HAS_ARTICLE|PUBLISHED_THESIS]->(p:Publication) 
-    RETURN y.name AS yearName, COUNT(p) AS totalPublications
+    MATCH (y:Year)
+    OPTIONAL MATCH (y)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Publication)
+    OPTIONAL MATCH (y)-[:HAS_ARTICLE]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(pb:Publication)
+    OPTIONAL MATCH (y)-[:PUBLISHED_THESIS]->(pt:Publication)
+    RETURN y.name AS yearName, COUNT(DISTINCT p) AS ConferencesAndPapers, COUNT(DISTINCT pb) AS JournalArticles, COUNT(DISTINCT pt) AS Thesis
+    ORDER BY y.name
     `;
 
     const result = await session.run(query);
     const records = result.records.map(record => {
       return {
         yearName: record.get('yearName'),
-        allPublications: record.get('totalPublications').toNumber(),
+        ConferencesAndPapers: record.get('ConferencesAndPapers').toNumber(),
+        JournalArticles: record.get('JournalArticles').toNumber(),
+        Thesis: record.get('Thesis').toNumber()
       };
     });
 
@@ -560,7 +540,6 @@ router.post('/connectedComponentsBYvenue', async (req, res) => {
       MATCH p = (y)-[:HAS_PROCEEDING]->(proceeding)-[:HAS_IN_PROCEEDING]->(inproceeding)-[:AUTHORED_BY]->(r:Researcher)
       RETURN y.name AS year, venueName, count(DISTINCT ID(r)) AS connectedComponents
     `;
-    
     const result = await session.run(query, { yearIds, venueNames });
     const connectedComponents = result.records.map(record => {
       return {
@@ -581,10 +560,40 @@ router.post('/connectedComponentsBYvenue', async (req, res) => {
   }
 });
 
+// Query to find the authors' degree by year
+router.post('/ConferencebyProceeding', async (req, res) => {
+  const venueNames = req.body.venue;
+  const titulosSeleccionados = req.body.titulosSeleccionados;
+  const yearIds = titulosSeleccionados.map(titulo => parseInt(titulo.properties.name, 10)); 
+  const session = driver.session({ database: 'neo4j' });
 
+  try {
+    const query = `
+    MATCH (r:Researcher)-[:AUTHORED_BY]-(inProc:Inproceeding)-[:HAS_IN_PROCEEDING]-(p:Proceeding)-[:HAS_PROCEEDING]-(y:Year)
+    WITH p, y, COUNT(DISTINCT inProc) as numberOfInProceedings
+    WHERE (p.bookTitle is null or p.bookTitle IN $venueNames) 
+    AND ANY(venueName IN $venueNames WHERE p.key =~ ("conf/" + tolower(venueName) + "/.*"))
+    AND toInteger(y.name) IN $yearIds
+    RETURN REPLACE(REPLACE(REPLACE(p.title, ", Proceedings", ""), y.name, ""), " - ", "") AS title, y.name AS year, numberOfInProceedings
+    ORDER BY year
+      `;
+    const result = await session.run(query, { yearIds, venueNames });
+    const proceedings = result.records.map(record => {
+      return {
+        title: record.get('title'),
+        year: record.get('year'),
+        numberOfInProceedings: record.get('numberOfInProceedings').low
+      };
+    });
 
-
-  
+    res.json(proceedings);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error in ConferencebyProceeding', details: error.message });
+  } finally {
+    session.close();
+  }
+});
 
 module.exports = router;
   

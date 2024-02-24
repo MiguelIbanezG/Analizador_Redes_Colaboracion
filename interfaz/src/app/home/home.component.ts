@@ -3,7 +3,6 @@ import { ApiService } from '../services/api.service';
 import { Observable, Subscription, map, startWith } from 'rxjs';
 import { Router } from '@angular/router';
 import { StadisticsService } from '../services/stadistics.service';
-import { FormControl } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { InfoService } from '../services/info.service';
 import { HomeService } from '../services/home.service';
@@ -35,12 +34,11 @@ export class HomeComponent implements OnInit {
   showYears: boolean = false;
   showDecades: boolean = false;
   repeated: boolean = false;
-  noResultsFoundConference: boolean | undefined;
+  noResultsFoundConference = false;
   noResultsFoundJournal: boolean | undefined;
   modalRef: BsModalRef | undefined;
   showButtons = false;
   filVenues: Observable<string[]> | undefined;
-  control = new FormControl();
 
   //info
 
@@ -54,23 +52,8 @@ export class HomeComponent implements OnInit {
     public homeService: HomeService
   ) { }
   
-  async ngOnInit() {
-    this.communities = this.homeService.Communities
-    this.filVenues = this.control.valueChanges
-    
-    if(this.infoService.AllPublications < 1 && this.infoService.AllAuthors < 1 
-      && this.infoService.AllAuthors < 1){
-        this.getPublications();
-        this.getAuthors();
-        this.getConferences();
-    }
-
-    await Promise.all([
-      this.getPublicationsbyYear(),
-      this.getAuthorsbyYear(),
-      this.getConferencesbyYear()
-    ]);
-    
+  ngOnInit() {
+    this.communities = this.homeService.Communities   
   }
 
   autocompleteConference(term: string): void {
@@ -92,24 +75,24 @@ export class HomeComponent implements OnInit {
 
 
     if (suggestion.trim() !== '') {
-      const conference = suggestion.trim();
+      const filtros = suggestion.trim();
 
-    if(this.filterComunities.includes(conference)){
+    if(this.filterComunities.includes(filtros)){
       this.repeated = true;
     }else{
       this.repeated = false;
     }
     
    
-      this.apiService.getFilteredNodesConference([conference]).subscribe({
+      this.apiService.getFilteredNodesConference([filtros]).subscribe({
         next: (response: any[]) => {
 
           if (response.length !== 0) {
 
             this.noResultsFoundConference = false;
 
-            if (!this.filtersList.includes(conference)) {
-              this.filtersList.push(conference);
+            if (!this.filtersList.includes(filtros)) {
+              this.filtersList.push(filtros);
               
               const newFilters = this.filterComunities.filter(item => !this.filtersList.includes(item));
 
@@ -117,15 +100,52 @@ export class HomeComponent implements OnInit {
               this.filtersString  = this.filtersList.join(','); 
             }
           } else {
-            this.noResultsFoundConference = true;
+
+            this.apiService.getFilteredNodesJournal([filtros]).subscribe({
+              next: (response: any[]) => {
+      
+                if (response.length !== 0) {
+      
+                  this.noResultsFoundConference = false;
+      
+                  if (!this.filtersList.includes(filtros)) {
+                    this.filtersList.push(filtros);
+                    const newFilters = this.filterComunities.filter(item => !this.filtersList.includes(item));
+      
+                    this.filtersList = this.filtersList.concat(newFilters);
+                    this.filtersString  = this.filtersList.join(','); 
+                  }
+
+                  for (const filter of this.filtersList) {
+                    if (!this.filterComunities.includes(filter)) {
+                        this.currentConferences.push(filter);
+                   
+                    }
+        
+                    const filtersListSinDuplicados: string[] = this.currentConferences.filter((valor, indice, self) => {
+                      return self.indexOf(valor) === indice;
+                    });
+        
+                    this.currentConferences = filtersListSinDuplicados
+                  }   
+                } else {
+                  this.noResultsFoundConference = true;
+                }
+               
+              },
+              error: (error: any) => {
+                console.error('Error in getFilteredNodesJournal:', error);
+              },
+              complete: () => {
+                this.filtersBOX = "";
+              }
+            });
           }
           for (const filter of this.filtersList) {
-            
             if (!this.filterComunities.includes(filter)) {
-
+                console.log(this.filtersList)
                 this.currentConferences.push(filter);
            
-               
             }
 
             const filtersListSinDuplicados: string[] = this.currentConferences.filter((valor, indice, self) => {
@@ -133,9 +153,7 @@ export class HomeComponent implements OnInit {
             });
 
             this.currentConferences = filtersListSinDuplicados
-
-        }
-         
+          }   
         },
         error: (error: any) => {
           console.error('Error in getFilteredNodesConference:', error);
@@ -240,10 +258,8 @@ export class HomeComponent implements OnInit {
     this.homeService.Communities.forEach(community => {
 
       if(community.selected == true){
-        console.log("ddd" + community.selected)
         this.filterComunities = this.filterComunities.concat(community.filtersList);
       }else{
-        // Puedes utilizar filter para eliminar elementos de this.filterComunities que estén en community.filtersList
         this.filterComunities = this.filterComunities.filter(filterItem => !community.filtersList.includes(filterItem));
         this.filtersList = this.filtersList.filter(filterItem => !community.filtersList.includes(filterItem));
       }
@@ -280,8 +296,6 @@ export class HomeComponent implements OnInit {
           } else {
             this.noResultsFoundConference = false;
           }
-          console.log(this.noResultsFoundConference)
-
         }
       },
       error: (error: any) => {
@@ -293,11 +307,33 @@ export class HomeComponent implements OnInit {
   }
 
   getFilteredNodesJournal() {
-    this.apiService.getFilteredNodesJournal(this.filtersString).subscribe({
+
+    this.homeService.Communities.forEach(community => {
+
+      if(community.selected == true){
+        this.filterComunities = this.filterComunities.concat(community.filtersList);
+      }else{
+        this.filterComunities = this.filterComunities.filter(filterItem => !community.filtersList.includes(filterItem));
+        this.filtersList = this.filtersList.filter(filterItem => !community.filtersList.includes(filterItem));
+      }
+    
+    });
+
+    this.filtersList = this.filtersList.concat(this.filterComunities);
+    this.filtersString  = this.filtersList.join(','); 
+
+    this.filtersList = this.filtersList.filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+
+    this.filterComunities = this.filterComunities.filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+
+    this.apiService.getFilteredNodesJournal(this.filtersList).subscribe({
       next: (response: any[]) => {
         // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
         this.filteredResults = response.map(item => item);
-        
         if(this.filteredTitles.length < 1){
           this.filteredTitles = Object.values(response.reduce((obj, item) => {
             const yearNode = item.properties;
@@ -309,118 +345,16 @@ export class HomeComponent implements OnInit {
             return obj;
           }, {}));
           if (this.filteredResults.length === 0) {
-            this.noResultsFoundJournal = true;
+            this.noResultsFoundConference = true;
           } else {
-            this.noResultsFoundJournal = false;
+            this.noResultsFoundConference = false;
           }
-          console.log(this.noResultsFoundJournal)
         }
-
-        
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);
       }
-    });
-  }
-
-  getPublicationsbyYear() {
-
-    this.apiService.getPublicationsbyYear().subscribe({
-      next: (response: any[]) => {
-        this.infoService.PublicationsByYear = response; 
-        this.infoService.PublicationsByYear.sort((a, b) => {
-          return parseInt(a.yearName) - parseInt(b.yearName);
-        });
-        this.infoService.PublicationsCombined = this.infoService.PublicationsByYear.map(item => item.allPublications);  
-      },
-      error: (error: any) => {
-        console.error('Error al obtener las publicaciones en getPublicationsbyYear:', error);
-      }
-    });
-  }
-
-  getAuthorsbyYear() {
-
-    this.apiService.getAuthorsbyYear().subscribe({
-      next: (response: any[]) => {
-        this.infoService.AuthorsByYear = response; 
-        this.infoService.AuthorsByYear.sort((a, b) => {
-          return parseInt(a.yearName) - parseInt(b.yearName);
-        });
-
-        this.infoService.AuthorsCombined = this.infoService.AuthorsByYear.map(item => item.allAuthors);
-  
-      },
-      error: (error: any) => {
-        console.error('Error al obtener los autores en getAuthorsbyYear:', error);
-      }
-    });
-  }
-
-  getConferencesbyYear() {
- 
-    this.apiService.getConferencesbyYear().subscribe({
-      next: (response: any[]) => {
-        this.infoService.ConferencesByYear = response; 
-        this.infoService.ConferencesByYear .sort((a, b) => {
-          return parseInt(a.yearName) - parseInt(b.yearName);
-        });
-    
-        this.infoService.ConferencesCombineds  = this.infoService.ConferencesByYear.map(item => item.allConferences);
- 
-      },
-      error: (error: any) => {
-        console.error('Error al obtener las conferencias en getConferencesbyYear:', error);
-      }
-    });
-  }
-
-  getPublications() {
-    this.apiService.getPublications().subscribe({
-      next: (response: any[]) => {
-  
-        if (response.length > 0) {
-          this.infoService.AllPublications = response[0].all_publications;
-        } else {
-          this.infoService.AllPublications = 0;
-        }
-      },
-      error: (error: any) => {
-        console.error('Error al obtener las publicaciones en getPublications:', error);
-      }
-    });
-  }
-
-  getConferences() {
-    this.apiService.getConferences().subscribe({
-      next: (response: any[]) => {
-  
-        if (response.length > 0) {
-          this.infoService.AllConferences = response[0].all_conferences;
-        } else {
-          this.infoService.AllConferences = 0;
-        }
-      },
-      error: (error: any) => {
-        console.error('Error al obtener las conferencias en getConferences:', error);
-      }
-    });
-  }
-
-  getAuthors() {
-    this.apiService.getAuthors().subscribe({
-      next: (response: any[]) => {
-  
-        if (response.length > 0) {
-          this.infoService.AllAuthors = response[0].all_authors;
-        } else {
-          this.infoService.AllAuthors = 0;
-        }
-      },
-      error: (error: any) => {
-        console.error('Error al obtener las publicaciones en getBooks:', error);
-      }
+      
     });
   }
 
@@ -499,21 +433,18 @@ export class HomeComponent implements OnInit {
     this.selectAll = all;
   }
 
-
-  generateStatistics() {
+  async generateStatistics() {
 
     const titles = this.filteredTitles.
     filter(titulo => titulo.selected).map(titulo => titulo.pr_objeto);
-
-    console.log("quepasa"+JSON.stringify(titles))
     
-   
-    this.stadisticsService.addTitles(titles);
     const splitFilters = this.filtersString.split(',').map(filtersString => filtersString.trim());
-    this.stadisticsService.flagNameVenue(splitFilters);
-    console.log("aaTT"+splitFilters)
+
+    this.stadisticsService.addTitles(titles),
+    this.stadisticsService.flagNameVenue(splitFilters)
 
     this.router.navigateByUrl('/statistics');
+
   }
 
   generateConf() {

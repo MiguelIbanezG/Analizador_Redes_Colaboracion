@@ -20,16 +20,12 @@ export class ApiService {
     return this.http.post<string[]>(`${this.baseUrl}/filterConferences`, { filterNames: filtros });
   }
 
-  getFilteredNodesJournal(name: string): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}/filterJournals/${name}`);
+  getFilteredNodesJournal(filtros: string[]): Observable<string[]> {
+    return this.http.post<string[]>(`${this.baseUrl}/filterJournals`, { filterNames: filtros });
   }
 
   getResearchersConference(titulosSeleccionados: any[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/researchersConference`, { titulosSeleccionados });
-  }
-
-  getResearchersJournals(titulosSeleccionados: any[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/researchersJournals`, { titulosSeleccionados });
   }
 
   getPapers(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
@@ -83,6 +79,9 @@ export class ApiService {
   getConnectedComponentsByvenue(titulosSeleccionados: any[], venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/connectedComponentsBYvenue`, { titulosSeleccionados, venue });
   }
-  
-  
+
+  getConferencebyProceeding(titulosSeleccionados: any[], venue: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/ConferencebyProceeding`, { titulosSeleccionados, venue });
+  }
+
 }

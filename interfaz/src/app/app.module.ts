@@ -18,6 +18,7 @@ import { MatOptionModule } from '@angular/material/core';
 import {MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
 import { InfoService } from './services/info.service';
+import { SpinnerModule } from './spinner/spinner.module';
 
 
 
@@ -41,7 +42,8 @@ import { InfoService } from './services/info.service';
     MatFormFieldModule,
     MatOptionModule,
     MatInputModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SpinnerModule
   ],
   providers: [
     ApiService,

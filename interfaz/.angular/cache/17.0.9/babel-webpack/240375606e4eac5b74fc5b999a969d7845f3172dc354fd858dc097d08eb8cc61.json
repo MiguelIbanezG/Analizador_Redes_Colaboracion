@@ -1,0 +1,1 @@
+{"ast":null,"code":"export {};","map":{"version":3,"names":[],"sources":["/home/miguel/Analizador_Redes_Colaboracion/interfaz/src/main.ts"],"sourcesContent":["import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';\n\nimport { AppModule } from './app/app.module';\n\n\n"],"mappings":""},"metadata":{},"sourceType":"module","externalDependencies":[]}

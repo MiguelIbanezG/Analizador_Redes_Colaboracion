@@ -2,6 +2,27 @@
 # yarn lockfile v1
 
 
+"@angular/animations@>=15.0.0":
+  version "17.2.1"
+  resolved "https://registry.npmjs.org/@angular/animations/-/animations-17.2.1.tgz"
+  integrity sha512-JCccG8EPM04OtN+Wayi79QnbkCYpKY69okWjEM7cPq8fbjIQE/ZAWxnzYMR/Xq3prwUtlH7LMyB5YdYCc6Ea1A==
+  dependencies:
+    tslib "^2.3.0"
+
+"@angular/common@>=15.0.0":
+  version "17.2.1"
+  resolved "https://registry.npmjs.org/@angular/common/-/common-17.2.1.tgz"
+  integrity sha512-ZkQwvjJhnqKulJn3kwbnodYvQf8g8hy2FUMB2MRLXKgwLPv9iqF/KRgSwcNIZnq8hyvIr6FmAntMdyCOonykDQ==
+  dependencies:
+    tslib "^2.3.0"
+
+"@angular/core@>=15.0.0", "@angular/core@17.2.1":
+  version "17.2.1"
+  resolved "https://registry.npmjs.org/@angular/core/-/core-17.2.1.tgz"
+  integrity sha512-gfWeskXA8RA0D3WOPBV5wT8RpqtqFhB8OCR8diGfLojqbMrmZXEvxALBHKAgfarWcR1rnRgmjCQKejWLWCLmmg==
+  dependencies:
+    tslib "^2.3.0"
+
 "@babel/runtime@^7.5.5":
   version "7.22.3"
   resolved "https://registry.npmjs.org/@babel/runtime/-/runtime-7.22.3.tgz"
@@ -533,6 +554,13 @@ neo4j@^2.0.0-RC2:
     request "^2.27.0"
     underscore "1.7.x"
 
+ngx-spinner@^16.0.2:
+  version "16.0.2"
+  resolved "https://registry.npmjs.org/ngx-spinner/-/ngx-spinner-16.0.2.tgz"
+  integrity sha512-MZpOHb3dvSqD6xiEdR+EtOfPY2r1kfA7t5Hv5IVwi7gkbTwVgnqxDWdOYJ/HW1pSZ5iEGhqlJqWg6CysLmNfHQ==
+  dependencies:
+    tslib "^2.3.0"
+
 oauth-sign@~0.9.0:
   version "0.9.0"
   resolved "https://registry.npmjs.org/oauth-sign/-/oauth-sign-0.9.0.tgz"
@@ -646,7 +674,7 @@ request@^2.27.0:
     tunnel-agent "^0.6.0"
     uuid "^3.3.2"
 
-rxjs@^6.6.3:
+"rxjs@^6.5.3 || ^7.4.0", rxjs@^6.6.3:
   version "6.6.7"
   resolved "https://registry.npmjs.org/rxjs/-/rxjs-6.6.7.tgz"
   integrity sha512-hTdwr+7yYNIT5n4AMYp85KA6yw2Va0FLa3Rguvbpa4W3I5xynaBZo41cM3XM+4Q6fRMj3sBYIR1VAmZMXYJvRQ==
@@ -751,6 +779,11 @@ tslib@^1.9.0:
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
+tslib@^2.3.0:
+  version "2.6.2"
+  resolved "https://registry.npmjs.org/tslib/-/tslib-2.6.2.tgz"
+  integrity sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==
+
 tunnel-agent@^0.6.0:
   version "0.6.0"
   resolved "https://registry.npmjs.org/tunnel-agent/-/tunnel-agent-0.6.0.tgz"
@@ -811,3 +844,10 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
+
+zone.js@~0.14.0:
+  version "0.14.4"
+  resolved "https://registry.npmjs.org/zone.js/-/zone.js-0.14.4.tgz"
+  integrity sha512-NtTUvIlNELez7Q1DzKVIFZBzNb646boQMgpATo9z3Ftuu/gWvzxCW7jdjcUDoRGxRikrhVHB/zLXh1hxeJawvw==
+  dependencies:
+    tslib "^2.3.0"

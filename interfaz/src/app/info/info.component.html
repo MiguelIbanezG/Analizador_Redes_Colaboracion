@@ -1,59 +1,57 @@
+
+<h2>Information</h2>
+
 <div class="allNumbers">
     <ul>
-        <li class="click-element" ># of Publications: {{allPublications}}</li>
-        <li class="click-element"># of Authors: {{allAuthors}}</li>
-        <li class="click-element"># of Conferences: {{allConferences}}</li>
+        <li class="click-element" >Total of Publications: {{allPublications}}</li>
+        <li class="click-element">Total of Authors: {{allAuthors}}</li>
+        <li class="click-element">Total of Conferences: {{allConferences}}</li>
       </ul>
 </div>
 
 <div class="flex-container" >
 
-    <div class="flex-item">
-      <h3>Number of Publications by Year</h3>
 
+  <div class="flex-item">
+      <h3>Number of Conferences and Papers, Journal Articles and Thesis by Year</h3>
+  
       <div class="canvas-container">
-        <canvas id="barChart1"></canvas>
+        <div class="overlay">
+          <app-spinner></app-spinner>
+        </div>
+        <canvas id="tripleBarChart"></canvas>
       </div>
-    </div>
-   
+  </div>
+
 </div>
+
+ 
+
 <div class="flex-container" >
 
     <div class="flex-item">
         <h3>Number of Authors by Year</h3>
   
         <div class="canvas-container">
+          <div class="overlay" *ngIf="loadingGraph2">
+            <app-spinner></app-spinner>
+          </div>
           <canvas id="barChart2"></canvas>
         </div>
     </div>
- 
-</div>
-
-<div class="flex-container" >
-
 
     <div class="flex-item">
-        <h3>Number of Conferences by Year</h3>
-  
-        <div class="canvas-container">
-          <canvas id="barChart3"></canvas>
+      <h3>Number of Conferences by Year</h3>
+
+      <div class="canvas-container">
+        <div class="overlay" *ngIf="loadingGraph1">
+          <app-spinner></app-spinner>
         </div>
-    </div>
+        <canvas id="barChart3"></canvas>
+      </div>
+  </div>
+
  
-   
 </div>
 
-<div class="flex-container" >
-
-
-    <div class="flex-item">
-        <h3>Number of Conferences, Authors and Publications by Year</h3>
-  
-        <div class="canvas-container">
-          <canvas id="tripleBarChart"></canvas>
-        </div>
-    </div>
- 
-   
-</div>
 

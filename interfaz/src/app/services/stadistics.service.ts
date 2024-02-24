@@ -8,6 +8,10 @@ export class StadisticsService {
   private selectedTitles: string[] = [];
   private conferenceOption = "";
   private venueName: string[] = [];
+  public venueNameConfirm: string[] = [];
+  public conferencesNames: string[] = [];
+  public years: string[] = [];
+  public inprocedings: number[] = [];
 
   addTitles(title: any[]) {
     this.selectedTitles = title.reduce((arr, title) => {

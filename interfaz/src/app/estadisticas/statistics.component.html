@@ -243,7 +243,30 @@
 
   <hr class="line3">
 
+  <h3>Proceeding by Conference</h3>
+  <div class="container-table2">
+   
+    <div class="table">
+      <table id="tableProceeding">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Date</th>
+            <th>Year</th>
+            <th>numberOfInProceedings</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="overlay" *ngIf="loadingTable1">
+    <app-spinner></app-spinner>
+  </div>
   
+
+  <hr class="line3">
 
   <div class="flex-container" >
 
