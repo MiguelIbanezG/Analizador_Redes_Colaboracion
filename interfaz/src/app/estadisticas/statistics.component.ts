@@ -239,7 +239,7 @@ export class StatisticsComponent implements OnInit {
         }
 
 
-        if( parts.length== 5){
+        if(parts.length== 5){
           
             
           parts[3] = parts[3].replace("Proceedings","").trim();
@@ -248,17 +248,30 @@ export class StatisticsComponent implements OnInit {
 
           if(hasNumber){
 
-            // Construye el objeto que contiene los datos para la tabla
-            const rowData = {
-              name: parts[0] + '-' + parts[1].trim(),
-              location: parts[2],
-              date: date[0]
-            };
-            // Crea una fila para la tabla y agrega los datos
-            const row = document.createElement('tr');
-            row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
-            // Agrega la fila a la tabla
-            table.appendChild(row);
+            if(parts[1].includes("Florence")){
+ 
+              const rowData = {
+                name: parts[0],
+                location: parts[1].trim() + ',' + parts[2],
+                date: date[0]
+              };
+              const row = document.createElement('tr');
+              row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
+              table.appendChild(row);
+            }else{
+
+              // Construye el objeto que contiene los datos para la tabla
+              const rowData = {
+                name: parts[0] + '-' + parts[1].trim(),
+                location: parts[2],
+                date: date[0]
+              };
+              // Crea una fila para la tabla y agrega los datos
+              const row = document.createElement('tr');
+              row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
+              // Agrega la fila a la tabla
+              table.appendChild(row);
+            }
 
           }else{
 
@@ -285,50 +298,54 @@ export class StatisticsComponent implements OnInit {
           const date = parts[5].split('.')
 
           if(parts[2].length > 15){
-                  // Construye el objeto que contiene los datos para la tabla
+          console.log("1"+ parts[3]);
           const rowData = {
             name: parts[0] + '-' + parts[1].trim(),
             location: parts[3] + ', ' + parts[4],
             date: date[0]
           };
-
-          // Crea una fila para la tabla y agrega los datos
           const row = document.createElement('tr');
           row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
-
-          // Agrega la fila a la tabla
           table.appendChild(row);
           }else{
 
             const isValidFormat = /^[a-zA-Z]+\s+\d{1,2}(-\d{1,2}|\d{1,2}[a-zA-Z]+\s+\d{1,2})$/.test(date[0].trim());
 
             if(isValidFormat){
-                        // Construye el objeto que contiene los datos para la tabla
-            const rowData = {
-              name: parts[0] + '-' + parts[1].trim(),
-              location: parts[2] + ', ' + parts[3] + ', ' + parts[4],
-              date: date[0]
-            };
 
-            // Crea una fila para la tabla y agrega los datos
-            const row = document.createElement('tr');
-            row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
+              if(parts[2].includes("ER")){
+ 
+                const rowData = {
+                  name: parts[0] + ',' + parts[1].trim() + '-' +  parts[2] ,
+                  location: parts[3] + ', ' + parts[4],
+                  date: date[0]
+                };
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
+                table.appendChild(row);
+              }else{
 
-            // Agrega la fila a la tabla
-            table.appendChild(row);
+                const rowData = {
+                  name: parts[0] + '-' + parts[1].trim(),
+                  location: parts[2]+ ', ' + parts[3] + ', ' + parts[4],
+                  date: date[0]
+                };
+    
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
+                table.appendChild(row);
+
+              }
+
             }else{
-                               // Construye el objeto que contiene los datos para la tabla
+                            
             const rowData = {
               name: parts[0] + '-' + parts[1].trim(),
               location: parts[2] + ', ' + parts[3],
               date: parts[4] + ', ' + date[0]
             };
-
-            // Crea una fila para la tabla y agrega los datos
             const row = document.createElement('tr');
             row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
-
-            // Agrega la fila a la tabla
             table.appendChild(row);
             }
   
