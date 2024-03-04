@@ -1,0 +1,170 @@
+.container { 
+    width: 70%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px  rgb(0, 22, 68);  
+}
+
+.filters-list ul li {
+    margin-bottom: 2px; 
+}
+
+.filters-list{
+    box-shadow: 0 2px 5px  rgb(0, 22, 68);
+    background-color: #f5f5f5;
+    padding: 15px; 
+    border-radius: 5px;
+    margin-bottom: 20px;
+ }
+  
+h1 {
+    text-align: center;
+    font-size: 35px;
+}
+
+.box-conference{
+    margin-bottom: 10px;
+}
+
+
+input[type="text"] {
+    padding: 8px;
+    width: 70%;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+}
+  
+button {
+    padding: 8px 16px;
+    background-color: rgb(0, 22, 68);
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+}
+
+.title-select{
+    margin-bottom: 2px;
+}
+
+select {
+    padding: 8px;
+    width: 85%;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+hr {
+    border: 0.5;
+    border-color: black;
+    height: 1px;
+    background-color: black; /* Adjust the color as needed */
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+.button-add{
+    margin-left: 8px;
+    margin-bottom: 5px;
+    font-weight: bold; 
+}
+
+button:disabled {
+    background-color: #cccccc; 
+    cursor: not-allowed;
+}
+
+.button-delete{
+    background-color: rgb(255, 0, 0);
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    margin-left: 5px;
+    margin: 2px;
+    font-weight: bold; 
+}
+
+.click-element {
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+  
+.click-element:hover {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+    font-weight: bold;
+}
+
+p{
+    font-weight: bold; 
+    margin: 0;
+    margin-top: 10px;
+}
+
+hr {
+    border: 0.5;
+    border-color: black;
+    height: 1px;
+    background-color: black; /* Adjust the color as needed */
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+.button-publications:hover
+{
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.buttons {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.flex-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+}
+
+
+.container-table2 {
+    justify-content: center; 
+    display: flex;
+    margin-right: 100px;
+}
+
+.table{
+    text-align: center;
+}
+h3 {
+    text-align: center;
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+td, th {
+    padding: 20px;
+    vertical-align: middle;
+    text-align: center;
+    vertical-align: center;
+    font-size: 20px;
+}
+  

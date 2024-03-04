@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
-import { Chart, registerables } from 'chart.js';
+import { Chart } from 'chart.js';
 import { InfoService } from '../services/info.service';
 import { SpinnerService } from '../services/spinner.service';
-Chart.register(...registerables);
-
 
 @Component({
   selector: 'info-config',
@@ -217,10 +215,33 @@ export class InfoComponent implements OnInit{
 
   async waitForData() {
     while (this.infoService.PublicationsByYear.length < 1 || this.infoService.ConferencesByYear.length < 1 || this.infoService.AuthorsByYear.length < 1) {
-        // Espera 1 segundo antes de verificar de nuevo
         await new Promise(resolve => setTimeout(resolve, 10000));
     }
   } 
+
+  getSchools() {
+    this.apiService.getSchools().subscribe({
+      next: (response: any[]) => {
+        this.infoService.instituions = response;
+        this.generateTablesDecades(this.infoService.instituions);
+      },
+      error: (error: any) => {
+        console.error('Error in getSchools:', error);
+      }
+    });
+  }
+
+  generateTablesDecades(researchers: any[]) {
+    const table = document.querySelector('#tableInstitution tbody');
+    if (table instanceof HTMLElement) {
+      researchers.forEach(({ School, NumberOfAuthors}) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${School}</td><td>${NumberOfAuthors}</td>`;
+  
+        table.appendChild(row);
+      });
+    }
+  }
 
   async main(){
     try {
@@ -228,6 +249,12 @@ export class InfoComponent implements OnInit{
           this.getAuthors();
           this.getConferences();
           this.getPublications();
+          if(this.infoService.instituions.length < 1){
+            this.getSchools();
+          }else{
+            this.generateTablesDecades(this.infoService.instituions);
+          }
+          
         
 
         while(this.infoService.AllPublications < 1 || this.infoService.AllConferences < 1

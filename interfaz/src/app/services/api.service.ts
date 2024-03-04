@@ -16,6 +16,11 @@ export class ApiService {
     return this.http.get<string[]>(`${this.baseUrl}/autocompleteConference/${term}`, { params });
   }
 
+  autocompleteAuthors(term: string): Observable<string[]> {
+    const params = new HttpParams().set('term', term);
+    return this.http.get<string[]>(`${this.baseUrl}/autocompleteAuthor/${term}`, { params });
+  }
+
   getFilteredNodesConference(filtros: string[]): Observable<string[]> {
     return this.http.post<string[]>(`${this.baseUrl}/filterConferences`, { filterNames: filtros });
   }
@@ -24,12 +29,16 @@ export class ApiService {
     return this.http.post<string[]>(`${this.baseUrl}/filterJournals`, { filterNames: filtros });
   }
 
-  getResearchersConference(titulosSeleccionados: any[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/researchersConference`, { titulosSeleccionados });
+  getResearchersConference(titulosSeleccionados: any[], venue: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/researchersConference`, { titulosSeleccionados, venue});
   }
 
-  getPapers(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/papers`, { titulosSeleccionados, option, venue });
+  getPapers(titulosSeleccionados: any[], venue: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/papersConferences`, { titulosSeleccionados, venue });
+  }
+
+  getArticles(titulosSeleccionados: any[], venue: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/articleJournals`, { titulosSeleccionados, venue });
   }
 
   getCollaborations(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
@@ -82,6 +91,10 @@ export class ApiService {
 
   getConferencebyProceeding(titulosSeleccionados: any[], venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/ConferencebyProceeding`, { titulosSeleccionados, venue });
+  }
+
+  getAuthorsPublications(filterNames: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/filterAuthors`, { filterNames });
   }
 
 }

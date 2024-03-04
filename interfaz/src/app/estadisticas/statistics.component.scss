@@ -71,11 +71,6 @@ canvas {
   display: block; 
 }
 
-.line3{
-  margin-top: 30px;
-  margin-bottom: 30px;
-}
-
 .line{
   margin-top: 20px;
   margin-bottom: 20px;
@@ -104,7 +99,6 @@ canvas {
 
 .table{
   text-align: center;
-
 }
 
 td, th {
@@ -125,10 +119,6 @@ div {
   margin-bottom: 40px;
 }
 
-#tableInstitution th:nth-child(3){
-  padding-left: 120px; /* Ajusta el valor de píxeles según lo necesites */
-}
-
 #degree th:nth-child(2),
 #degree th:nth-child(3){
   padding-left: 60px;
@@ -144,6 +134,11 @@ div {
 .women {
   background-color: rgb(255, 87, 51);
   margin-left: 20PX;
+}
+
+.line3{
+  margin-top: 30px;
+  margin-bottom: 30px;
 }
 
 

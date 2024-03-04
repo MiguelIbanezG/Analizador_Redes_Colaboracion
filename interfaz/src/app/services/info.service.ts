@@ -11,6 +11,7 @@ export class InfoService {
   private allPublications = 0;
   private allAuthors = 0;
   private allConferences = 0;
+  public instituions: { institution: String, researchers:number }[] = [];
 
   get PublicationsByYear() {
     return this.publicationsByYear;

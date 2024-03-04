@@ -13,12 +13,9 @@ export class StadisticsService {
   public years: string[] = [];
   public inprocedings: number[] = [];
 
-  addTitles(title: any[]) {
-    this.selectedTitles = title.reduce((arr, title) => {
-      arr.push(title);
-      return arr;
-    }, []);
-  }
+  addTitles(titles: any[]) {
+    this.selectedTitles = this.selectedTitles.concat(titles);
+}
 
   getSelectedTitles() {
     return this.selectedTitles;

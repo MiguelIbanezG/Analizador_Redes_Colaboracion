@@ -19,6 +19,7 @@ import {MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
 import { InfoService } from './services/info.service';
 import { SpinnerModule } from './spinner/spinner.module';
+import { AuthorsComponent } from './authors/authors.component';
 
 
 
@@ -27,8 +28,8 @@ import { SpinnerModule } from './spinner/spinner.module';
     AppComponent,
     HomeComponent,
     StatisticsComponent,
-    InfoComponent
-  
+    InfoComponent,
+    AuthorsComponent
   ],
   imports: [
     BrowserModule,

@@ -8,7 +8,7 @@
   <div class="box-conference">
     <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Conference or Journal" (keyup.enter)="completeSuggestion(filtersBOX)" (input)="autocompleteConference(filtersBOX)">
     <button class="button-add"  type="button" (click)="completeSuggestion(filtersBOX)">Add</button>
-    <div *ngIf="autocompleteConference.length > 0">
+    <div>
       <ul>
         <li class="click-element " *ngFor="let suggestion of completeConference" (click)="selectSuggestion(suggestion)">
           {{ suggestion }}
@@ -17,7 +17,7 @@
     </div>
   </div>
 
-  <div class="noResults" *ngIf="noResultsFoundConference">
+  <div class="noResults" *ngIf="noResultsFoundConference && noResultsFoundJournal">
     <p>Conference or Journal not found. Please try another Conference or Journal</p>
   </div>
 
@@ -104,28 +104,28 @@
 
   <!-- Filter by Decade -->
   <div class="decades" *ngIf="showDecades && !showYears">
-    <div *ngIf="filteredTitles.length > 0 ">
+    <div *ngIf="filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ">
       <label>
         <input type="checkbox" [(ngModel)]="selectDecades" (change)="selectDecade()">
         <span>1989-1999</span>
       </label>
     </div>
   
-    <div *ngIf="filteredTitles.length > 0">
+    <div *ngIf="filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ">
       <label>
         <input type="checkbox" [(ngModel)]="selectDecades2" (change)="selectDecade2()">
         <span>1999-2009</span>
       </label>
     </div>
   
-    <div *ngIf="filteredTitles.length > 0">
+    <div *ngIf="filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ">
       <label>
         <input type="checkbox" [(ngModel)]="selectDecades3" (change)="selectDecade3()">
         <span>2009-2019</span>
       </label>
     </div>
   
-    <div *ngIf="filteredTitles.length > 0">
+    <div *ngIf="filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ">
       <label>
         <input type="checkbox" [(ngModel)]="selectDecades4" (change)="selectDecade4()">
         <span>2019-2024</span>
@@ -134,7 +134,7 @@
   </div>
       
   <!-- Select All -->
-  <div *ngIf="(filteredTitles.length > 0) && !showDecades">
+  <div *ngIf="(filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ) && !showDecades">
     <label>
       <input type="checkbox" [(ngModel)]="selectAll" (change)="selectAlls()">
       <span>All</span>
@@ -156,14 +156,14 @@
    <!-- Generate Stats -->
    <div class="stats" >
     <div class="button-stats" *ngIf="showButtons">
-      <button [hidden]="(this.noResultsFoundConference === true) ||
-      (this.noResultsFoundConference === undefined)" [disabled]="!existSelectTitle()" (click)="generateStatistics()">Generate Stats</button>
+      <button [hidden]="(this.noResultsFoundConference === true) &&
+      (this.noResultsFoundJournal === true)" [disabled]="!existSelectTitle()" (click)="generateStatistics()">Generate Stats</button>
     </div>
     <div class="button-stats" *ngIf="showButtons">
-      <button [hidden]="(this.noResultsFoundConference === true) ||
-      (this.noResultsFoundConference === undefined)" [disabled]="!existSelectTitle()" (click)="generateConf()">Info</button>
+      <button [hidden]="(this.noResultsFoundConference === true) &&
+      (this.noResultsFoundJournal === true)" [disabled]="!existSelectTitle()" (click)="generateConf()">Info</button>
     </div>
-    <div class="button-clear" *ngIf="filteredTitles.length > 0  ">
+    <div class="button-clear" *ngIf="filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ">
       <button (click)="clear2()">Cancel</button>
     </div>
     

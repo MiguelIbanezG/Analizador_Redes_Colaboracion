@@ -1,0 +1,71 @@
+<div class="container">
+
+    <!-- Title -->
+    <h1>Authors</h1>
+  
+    <!-- Search Conference -->
+    <div class="box-conference">
+      <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Conference or Journal" (input)="autocompleteAuthor(filtersBOX)">
+      <button class="button-add" (click)="completeSuggestion(filtersBOX)" type="button">Add</button>
+      
+      <div>
+        <ul>
+          <li class="click-element " *ngFor="let suggestion of completeConference" (click)="selectSuggestion(suggestion)">
+            {{ suggestion }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div *ngIf="this.authors.length > 0" class="filters-list">
+      <div>
+        <p>Authors:</p>
+        <hr>
+        <ul>
+          <li *ngFor="let filter of authors">
+            {{ filter }}
+            <button class="button-delete" (click)="deleteFilter(filter)">X</button>
+          </li>
+        </ul>
+      </div>
+    </div>  
+
+    <!-- Buttons Filter -->
+    <div class="buttons">
+      <div class="button-publications">
+        <button (click)="getAuthorsPublications(authors)" [disabled]="authors.length === 0 ">Search Publications</button>
+      </div>
+    </div>
+
+</div>
+
+<div *ngIf="showPublications">
+  <h3>Publications</h3>
+</div>
+  <div class="flex-container" >
+    <div class="container-table2">
+      <div class="table">
+        <table id="tablePublications">
+          <thead>
+            <tr *ngIf="showPublications" >
+              <th>Title</th>
+              <th>DayOfPublication</th>
+              <th>AuthorName</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
