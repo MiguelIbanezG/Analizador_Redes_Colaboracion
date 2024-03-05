@@ -41,12 +41,12 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/articleJournals`, { titulosSeleccionados, venue });
   }
 
-  getCollaborations(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/collaborations`, { titulosSeleccionados, option, venue });
+  getCollaborations(titulosSeleccionados: any[], venue: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/collaborations`, { titulosSeleccionados, venue });
   }
 
   getAuthorsPapers(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/AuthorsPapers`, { titulosSeleccionados, option, venue });
+     return this.http.post<any>(`${this.baseUrl}/AuthorsPapers`, { titulosSeleccionados, option, venue });
   }
 
   getAuthorsDegree(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {

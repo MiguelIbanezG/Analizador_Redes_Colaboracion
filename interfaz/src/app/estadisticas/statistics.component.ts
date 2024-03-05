@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, destroyPlatform } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
 import { StadisticsService } from '../services/stadistics.service';
@@ -47,6 +47,8 @@ export class StatisticsComponent implements OnInit {
   statsAuthors: any[] = []
   statsPaper: any[] = []
   statsArticle: any[] = []
+  journalsCount: number = 0;
+  ConferencesCount: number = 0;
   lineChart!: Chart;
   lineChart2!: Chart;
   lineChart3!: Chart;
@@ -55,10 +57,15 @@ export class StatisticsComponent implements OnInit {
   lineChart7!: Chart;
   lineChart6!: Chart;
   lineChart8!: Chart;
+  lineChart14!: Chart;
+  lineChart15!: Chart;
   totalAuthorsByYear: any[] = []
   totalPapersByYear: any[] = []
   totalArticlesByYear: any[] = []
+  singleArticles: any[] = []
+  singlePapers: any[] = []
   barChart!: Chart;
+  barChart2!: Chart;
   decadeStats: any[] = [];
   researchers: any[] = [];
   papersWithAuthors: any[] = [];
@@ -95,16 +102,26 @@ export class StatisticsComponent implements OnInit {
     }
   }
 
+  async waitPapersNoEmpty() {
+    while (!this.papers || this.papers.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+    }
+  }
+
   getResearchersConference() {
-    console.log(this.selectedTitles)
     this.apiService.getResearchersConference(this.selectedTitles, this.venueName).subscribe({
       next: (response: any) => {
+        this.researchers = [];
         this.researchers = response;
-        console.log(this.researchers)
         this.statsResearchers();
         this.statsTotalAuthorsByYear();
-        this.generateChart('lineChart1', 'Number of authors', this.statsAuthors);
-        this.generateTotalAuthorsChart('lineChart6', 'Total Authors per Year', this.totalAuthorsByYear);
+        if(this.researchers.length > 1){
+          if (this.lineChart) {
+            this.lineChart.destroy();
+          }
+          this.generateChart('lineChart1', 'Number of authors', this.statsAuthors);
+          this.generateTotalAuthorsChart('lineChart6', 'Total Authors by Year', this.totalAuthorsByYear);
+        }
       },
       error: (error: any) => {
         console.error('Error in getResearchersConference:', error);
@@ -114,6 +131,8 @@ export class StatisticsComponent implements OnInit {
 
   statsTotalAuthorsByYear() {
     const years = this.selectedTitles.map(title => title.properties.name);
+    years.sort((a, b) => parseInt(a) - parseInt(b));
+    this.totalArticlesByYear = [];
     this.totalAuthorsByYear = years.map(year => {
       const totalAuthors = this.researchers.reduce((total, researcher) => {
         if (researcher.years.includes(year)) {
@@ -134,10 +153,9 @@ export class StatisticsComponent implements OnInit {
         this.papers = response;
         this.statsPapers();
         this.statsTotalPapersByYear();
-        this.waitPapers();
         if(this.papers.length > 0){
           this.generateChart('lineChart2', 'Number of papers', this.statsPaper);
-          this.generateTotalAuthorsChart('lineChart7', 'Total Papers per Year', this.totalPapersByYear);
+          this.generateTotalAuthorsChart('lineChart7', 'Total Papers by Year', this.totalPapersByYear);
         }
       },
       error: (error: any) => {
@@ -152,10 +170,9 @@ export class StatisticsComponent implements OnInit {
         this.articles = response;
         this.statsArticles();
         this.statsTotalArticlesByYear();
-        console.log(this.articles.length)
         if(this.articles && this.articles.length > 0){
           this.generateChart('lineChart15', 'Number of Articles', this.statsArticle);
-          this.generateTotalAuthorsChart('lineChart14', 'Total Articles per Year', this.totalArticlesByYear);
+          this.generateTotalAuthorsChart('lineChart14', 'Total Articles by Year', this.totalArticlesByYear);
         }
       },
       error: (error: any) => {
@@ -200,7 +217,7 @@ export class StatisticsComponent implements OnInit {
 
 
   getCollaborations() {
-    this.apiService.getCollaborations(this.selectedTitles, this.conferenceOption, this.venueName).subscribe({
+    this.apiService.getCollaborations(this.selectedTitles, this.venueName).subscribe({
       next: (response: any) => {
         this.collaborations = response;
         this.statsColaboraciones();
@@ -424,19 +441,19 @@ export class StatisticsComponent implements OnInit {
     }
   }
 
-  async waitPapers(){
-    while (!this.statsPaper || this.statsPaper.length === 0) {
-      await new Promise(resolve => setTimeout(resolve, 100)); 
-    }
-  }
-
-
   getAuthorsPapers() {
       this.apiService.getAuthorsPapers(this.selectedTitles, this.conferenceOption, this.venueName)
         .subscribe({
           next: async (response: any) => {
             this.singleAuthor = response;
             this.statsSingleAuthor();
+            if(this.barChart){
+              this.barChart.destroy();
+            }
+            if(this.barChart2){
+              this.barChart2.destroy();
+            }
+            this.generateBarChartArticles('barChart2', 'Single Author Articles', this.statistics[8].years, this.statistics[8].porcentajes);          
             this.generateBarChart('barChart1', 'Single Author Papers', this.statistics[4].years, this.statistics[4].porcentajes);          
           },
           error: (error: any) => {
@@ -455,6 +472,7 @@ export class StatisticsComponent implements OnInit {
     );
     authorsByPaper[4] = this.papersWithAuthors.filter((paper) => paper.numAuthors >= 5).length;
     let allPapers = this.papers.reduce((all, paper) => all + paper.numPapers, 0);
+    allPapers += this.articles.reduce((all, paper) => all + paper.numPapers, 0);
 
     // This represents the number of published papers that each author has.
     const papersByAuthor: number[] = [1, 2, 3, 4].map((numPubs) =>
@@ -466,6 +484,8 @@ export class StatisticsComponent implements OnInit {
     // We create the two tables that are linked with the ids of the html
     const authorsTable = document.querySelector('#authorsTable tbody');
     const papersTable = document.querySelector('#papersTable tbody');
+
+    
     
     if (authorsTable !== null) {
       authorsByPaper.forEach((amount, index) => {
@@ -646,8 +666,11 @@ export class StatisticsComponent implements OnInit {
 
   statsResearchers() {
     const names = new Set(this.researchers.map(researcher => researcher.name));
+    this.statsAuthors = [];
     this.statsAuthors = Array.from(names).map(name => {
       const years = this.selectedTitles.map(titulo => titulo.properties.name);
+      years.sort((a, b) => parseInt(a) - parseInt(b));
+      this.selectedYears = years;
       const numResearchersPorAnio = years.map(anio =>
         this.researchers.reduce((total, researcher) => {
           if (researcher.name === name && researcher.years.includes(anio)) {
@@ -662,11 +685,11 @@ export class StatisticsComponent implements OnInit {
         numResearchers: numResearchersPorAnio
       };
     });
-    console.log(this.statsAuthors)
   }
   
   statsPapers() {
     const names = new Set(this.papers.map(paper => paper.name));
+    this.ConferencesCount = names.size;
     this.statsPaper = Array.from(names).map(name => {
       const years = this.papers.map(paper => paper.year);
       const numPapersPorAnio = years.map(year =>
@@ -677,19 +700,18 @@ export class StatisticsComponent implements OnInit {
           return total;
         }, 0)
       );
-      console.log("aaa"+ names)
       return {
         name: name,
         years: years,
         numResearchers: numPapersPorAnio
       };
     });
-    console.log(this.statsPaper)
   }  
 
   statsArticles() {
     
     const names = new Set(this.articles.map(paper => paper.name));
+    this.journalsCount = names.size;
     this.statsArticle = Array.from(names).map(name => {
       const years = this.articles.map(paper => paper.year);
       const numPapersPorAnio = years.map(year =>
@@ -700,27 +722,44 @@ export class StatisticsComponent implements OnInit {
           return total;
         }, 0)
       );
-      console.log("aaa"+ names)
       return {
         name: name,
         years: years,
         numResearchers: numPapersPorAnio
       };
     });
-    console.log(this.statsPaper)
   }  
 
 
-  statsColaboraciones(){    
-    const colabsXtotal = this.papers.map(paper => {
-      const colab = this.collaborations.find(c => c.year === paper.year);
-      return {
-        year: paper.year,
-        numColabs: colab ? colab.numColabs : 0,
-        numPapers: paper.numPapers
-      };
-    });
+  statsColaboraciones(){  
 
+    let colabsXtotal: { year: number; numColabs: number; numPapers: number }[] = [];
+
+    if (this.papers.length > 1) {
+      const colabsPapers = this.papers.map(paper => {
+        const colab = this.collaborations.find(c => c.year === paper.year);
+        return {
+          year: paper.year,
+          numColabs: colab ? colab.numColabs : 0,
+          numPapers: paper.numPapers
+        };
+      });
+      colabsXtotal = colabsXtotal.concat(colabsPapers);
+    }
+  
+    if (this.articles.length > 1) {
+      const colabsArticles = this.articles.map(article => {
+        const colab = this.collaborations.find(c => c.year === article.year);
+        return {
+          year: article.year,
+          numColabs: colab ? colab.numColabs : 0,
+          numPapers: article.numPapers
+        };
+      });
+      colabsXtotal = colabsXtotal.concat(colabsArticles);
+    }
+
+    //colabsXtotal debe tener la suma de los dos valores si ha entrao en los dos ifs
     const density = colabsXtotal.map(dato => {
       const { year, numColabs, numPapers } = dato;
       const density = numColabs / numPapers;
@@ -754,11 +793,8 @@ export class StatisticsComponent implements OnInit {
 }
 
   statsConnectedComponentsByvenue() {
-    const venueDataMap: Map<string, { years: any[], connectedComponents: any[], venueName: string, index?: number } | undefined> = new Map();
+    const venueDataMap: Map<string, { years: any[], connectedComponents: any[], venueName: string} | undefined> = new Map();
     const venueDataMapRelative: Map<string, { years: any[], connectedComponents: any[], venueName: string, index?: number } | undefined> = new Map();
-
-    let currentIndex = 0;
-    let currentIndex2 = 0;
 
     this.connectedComponents.forEach((item) => {
       const venueName = item.venueName;
@@ -768,10 +804,8 @@ export class StatisticsComponent implements OnInit {
           years: [],
           connectedComponents: [],
           venueName: venueName,
-          index: currentIndex
         });
 
-        currentIndex++;  
       }
 
       const venueData = venueDataMap.get(venueName);
@@ -789,10 +823,7 @@ export class StatisticsComponent implements OnInit {
           years: [],
           connectedComponents: [],
           venueName: venueName,
-          index: currentIndex2
         });
-
-        currentIndex2++;  
       }
 
       const venueData = venueDataMapRelative.get(venueName);
@@ -836,6 +867,7 @@ export class StatisticsComponent implements OnInit {
     });
 
     this.papersWithAuthors = papersWithAuthors;
+    console.log(this.papersWithAuthors)
 
     // We get all the entries whose author is one, for the statistics
     const papersWithOneAuthor = papersWithAuthors.filter(paper => paper.numAuthors === 1);
@@ -848,11 +880,32 @@ export class StatisticsComponent implements OnInit {
     
       return { year, percentage };
     });
+
+    const porcentajeByYear2 = this.articles.map(article => {
+      const year = article.year;
+      const numPapers = article.numPapers;
+      const numPapersWithSingleAuthor = papersWithOneAuthor.filter(paper => paper.year === year).length;
+      const percentage = (numPapersWithSingleAuthor / numPapers) * 100;
+      return { year, percentage };
+    });
     
     this.statistics[4] = {
       years: porcentajeByYear.map(dato => dato.year),
       porcentajes: porcentajeByYear.map(dato => dato.percentage)
     };
+
+    this.statistics[8] = {
+      years: porcentajeByYear2.map(dato => dato.year),
+      porcentajes: porcentajeByYear2.map(dato => dato.percentage)
+    };
+
+    if(this.articles.length > 1){
+      this.singleArticles = this.statistics[8];
+    }
+
+    if(this.papers.length > 1){
+      this.singlePapers = this.statistics[4];
+    } 
   }  
 
   statsGeography(datasets: any[]){
@@ -1037,7 +1090,7 @@ export class StatisticsComponent implements OnInit {
     const totalAuthors = data.map(entry => entry.totalAuthors);
 
     if(idChart == "lineChart6"){
-      this.lineChart = new Chart(idChart, {
+      this.lineChart6 = new Chart(idChart, {
         type: 'line',
         data: {
           labels: years,
@@ -1075,7 +1128,7 @@ export class StatisticsComponent implements OnInit {
 
 
     if(idChart == "lineChart7"){
-      this.lineChart4 = new Chart(idChart, {
+      this.lineChart7 = new Chart(idChart, {
         type: 'line',
         data: {
           labels: years,
@@ -1111,8 +1164,8 @@ export class StatisticsComponent implements OnInit {
       });
     }
 
-    if(this.articles.length > 0){
-        this.lineChart5 = new Chart(idChart, {
+    if(idChart = "lineChart14"){
+        this.lineChart14 = new Chart(idChart, {
           type: 'line',
           data: {
             labels: years,
@@ -1165,7 +1218,7 @@ export class StatisticsComponent implements OnInit {
     }));
 
     if(idChart == "lineChart2"){
-      this.lineChart7 = new Chart(idChart, {
+      this.lineChart2 = new Chart(idChart, {
         type: 'line',
         data: {
           labels: data[0].years,
@@ -1195,7 +1248,7 @@ export class StatisticsComponent implements OnInit {
     }
 
     if(idChart == "lineChart1"){
-      this.lineChart6 = new Chart(idChart, {
+      this.lineChart = new Chart(idChart, {
         type: 'line',
         data: {
           labels: data[0].years,
@@ -1224,44 +1277,42 @@ export class StatisticsComponent implements OnInit {
   
     }
 
-    if (this.articles.length > 0) {
-      if(idChart == "lineChart15"){
-        this.lineChart8 = new Chart(idChart, {
-          type: 'line',
-          data: {
-            labels: data[0].years,
-            datasets: datasets
-          },
-          options: {
-            plugins: {
-              legend: {
-                labels: {
-                  color: 'black',
-                  font: {
-                    size: 18, 
-                    family: 'Roboto',
-                  }
+    if(idChart == "lineChart15"){
+      this.lineChart15 = new Chart(idChart, {
+        type: 'line',
+        data: {
+          labels: data[0].years,
+          datasets: datasets
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: 'black',
+                font: {
+                  size: 18, 
+                  family: 'Roboto',
                 }
               }
-            },
-            scales: {
-              y: {
-                type: 'linear',
-                display: true
-              }
-            },
-          }
-        });
+            }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true
+            }
+          },
+        }
+      });
     
-      } 
+      
     }
 
-   
   }
 
   generateChart3(idChart: string, label: string, labels: any[], data: any[]) {
-    if(idChart=="lineChart2" || idChart=="lineChart11" || idChart=="lineChart3"){
-      this.lineChart2 = new Chart(idChart, {
+    if(idChart=="lineChart11" || idChart=="lineChart3"){
+      this.lineChart3 = new Chart(idChart, {
         type: 'line',
         data: {
           labels: labels,
@@ -1300,14 +1351,16 @@ export class StatisticsComponent implements OnInit {
    
   }
 
-  generateChart4(idChart: string, label: string, venueDataMap: any) {
-    const datasets = venueDataMap.map((venue: any) => {
+  generateChart4(idChart: string, label: string, data: any) {
+ 
+    const datasets = data.map((venue: any, index: any) => {
       return {
         label: venue.venueName,
         data: venue.connectedComponents,
         years: venue.years,
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        borderColor: this.getRandomColor(venue.index)
+        fill: false,
+        borderColor: this.getRandomColor(index),
+        borderWidth: 1
       };
     });
   
@@ -1318,17 +1371,7 @@ export class StatisticsComponent implements OnInit {
       type: 'line',
       data: {
         labels: allYears,
-        datasets: datasets.map((dataset: any) => {
-          return {
-            label: dataset.label,
-            data: allYears.map(year => {
-              const index = dataset.years.indexOf(year);
-              return index !== -1 ? dataset.data[index] : null;
-            }),
-            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-            borderColor: dataset.borderColor,
-          };
-        })
+        datasets: datasets
       },
       options: {
         plugins: {
@@ -1428,8 +1471,9 @@ export class StatisticsComponent implements OnInit {
     const datasets = datasetsLabels.map((label, index) => ({
       label: label,
       data: datasetsData[index],
-      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+      fill: false,
       borderColor: this.getRandomColor(index),
+      borderWidth: 1
     }));
   
     const chartConfig: ChartConfiguration<'line'> = {
@@ -1501,40 +1545,81 @@ export class StatisticsComponent implements OnInit {
   
 
   generateBarChart(idChart: string, label: string, labels: any[], data: any[]) {
-    this.barChart = new Chart(idChart, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: label,
-            data: data,
-            backgroundColor: 'rgb(0, 22, 68)',
-            borderColor: 'rgb(0, 22, 68)',
-            borderWidth: 1
-          }
-        ]
-      },
-      options: {
-        plugins: {
-          legend: {
-            labels: {
-              color: 'black',
-              font: {
-                size: 18, 
-                family: 'Roboto',
+    if(idChart = "barChart1"){
+      this.barChart = new Chart(idChart, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: label,
+              data: data,
+              backgroundColor: 'rgb(51, 153, 255)',
+              borderColor: 'rgb(51, 153, 255)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: 'black',
+                font: {
+                  size: 18, 
+                  family: 'Roboto',
+                }
               }
             }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
           }
         }
-      }
-    });
+      });
+    }
   }  
+
+  generateBarChartArticles(idChart: string, label: string, labels: any[], data: any[]) {
+    if(idChart = "barChart2"){
+      this.barChart2 = new Chart(idChart, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: label,
+              data: data,
+              backgroundColor: 'rgb(255, 87, 51)',
+              borderColor: 'rgb(255, 87, 51)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: 'black',
+                font: {
+                  size: 18, 
+                  family: 'Roboto',
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+  }  
+
 
   randomColor(){
     const r = Math.floor(Math.random() * 256);
@@ -1545,8 +1630,8 @@ export class StatisticsComponent implements OnInit {
 
   getRandomColor(index: number) {
     let colors: Record<number, string> = {
-      0: "rgba(75, 192, 192, 1)",
-      1: "rgba(192, 75, 75, 1)",
+      0: "rgba(51, 153, 255)",
+      1: "rgba(255, 0, 0, 1)",
       2: "rgba(98, 192, 75, 1)", 
       3: "rbga(192, 141, 75, 1)",
       4: "rgba(226, 232, 107, 1)",
@@ -1597,7 +1682,6 @@ export class StatisticsComponent implements OnInit {
   async main(){
     try {
       this.selectedTitles = this.stadisticsService.getSelectedTitles();
-      console.log(this.stadisticsService.getSelectedTitles());
       this.conferenceOption = this.stadisticsService.getConferenceOption();
       this.venueName = this.stadisticsService.getVenueName();
       if(this.stadisticsService.venueNameConfirm != this.stadisticsService.getVenueName()){
@@ -1608,21 +1692,23 @@ export class StatisticsComponent implements OnInit {
       this.getResearchersConference();
       this.getPapers(); 
       this.getArticles();
-      this.getAuthorsPapers();
       this.getConferencebyProceeding();
   
       if(this.researchers.length == 0){
         await this.waitResearcherNoEmpty();
         this.getDemographicData();
         this.getCollaborations();
+        this.getAuthorsPapers();
      
       } else{
         this.getDemographicData();
         this.getCollaborations();
-      }      
+        this.getAuthorsPapers();
+      }    
 
       if(this.papersWithAuthors.length == 0){
         await this.waitAuthorsWithPapersNoEmpty();
+        console.log("si")
         this.getTopicAnalysis();
         this.getDistributions();
       }else{

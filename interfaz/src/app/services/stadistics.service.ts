@@ -17,6 +17,10 @@ export class StadisticsService {
     this.selectedTitles = this.selectedTitles.concat(titles);
 }
 
+  cleanTitles(){
+    this.selectedTitles = [];
+  }
+
   getSelectedTitles() {
     return this.selectedTitles;
   }

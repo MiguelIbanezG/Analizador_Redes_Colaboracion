@@ -527,15 +527,17 @@ export class HomeComponent implements OnInit {
 
   async generateStatistics() {
 
+
     const titles = this.filteredTitlesConference.
     filter(titulo => titulo.selected).map(titulo => titulo.pr_objeto);
     
-    const titles2 = this.filteredTitlesJournal.
-    filter(titulo => titulo.selected).map(titulo => titulo.pr_objeto);
+    const titles2 = this.filteredTitlesJournal
+    .filter(titulo => titulo.selected && !this.filteredTitlesConference.map(titulo => titulo.title).includes(titulo.title))
+    .map(titulo => titulo.pr_objeto);
+    const titles3 = [...titles, ...titles2];
     const splitFilters = this.filtersString.split(',').map(filtersString => filtersString.trim());
-
-    this.stadisticsService.addTitles(titles2);
-    this.stadisticsService.addTitles(titles);
+    this.stadisticsService.cleanTitles();
+    this.stadisticsService.addTitles(titles3);
     this.stadisticsService.flagNameVenue(splitFilters)
 
     this.router.navigateByUrl('/statistics');

@@ -2,12 +2,30 @@
 h2{
     text-align: center;
     font-size: 40px;
+    margin-bottom: 100px;
 }
 
 h3 {
-    text-align: center;
-    font-size: 20px;
+    text-align: left;
+    font-size: 18px;
     margin-bottom: 10px;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+.leftContainer{
+    width: 25%;
+}
+  
+
+.rightContainer {
+    flex: 10;
+    width: 100%;
+    align-items: center;
+
 }
 
 .flex-container {
@@ -34,10 +52,6 @@ canvas {
     display: block; 
 }
 
-.allNumbers{
-    font-size: 20px;
-}
-
 .click-element {
     cursor: pointer;
     margin-bottom: 5px;
@@ -61,27 +75,25 @@ canvas {
     align-items: center;
 }
 
-.line3{
-    margin-top: 30px;
-    margin-bottom: 30px;
+
+.table {
+    font-size: 15px;
+    width: 90%;
 }
 
-td, th {
-    padding: 20px;
-    vertical-align: middle;
-    text-align: center;
-    vertical-align: center;
-    font-size: 20px;
+.table th,
+.table td {
+    padding: 10px;
+    border: 1px solid #ddd;
 }
 
-.container-table2 {
-    justify-content: center; 
-    display: flex;
-    margin-right: 100px;
+.table th {
+    background-color: #f2f2f2;
+    padding: 5px; /* Agregamos un margen a la derecha de los contenedores */
 }
 
-.table{
-    text-align: center;
-  }
-  
-  
+.leftContainer,
+.rightContainer {
+  border-right: 1px solid rgb(0, 22, 68); /* Agregamos un borde derecho a los contenedores */
+  margin: 5px;
+}

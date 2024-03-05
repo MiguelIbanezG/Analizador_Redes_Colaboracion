@@ -4,15 +4,15 @@
   <div class="flex-container" >
 
     <div class="flex-item">
-      <h3>Authors by year</h3>
+      <h3>Authors / Year</h3>
 
       <div class="canvas-container">
         <canvas id="lineChart6"></canvas>
       </div>
     </div>
 
-    <div class="flex-item">
-      <h3>Authors by Conference or Journal</h3>
+    <div class="flex-item"  [hidden]="journalsCount + ConferencesCount < 2">
+      <h3>Authors by Conference or Journal / Year</h3>
 
       <div class="canvas-container">
         <canvas id="lineChart1"></canvas>
@@ -26,15 +26,15 @@
   <div class="flex-container">
 
     <div class="flex-item" [hidden]="papers.length < 1">
-      <h3>Papers by year</h3>
+      <h3>Conference Papers / Year</h3>
 
       <div class="canvas-container" >
         <canvas id="lineChart7"></canvas>
       </div>
     </div>
 
-    <div class="flex-item"[hidden]="papers.length < 1">
-      <h3>Papers by Conference or Journal</h3>
+    <div class="flex-item"[hidden]="papers.length < 1 || ConferencesCount < 2">
+      <h3>Papers by Conference / Year</h3>
 
       <div class="canvas-container">
         <canvas id="lineChart2" ></canvas>
@@ -48,15 +48,15 @@
   <div class="flex-container">
  
     <div class="flex-item" [hidden]="articles.length < 1">
-      <h3>Articles by year</h3>
+      <h3>Journal Articles / Year</h3>
 
       <div class="canvas-container" >
         <canvas id="lineChart14"></canvas>
       </div>
     </div>
 
-    <div class="flex-item" [hidden]="articles.length < 1">
-      <h3>Articles by Conference or Journal</h3>
+    <div class="flex-item" [hidden]="articles.length < 1 || journalsCount < 2">
+      <h3>Articles by Journal / Year</h3>
 
       <div class="canvas-container">
         <canvas id="lineChart15"></canvas>
@@ -77,19 +77,33 @@
         <canvas id="lineChart3"></canvas>
       </div>
     </div>
+   
+  </div>
 
-    <div class="flex-item">
-      <h3>Percentage of single-author papers per year</h3>
+  <hr class="line">
+
+  <div class="flex-container" >
+    <!-- [hidden]="statistics[4].years.length === 0" -->
+    <div class="flex-item" [hidden]="singlePapers.length < 1" >
+      <h3>Percentage of single-author Papers / Year</h3>
 
       <div class="canvas-container">
         <canvas id="barChart1"></canvas>
+      </div>
+    </div>
+    <!-- [hidden]="statistics[8].years.length === 0 " -->
+    <div class="flex-item" [hidden]="singleArticles.length < 1" >
+      <h3>Percentage of single-author Articles / Year </h3>
+
+      <div class="canvas-container">
+        <canvas id="barChart2"></canvas>
       </div>
     </div>
    
   </div>
 
   <hr class="line">
-  <h3 class="special">Distributions of authors per paper and of papers per author</h3>
+  <h3 class="special">Distributions of authors by paper and journal and of papers and journals by author</h3>
   <div class="container-table">
     <div class="table">
       <table id="authorsTable">
@@ -286,12 +300,12 @@
     </div>
   </div>
 
-  <hr class="line3">
+  <hr class="line3" [hidden]="papers.length < 1">
 
-  <h3>Proceeding by Conference</h3>
+  <h3 [hidden]="papers.length < 1">Proceeding by Conference</h3>
   <div class="container-table2">
    
-    <div class="table">
+    <div class="table" [hidden]="papers.length < 1">
       <table id="tableProceeding">
         <thead>
           <tr>
@@ -306,16 +320,16 @@
       </table>
     </div>
   </div>
-  <div class="overlay" *ngIf="loadingTable1">
-    <app-spinner></app-spinner>
+  <div class="overlay" [hidden]="papers.length < 1"*ngIf="loadingTable1">
+    <app-spinner ></app-spinner>
   </div>
   
 
-  <hr class="line3">
+  <hr class="line3" [hidden]="papers.length < 1">
 
-  <div class="flex-container" >
+  <div class="flex-container">
 
-    <div class="flex-item">
+    <div class="flex-item" [hidden]="papers.length < 1">
       <h3>All Connected Components by year</h3>
   
       <div class="canvas-container">
@@ -323,7 +337,7 @@
       </div>
     </div>
 
-    <div class="flex-item">
+    <div class="flex-item" [hidden]="papers.length < 1">
       <h3>Connected components for each Conference by year</h3>
 
       <div class="canvas-container">
@@ -333,9 +347,10 @@
    
   </div>
 
-  <h3>Relative size of components connected by conference</h3>
+ 
   <div class="flex-container">
-    <div class="flex-item"> 
+    <div class="flex-item" [hidden]="papers.length < 1"> 
+      <h3>Relative size of components connected by conference</h3>
       <div class="canvas-container">
         <canvas id="lineChart13"></canvas>
       </div>
