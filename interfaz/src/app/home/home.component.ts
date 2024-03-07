@@ -525,8 +525,12 @@ export class HomeComponent implements OnInit {
     this.selectAll = all;
   }
 
-  async generateStatistics() {
+  activateLink() {
+    this.homeService.setActiveLink(true);
+  }
 
+
+  async generateStatistics() {
 
     const titles = this.filteredTitlesConference.
     filter(titulo => titulo.selected).map(titulo => titulo.pr_objeto);
@@ -539,6 +543,8 @@ export class HomeComponent implements OnInit {
     this.stadisticsService.cleanTitles();
     this.stadisticsService.addTitles(titles3);
     this.stadisticsService.flagNameVenue(splitFilters)
+
+    this.activateLink();
 
     this.router.navigateByUrl('/statistics');
 

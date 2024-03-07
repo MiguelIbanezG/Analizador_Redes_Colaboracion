@@ -5,6 +5,7 @@ import { StatisticsComponent } from './estadisticas/statistics.component';
 import { InfoComponent } from './info/info.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { AuthorsComponent } from './authors/authors.component';
+import { HomeService } from './services/home.service';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },

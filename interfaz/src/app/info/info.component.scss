@@ -2,7 +2,7 @@
 h2{
     text-align: center;
     font-size: 40px;
-    margin-bottom: 100px;
+    margin-bottom: 50px;
 }
 
 h3 {
@@ -17,7 +17,12 @@ h3 {
 }
 
 .leftContainer{
-    width: 25%;
+    width: 20%;
+    background-color: rgba(0, 22, 68, 0.03);
+    border-left: 1px solid rgb(0, 22, 68); /* Agregamos un borde derecho a los contenedores */
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
 }
   
 
@@ -53,8 +58,8 @@ canvas {
 }
 
 .click-element {
-    cursor: pointer;
     margin-bottom: 5px;
+    font-size: 18px;
 }
   
 .click-element:hover {
@@ -76,7 +81,23 @@ canvas {
 }
 
 
+.centerSpinner {
+    position: relative;
+    top: 20px;
+    left: 50px;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
 .table {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-size: 15px;
     width: 90%;
 }
@@ -95,5 +116,6 @@ canvas {
 .leftContainer,
 .rightContainer {
   border-right: 1px solid rgb(0, 22, 68); /* Agregamos un borde derecho a los contenedores */
-  margin: 5px;
+
+  border-top: 1px solid rgb(0, 22, 68); /* Agregamos un borde superior */
 }

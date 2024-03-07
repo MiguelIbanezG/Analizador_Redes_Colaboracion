@@ -5,7 +5,7 @@
     <div class="nav">
       <nav>
         <a routerLink="/" routerLinkActive="active">Home</a>
-        <a routerLink="/statistics" routerLinkActive="active">Statistics</a>
+        <a routerLink="/statistics" routerLinkActive="active" *ngIf="activeLink" >Statistics</a>
         <a routerLink="/info" routerLinkActive="active">Info</a>
         <a routerLink="/authors" routerLinkActive="active">Authors</a>
       </nav>

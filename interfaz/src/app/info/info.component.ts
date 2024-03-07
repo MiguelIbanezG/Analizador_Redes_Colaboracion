@@ -17,6 +17,7 @@ export class InfoComponent implements OnInit{
   loadingGraph1 = true;
   loadingGraph2 = true;
   loadingGraph3 = true;
+  loadingGraph4 = true;
 
   barChart!: Chart;
   
@@ -313,6 +314,13 @@ export class InfoComponent implements OnInit{
           this.spinnerService.show()
         }
         this.loadingGraph3 = false;
+
+        while(this.infoService.instituions.length < 1){
+          this.loadingGraph4 = true;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          this.spinnerService.show()
+        }
+        this.loadingGraph4 = false;
         //Publications by Year
         this.generateBarChartTriple(
           'tripleBarChart',

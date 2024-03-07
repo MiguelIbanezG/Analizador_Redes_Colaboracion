@@ -14,14 +14,46 @@
         <thead>
           <tr>
             <th>Institution</th>
-            <th style="margin-right: -40px;">Number of Authors</th>
+            <th>Number of Authors</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          <div class="centerSpinner" *ngIf="loadingGraph1">
+            <app-spinner></app-spinner>
+          </div>
+        </tbody>
       </table>
     </div>
   </div>
   <div class="rightContainer">
+
+    <div class="flex-container" >
+      <div class="flex-item">
+        <h3>Number of Conferences by Year</h3>
+  
+        <div class="canvas-container">
+          <div class="overlay" *ngIf="loadingGraph1">
+            <app-spinner></app-spinner>
+          </div>
+          <canvas id="barChart3"></canvas>
+        </div>
+      <div>
+    </div>
+
+    <div class="flex-container" >
+      <div class="flex-item">
+          <h3>Number of Authors by Year</h3>
+    
+          <div class="canvas-container">
+            <div class="overlay" *ngIf="loadingGraph2">
+              <app-spinner></app-spinner>
+            </div>
+            <canvas id="barChart2"></canvas>
+          </div>
+      </div>   
+    </div>
+
+
     <div class="flex-container" >
       <div class="flex-item">
           <h3>Number of Conferences and Papers, Journal Articles and Thesis by Year</h3>
@@ -33,29 +65,12 @@
           </div>
       </div>
     </div>
-    <div class="flex-container" >
-      <div class="flex-item">
-          <h3>Number of Authors by Year</h3>
+
+
+
+
     
-          <div class="canvas-container">
-            <div class="overlay" *ngIf="loadingGraph2">
-              <app-spinner></app-spinner>
-            </div>
-            <canvas id="barChart2"></canvas>
-          </div>
-      </div>
-  
-      <div class="flex-item">
-        <h3>Number of Conferences by Year</h3>
-  
-        <div class="canvas-container">
-          <div class="overlay" *ngIf="loadingGraph1">
-            <app-spinner></app-spinner>
-          </div>
-          <canvas id="barChart3"></canvas>
-        </div>
-    </div>
-  </div>
+
   </div>
 </div>
 

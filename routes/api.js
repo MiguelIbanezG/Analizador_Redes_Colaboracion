@@ -628,10 +628,18 @@ router.post('/filterAuthors', async (req, res) => {
 
   try {
     const query = `
-      MATCH (p:Publication)-[:AUTHORED_BY]->(r:Researcher) 
-      WHERE r.name IN $filterNames
-      RETURN p.title as title, p.mdate as DayOfPublication, r.name as AuthorName
-      ORDER BY AuthorName, DayOfPublication
+    MATCH (p:Publication)-[:AUTHORED_BY]->(r:Researcher) 
+    WHERE r.name IN $filterNames
+    RETURN 
+      p.title as title, 
+      p.mdate as DayOfPublication, 
+      r.name as AuthorName,
+      CASE 
+        WHEN p.key STARTS WITH "conf/" THEN "Workshop Paper"
+        WHEN p.key STARTS WITH "journals/" THEN "Journal"
+        ELSE "Part in Books or Collection"
+      END AS PublicationType
+    ORDER BY AuthorName, DayOfPublication
     `;
     const result = await session.run(query, { filterNames });
     const titles = result.records.map(record => {
@@ -639,6 +647,7 @@ router.post('/filterAuthors', async (req, res) => {
         title: record.get('title'),
         DayOfPublication: record.get('DayOfPublication'),
         AuthorName: record.get('AuthorName'),
+        PublicationType: record.get('PublicationType'),
       }
     });
 

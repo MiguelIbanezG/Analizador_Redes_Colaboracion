@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { HomeService } from './services/home.service';
 
 
 @Component({
@@ -12,12 +13,19 @@ export class AppComponent {
   title = 'interfaz';
   info = 'Web app for dblp stats'
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private homeService: HomeService
+  ){
+
+  }
+
+  activeLink = true
+
 
   ngOnInit() {
-    // this.http.get<any[]>('http://localhost:3000/api/publications')
-    //   .subscribe((response) => {
-    //     this.publications = response;
-    //   });
+    this.homeService.activeLink$.subscribe((activeLink) => {
+      this.activeLink = activeLink;
+    });
   }
 }
