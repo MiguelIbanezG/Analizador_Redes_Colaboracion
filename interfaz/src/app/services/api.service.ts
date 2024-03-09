@@ -30,15 +30,11 @@ export class ApiService {
   }
 
   getResearchersConference(titulosSeleccionados: any[], venue: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/researchersConference`, { titulosSeleccionados, venue});
+    return this.http.post<any>(`${this.baseUrl}/researchers`, { titulosSeleccionados, venue});
   }
 
   getPapers(titulosSeleccionados: any[], venue: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/papersConferences`, { titulosSeleccionados, venue });
-  }
-
-  getArticles(titulosSeleccionados: any[], venue: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/articleJournals`, { titulosSeleccionados, venue });
+    return this.http.post<any>(`${this.baseUrl}/PapersAndArticles`, { titulosSeleccionados, venue });
   }
 
   getCollaborations(titulosSeleccionados: any[], venue: string[]): Observable<any> {

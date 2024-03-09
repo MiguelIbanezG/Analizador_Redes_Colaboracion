@@ -39,16 +39,15 @@ export class StatisticsComponent implements OnInit {
   conferenceOption: string = "";
   venueName: any[] = [];
   papers: any[] = [];
-  articles: any[] = [];
   collaborations: any[] = [];
   connectedComponents: any[] = [];
   singleAuthor: any[] = [];
   statistics: any[] = [];
   statsAuthors: any[] = []
   statsPaper: any[] = []
-  statsArticle: any[] = []
   journalsCount: number = 0;
   ConferencesCount: number = 0;
+  ConferencesAuthors: number = 0;
   lineChart!: Chart;
   lineChart2!: Chart;
   lineChart3!: Chart;
@@ -57,15 +56,10 @@ export class StatisticsComponent implements OnInit {
   lineChart7!: Chart;
   lineChart6!: Chart;
   lineChart8!: Chart;
-  lineChart14!: Chart;
-  lineChart15!: Chart;
   totalAuthorsByYear: any[] = []
   totalPapersByYear: any[] = []
-  totalArticlesByYear: any[] = []
-  singleArticles: any[] = []
   singlePapers: any[] = []
   barChart!: Chart;
-  barChart2!: Chart;
   decadeStats: any[] = [];
   researchers: any[] = [];
   papersWithAuthors: any[] = [];
@@ -132,7 +126,6 @@ export class StatisticsComponent implements OnInit {
   statsTotalAuthorsByYear() {
     const years = this.selectedTitles.map(title => title.properties.name);
     years.sort((a, b) => parseInt(a) - parseInt(b));
-    this.totalArticlesByYear = [];
     this.totalAuthorsByYear = years.map(year => {
       const totalAuthors = this.researchers.reduce((total, researcher) => {
         if (researcher.years.includes(year)) {
@@ -164,47 +157,17 @@ export class StatisticsComponent implements OnInit {
     });
   }
 
-  getArticles() {
-    this.apiService.getArticles(this.selectedTitles, this.venueName).subscribe({
-      next: (response: any) => {
-        this.articles = response;
-        this.statsArticles();
-        this.statsTotalArticlesByYear();
-        if(this.articles && this.articles.length > 0){
-          this.generateChart('lineChart15', 'Number of Articles', this.statsArticle);
-          this.generateTotalAuthorsChart('lineChart14', 'Total Articles by Year', this.totalArticlesByYear);
-        }
-      },
-      error: (error: any) => {
-        console.error('Error in getPapers:', error);
-      }
-    });
-  }
-
 
   statsTotalPapersByYear() {
-    const years = this.papers.map(paper => paper.year);
+    let years = this.papers.map(paper => paper.year);
+    years = years.filter((value, index, self) => self.indexOf(value) === index); // Eliminar años duplicados
+    years.sort((a, b) => parseInt(a) - parseInt(b)); // Ordenar años
+    
     this.totalPapersByYear = years.map(year => {
       const totalPapers = this.papers.reduce((total, paper) => {
+        const integer = paper.numPapersAndArticles.low
         if (paper.year === year) {
-          return total + paper.numPapers;
-        }
-        return total;
-      }, 0);
-      return {
-        year: year,
-        totalAuthors: totalPapers
-      };
-    });
-  }
-
-
-  statsTotalArticlesByYear() {
-    const years = this.articles.map(paper => paper.year);
-    this.totalArticlesByYear = years.map(year => {
-      const totalPapers = this.articles.reduce((total, paper) => {
-        if (paper.year === year) {
-          return total + paper.numPapers;
+          return total + integer;
         }
         return total;
       }, 0);
@@ -220,6 +183,7 @@ export class StatisticsComponent implements OnInit {
     this.apiService.getCollaborations(this.selectedTitles, this.venueName).subscribe({
       next: (response: any) => {
         this.collaborations = response;
+        console.log(this.collaborations)
         this.statsColaboraciones();
         this.generateChart3('lineChart3', 'Density', this.statistics[3].years, this.statistics[3].densidades);
       },
@@ -446,15 +410,9 @@ export class StatisticsComponent implements OnInit {
         .subscribe({
           next: async (response: any) => {
             this.singleAuthor = response;
+            console.log(this.singleAuthor)
             this.statsSingleAuthor();
-            if(this.barChart){
-              this.barChart.destroy();
-            }
-            if(this.barChart2){
-              this.barChart2.destroy();
-            }
-            this.generateBarChartArticles('barChart2', 'Single Author Articles', this.statistics[8].years, this.statistics[8].porcentajes);          
-            this.generateBarChart('barChart1', 'Single Author Papers', this.statistics[4].years, this.statistics[4].porcentajes);          
+            
           },
           error: (error: any) => {
             console.error('Error in getAuthorsPapers:', error);
@@ -471,8 +429,7 @@ export class StatisticsComponent implements OnInit {
     this.papersWithAuthors.filter((paper) => paper.numAuthors === numAuthors).length
     );
     authorsByPaper[4] = this.papersWithAuthors.filter((paper) => paper.numAuthors >= 5).length;
-    let allPapers = this.papers.reduce((all, paper) => all + paper.numPapers, 0);
-    allPapers += this.articles.reduce((all, paper) => all + paper.numPapers, 0);
+    let allPapers = this.papers.reduce((all, paper) => all + paper.numPapersAndArticles.low, 0);
 
     // This represents the number of published papers that each author has.
     const papersByAuthor: number[] = [1, 2, 3, 4].map((numPubs) =>
@@ -666,6 +623,7 @@ export class StatisticsComponent implements OnInit {
 
   statsResearchers() {
     const names = new Set(this.researchers.map(researcher => researcher.name));
+    this.ConferencesAuthors = names.size;
     this.statsAuthors = [];
     this.statsAuthors = Array.from(names).map(name => {
       const years = this.selectedTitles.map(titulo => titulo.properties.name);
@@ -691,11 +649,14 @@ export class StatisticsComponent implements OnInit {
     const names = new Set(this.papers.map(paper => paper.name));
     this.ConferencesCount = names.size;
     this.statsPaper = Array.from(names).map(name => {
-      const years = this.papers.map(paper => paper.year);
-      const numPapersPorAnio = years.map(year =>
+      let years = this.papers.map(paper => paper.year);
+      years = years.filter((value, index, self) => self.indexOf(value) === index); // Eliminar años duplicados
+      years.sort((a, b) => parseInt(a) - parseInt(b)); // Ordenar años
+      const numPapersAndArticlesPorAnio = years.map(year =>
         this.papers.reduce((total, paper) => {
+          const numPapersAndArticles = paper.numPapersAndArticles.low;
           if (paper.name === name && paper.year === year) {
-            return total + paper.numPapers;
+            return total + numPapersAndArticles;
           }
           return total;
         }, 0)
@@ -703,76 +664,46 @@ export class StatisticsComponent implements OnInit {
       return {
         name: name,
         years: years,
-        numResearchers: numPapersPorAnio
+        numResearchers: numPapersAndArticlesPorAnio
       };
     });
-  }  
-
-  statsArticles() {
-    
-    const names = new Set(this.articles.map(paper => paper.name));
-    this.journalsCount = names.size;
-    this.statsArticle = Array.from(names).map(name => {
-      const years = this.articles.map(paper => paper.year);
-      const numPapersPorAnio = years.map(year =>
-        this.articles.reduce((total, paper) => {
-          if (paper.name === name && paper.year === year) {
-            return total + paper.numPapers;
-          }
-          return total;
-        }, 0)
-      );
-      return {
-        name: name,
-        years: years,
-        numResearchers: numPapersPorAnio
-      };
-    });
-  }  
-
-
-  statsColaboraciones(){  
-
-    let colabsXtotal: { year: number; numColabs: number; numPapers: number }[] = [];
-
-    if (this.papers.length > 1) {
-      const colabsPapers = this.papers.map(paper => {
-        const colab = this.collaborations.find(c => c.year === paper.year);
-        return {
-          year: paper.year,
-          numColabs: colab ? colab.numColabs : 0,
-          numPapers: paper.numPapers
-        };
-      });
-      colabsXtotal = colabsXtotal.concat(colabsPapers);
-    }
-  
-    if (this.articles.length > 1) {
-      const colabsArticles = this.articles.map(article => {
-        const colab = this.collaborations.find(c => c.year === article.year);
-        return {
-          year: article.year,
-          numColabs: colab ? colab.numColabs : 0,
-          numPapers: article.numPapers
-        };
-      });
-      colabsXtotal = colabsXtotal.concat(colabsArticles);
-    }
-
-    //colabsXtotal debe tener la suma de los dos valores si ha entrao en los dos ifs
-    const density = colabsXtotal.map(dato => {
-      const { year, numColabs, numPapers } = dato;
-      const density = numColabs / numPapers;
-      return { density, year };
-    });
-
-    this.statistics[3] = {
-      years: density.map(dato => dato.year),
-      densidades: density.map(dato => dato.density)
-    };
   }
 
+  statsColaboraciones() {
+    let colabsXtotal: { year: number; numColabs: number; numPapersAndArticles: number }[] = [];
 
+    const colabsPapers = this.papers.map(paper => {
+        const colab = this.collaborations.find(c => c.year === paper.year);
+        const integer = paper.numPapersAndArticles.low;
+        return {
+            year: paper.year,
+            numColabs: colab ? colab.numColabs : 0,
+            numPapersAndArticles: integer
+        };
+    });
+    colabsXtotal = colabsXtotal.concat(colabsPapers);
+
+    // Sumar densidades por año
+    const densidadesPorAño: { [key: number]: number } = {}; // Tipo explícito para densidadesPorAño
+    colabsXtotal.forEach(dato => {
+        const { year, numColabs, numPapersAndArticles } = dato;
+        if (!densidadesPorAño[year]) {
+            densidadesPorAño[year] = 0;
+        }
+        densidadesPorAño[year] += numColabs / numPapersAndArticles;
+    });
+
+    // Convertir el objeto en un array de objetos
+    const density = Object.entries(densidadesPorAño).map(([year, density]) => ({
+        year: parseInt(year),
+        density
+    }));
+
+    this.statistics[3] = {
+        years: density.map(dato => dato.year),
+        densidades: density.map(dato => dato.density)
+    };
+}
 
   statsConnectedComponents() {
     // Copiar los datos originales para no afectar el orden original
@@ -867,45 +798,69 @@ export class StatisticsComponent implements OnInit {
     });
 
     this.papersWithAuthors = papersWithAuthors;
-    console.log(this.papersWithAuthors)
 
     // We get all the entries whose author is one, for the statistics
     const papersWithOneAuthor = papersWithAuthors.filter(paper => paper.numAuthors === 1);
 
     const porcentajeByYear = this.papers.map(paper => {
       const year = paper.year;
-      const numPapers = paper.numPapers;
-      const numPapersWithSingleAuthor = papersWithOneAuthor.filter(paper => paper.year === year).length;
-      const percentage = (numPapersWithSingleAuthor / numPapers) * 100;
+      const numPapersAndArticles = paper.numPapersAndArticles.low;
+      const numPapersAndArticlesWithSingleAuthor = papersWithOneAuthor.filter(paper => paper.year === year).length;
+      const percentage = (numPapersAndArticlesWithSingleAuthor / numPapersAndArticles) * 100;
     
       return { year, percentage };
     });
 
-    const porcentajeByYear2 = this.articles.map(article => {
-      const year = article.year;
-      const numPapers = article.numPapers;
-      const numPapersWithSingleAuthor = papersWithOneAuthor.filter(paper => paper.year === year).length;
-      const percentage = (numPapersWithSingleAuthor / numPapers) * 100;
-      return { year, percentage };
-    });
-    
+    console.log(this.statistics[4])
+
     this.statistics[4] = {
       years: porcentajeByYear.map(dato => dato.year),
       porcentajes: porcentajeByYear.map(dato => dato.percentage)
     };
 
-    this.statistics[8] = {
-      years: porcentajeByYear2.map(dato => dato.year),
-      porcentajes: porcentajeByYear2.map(dato => dato.percentage)
-    };
-
-    if(this.articles.length > 1){
-      this.singleArticles = this.statistics[8];
+    console.log(this.statistics[4])
+    
+    let years = this.statistics[4].years;
+    let porcentajes = this.statistics[4].porcentajes;
+    
+    // Crear un objeto para mapear años a porcentajes
+    let datosPorAño:any = {};
+    
+    // Iterar sobre los datos y agrupar los porcentajes por año
+    for (let i = 0; i < years.length; i++) {
+        let year = years[i];
+        let porcentaje = porcentajes[i];
+    
+        if (!datosPorAño[year]) {
+            datosPorAño[year] = [porcentaje];
+        } else {
+            datosPorAño[year].push(porcentaje);
+        }
+    }
+    
+    // Calcular la media de los porcentajes y eliminar años duplicados
+    let añosUnicos = [];
+    let porcentajesMedios = [];
+    
+    for (let año in datosPorAño) {
+        let porcentajesAño = datosPorAño[año];
+        let media = porcentajesAño.reduce((acc: any, curr: any) => acc + curr, 0) / porcentajesAño.length;
+        
+        añosUnicos.push(año);
+        porcentajesMedios.push(media);
     }
 
-    if(this.papers.length > 1){
-      this.singlePapers = this.statistics[4];
-    } 
+    this.statistics[4] = [];
+    
+    // Actualizar los datos originales
+    this.statistics[4].years = añosUnicos;
+    this.statistics[4].porcentajes = porcentajesMedios;
+
+    this.singlePapers = this.statistics[4];
+    console.log(this.statistics[4])
+    console.log(this.singlePapers)
+    this.generateBarChart('barChart1', 'Single Author Papers', this.statistics[4].years, this.statistics[4].porcentajes);          
+    
   }  
 
   statsGeography(datasets: any[]){
@@ -1125,8 +1080,6 @@ export class StatisticsComponent implements OnInit {
         }
       });
     }
-
-
     if(idChart == "lineChart7"){
       this.lineChart7 = new Chart(idChart, {
         type: 'line',
@@ -1163,49 +1116,6 @@ export class StatisticsComponent implements OnInit {
         }
       });
     }
-
-    if(idChart = "lineChart14"){
-        this.lineChart14 = new Chart(idChart, {
-          type: 'line',
-          data: {
-            labels: years,
-            datasets: [
-              {
-                label: label,
-                data: totalAuthors,
-                fill: false,
-                borderColor: 'rgb(0, 22, 68)',
-                borderWidth: 1
-              }
-            ]
-          },
-          options: {
-            plugins: {
-              legend: {
-                labels: {
-                  color: 'black',
-                  font: {
-                    size: 18,
-                    family: 'Roboto',
-                  }
-                }
-              }
-            },
-            scales: {
-              y: {
-                type: 'linear',
-                display: true
-              }
-            },
-          }
-        });
-      
-    }
-
-
-
-
-
   }
 
   generateChart(idChart: string, label: string, data: any[]) {
@@ -1276,38 +1186,6 @@ export class StatisticsComponent implements OnInit {
       });
   
     }
-
-    if(idChart == "lineChart15"){
-      this.lineChart15 = new Chart(idChart, {
-        type: 'line',
-        data: {
-          labels: data[0].years,
-          datasets: datasets
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: {
-                color: 'black',
-                font: {
-                  size: 18, 
-                  family: 'Roboto',
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              type: 'linear',
-              display: true
-            }
-          },
-        }
-      });
-    
-      
-    }
-
   }
 
   generateChart3(idChart: string, label: string, labels: any[], data: any[]) {
@@ -1582,44 +1460,6 @@ export class StatisticsComponent implements OnInit {
     }
   }  
 
-  generateBarChartArticles(idChart: string, label: string, labels: any[], data: any[]) {
-    if(idChart = "barChart2"){
-      this.barChart2 = new Chart(idChart, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: label,
-              data: data,
-              backgroundColor: 'rgb(255, 87, 51)',
-              borderColor: 'rgb(255, 87, 51)',
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: {
-                color: 'black',
-                font: {
-                  size: 18, 
-                  family: 'Roboto',
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
-    }
-  }  
-
 
   randomColor(){
     const r = Math.floor(Math.random() * 256);
@@ -1690,31 +1530,35 @@ export class StatisticsComponent implements OnInit {
         this.generateTablesProceeding(this.stadisticsService.conferencesNames, this.stadisticsService.years, this.stadisticsService.inprocedings);
       }
       this.getResearchersConference();
-      this.getPapers(); 
-      this.getArticles();
+      this.getPapers();
       this.getConferencebyProceeding();
   
       if(this.researchers.length == 0){
-        await this.waitResearcherNoEmpty();
+        await this.waitResearcherNoEmpty(); 
         this.getDemographicData();
-        this.getCollaborations();
-        this.getAuthorsPapers();
-     
       } else{
         this.getDemographicData();
+      }
+
+      if(this.papers.length == 0){
+        await this.waitPapersNoEmpty();
         this.getCollaborations();
         this.getAuthorsPapers();
-      }    
+      }else{
+         this.getCollaborations();;
+         this.getAuthorsPapers();
+      }
 
       if(this.papersWithAuthors.length == 0){
         await this.waitAuthorsWithPapersNoEmpty();
-        console.log("si")
         this.getTopicAnalysis();
         this.getDistributions();
       }else{
         this.getTopicAnalysis();
         this.getDistributions();
       }
+
+
       
       if(this.singleAuthor.length == 0){
         await this.waitSingleAuthorsNoEmpty();

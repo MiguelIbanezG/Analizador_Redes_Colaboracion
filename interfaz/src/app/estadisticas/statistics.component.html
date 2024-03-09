@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <div class="flex-item"  [hidden]="journalsCount + ConferencesCount < 2">
+    <div class="flex-item"  [hidden]="ConferencesAuthors < 2">
       <h3>Authors by Conference or Journal / Year</h3>
 
       <div class="canvas-container">
@@ -26,7 +26,7 @@
   <div class="flex-container">
 
     <div class="flex-item" [hidden]="papers.length < 1">
-      <h3>Conference Papers / Year</h3>
+      <h3>Conference Papers and Journal Articles / Year</h3>
 
       <div class="canvas-container" >
         <canvas id="lineChart7"></canvas>
@@ -34,7 +34,7 @@
     </div>
 
     <div class="flex-item"[hidden]="papers.length < 1 || ConferencesCount < 2">
-      <h3>Papers by Conference / Year</h3>
+      <h3>Papers and Articles by Conference and Jorunal / Year</h3>
 
       <div class="canvas-container">
         <canvas id="lineChart2" ></canvas>
@@ -43,30 +43,7 @@
    
   </div>
 
-  <hr class="line" *ngIf="articles.length > 0">
-
-  <div class="flex-container">
- 
-    <div class="flex-item" [hidden]="articles.length < 1">
-      <h3>Journal Articles / Year</h3>
-
-      <div class="canvas-container" >
-        <canvas id="lineChart14"></canvas>
-      </div>
-    </div>
-
-    <div class="flex-item" [hidden]="articles.length < 1 || journalsCount < 2">
-      <h3>Articles by Journal / Year</h3>
-
-      <div class="canvas-container">
-        <canvas id="lineChart15"></canvas>
-      </div>
-    </div>
-   
-   
-  </div>
-
-  <hr class="line">
+  <hr class="line" >
 
   <div class="flex-container" >
 
@@ -80,26 +57,18 @@
    
   </div>
 
-  <hr class="line">
+  <hr class="line"> 
 
   <div class="flex-container" >
     <!-- [hidden]="statistics[4].years.length === 0" -->
-    <div class="flex-item" [hidden]="singlePapers.length < 1" >
+    <div class="flex-item" >
       <h3>Percentage of single-author Papers / Year</h3>
 
       <div class="canvas-container">
         <canvas id="barChart1"></canvas>
       </div>
     </div>
-    <!-- [hidden]="statistics[8].years.length === 0 " -->
-    <div class="flex-item" [hidden]="singleArticles.length < 1" >
-      <h3>Percentage of single-author Articles / Year </h3>
 
-      <div class="canvas-container">
-        <canvas id="barChart2"></canvas>
-      </div>
-    </div>
-   
   </div>
 
   <hr class="line">
@@ -110,7 +79,7 @@
         <thead>
           <tr>
             <th>Author</th>
-            <th>Papers (%)</th>
+            <th>Papers/Journal (%)</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -122,7 +91,7 @@
         <thead>
           <tr>
             <th>Papers</th>
-            <th>Author (%)</th>
+            <th>Papers/Journal (%)</th>
           </tr>
         </thead>
         <tbody></tbody>

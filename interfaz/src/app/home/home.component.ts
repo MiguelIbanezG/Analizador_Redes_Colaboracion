@@ -323,6 +323,14 @@ export class HomeComponent implements OnInit {
                 uniqueTitles.push(title);
             }
         }
+
+        function compararPorAño(a: { title: string; }, b: { title: string; }) {
+          const yearA = parseInt(a.title);
+          const yearB = parseInt(b.title);
+          return yearA - yearB;
+        }
+
+        uniqueTitles.sort(compararPorAño);
     
         this.filteredTitles = uniqueTitles;
         
@@ -389,6 +397,14 @@ export class HomeComponent implements OnInit {
                 uniqueTitles.push(title);
             }
         }
+
+        function compararPorAño(a: { title: string; }, b: { title: string; }) {
+          const yearA = parseInt(a.title);
+          const yearB = parseInt(b.title);
+          return yearA - yearB;
+        }
+
+        uniqueTitles.sort(compararPorAño);
     
         this.filteredTitles = uniqueTitles;
       },
