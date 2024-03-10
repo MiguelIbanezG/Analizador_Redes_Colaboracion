@@ -159,19 +159,32 @@ export class AuthorsComponent {
 
   generateTablePublications(publications: any[]) {
     const table = document.querySelector('#tablePublications tbody');
-
+  
     if (table instanceof HTMLElement) {
       table.innerHTML = '';
       publications.forEach(({ title, DayOfPublication, AuthorName, PublicationType }) => {
         const row = document.createElement('tr');
-        row.innerHTML = `<td>${title}</td><td>${DayOfPublication}</td><td>${AuthorName}</td><td>${PublicationType}</td>`;
-
+        let color;
+        switch (PublicationType) {
+          case 'Journal Article':
+            color = 'red';
+            break;
+          case 'Workshop Paper':
+            color = 'blue';
+            break;
+          case 'Part in Books or Collection':
+            color = 'yellow';
+            break;
+          default:
+            color = 'black';
+        }
+        row.innerHTML = `<td style="background-color: ${color}; width: 10px; border: 1px solid black; height: 10px;"></td><td style="padding-left: 20px; padding-right: 50px;">${title}</td><td style="padding-right: 30px;">${DayOfPublication}</td><td>${AuthorName}</td>`;
+  
         table.appendChild(row);
       });
     }
-
-  }
-
-
+  }  
 
 }
+
+

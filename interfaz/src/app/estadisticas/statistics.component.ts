@@ -57,6 +57,8 @@ export class StatisticsComponent implements OnInit {
   lineChart6!: Chart;
   lineChart8!: Chart;
   totalAuthorsByYear: any[] = []
+  PapersAndArticlesByYear: any[] = []
+  totalArticlesByYear: any[] = []
   totalPapersByYear: any[] = []
   singlePapers: any[] = []
   barChart!: Chart;
@@ -140,15 +142,15 @@ export class StatisticsComponent implements OnInit {
     });
   }
   
-  getPapers() {
-    this.apiService.getPapers(this.selectedTitles, this.venueName).subscribe({
+  getPapersAndArticles() {
+    this.apiService.getPapersAndArticles(this.selectedTitles, this.venueName).subscribe({
       next: (response: any) => {
         this.papers = response;
         this.statsPapers();
         this.statsTotalPapersByYear();
         if(this.papers.length > 0){
           this.generateChart('lineChart2', 'Number of papers', this.statsPaper);
-          this.generateTotalAuthorsChart('lineChart7', 'Total Papers by Year', this.totalPapersByYear);
+          this.generateTotalAuthorsChart('lineChart7', 'Total Papers by Year', this.PapersAndArticlesByYear);
         }
       },
       error: (error: any) => {
@@ -163,19 +165,32 @@ export class StatisticsComponent implements OnInit {
     years = years.filter((value, index, self) => self.indexOf(value) === index); // Eliminar años duplicados
     years.sort((a, b) => parseInt(a) - parseInt(b)); // Ordenar años
     
-    this.totalPapersByYear = years.map(year => {
-      const totalPapers = this.papers.reduce((total, paper) => {
-        const integer = paper.numPapersAndArticles.low
-        if (paper.year === year) {
-          return total + integer;
-        }
-        return total;
+    // Filtrar Papers y Articles
+    const papersByYear = this.papers.filter(paper => paper.type === "Paper");
+    const articlesByYear = this.papers.filter(paper => paper.type === "Article");
+
+    // Calcular el total de Papers y Articles por año
+    this.PapersAndArticlesByYear = years.map(year => {
+      const papersOfYear = papersByYear.filter(paper => paper.year === year);
+      const articlesOfYear = articlesByYear.filter(article => article.year === year);
+      
+      const totalPapers = papersOfYear.reduce((total, paper) => {
+        return total + paper.numPapersAndArticles.low;
       }, 0);
+      
+      const totalArticles = articlesOfYear.reduce((total, article) => {
+        return total + article.numPapersAndArticles.low;
+      }, 0);
+
       return {
         year: year,
-        totalAuthors: totalPapers
+        totalPapers: totalPapers,
+        totalArticles: totalArticles
       };
     });
+    
+    // Llamar a la función para generar el gráfico
+    this.generateTotalAuthorsChart('lineChart7', 'Total Papers and Articles by Year', this.PapersAndArticlesByYear);
   }
 
 
@@ -1040,9 +1055,59 @@ export class StatisticsComponent implements OnInit {
     }
   }
 
+  generateTotalPapersAndArticles(idChart: string, label: string, data: any[], data2: any[]){
+    const years = data.map(entry => entry.year);
+    if (idChart == "lineChart7") {
+      this.lineChart7 = new Chart(idChart, {
+          type: 'line',
+          data: {
+              labels: years,
+              datasets: [
+                  {
+                      label: 'Papers',
+                      data: this.totalPapersByYear,
+                      fill: false,
+                      borderColor: 'rgb(0, 22, 68)',
+                      borderWidth: 1
+                  },
+                  {
+                      label: 'Articles',
+                      data: this.totalArticlesByYear,
+                      fill: false,
+                      borderColor: 'rgb(68, 0, 22)', // Choose a different color for Articles
+                      borderWidth: 1
+                  }
+              ]
+          },
+          options: {
+              plugins: {
+                  legend: {
+                      labels: {
+                          color: 'black',
+                          font: {
+                              size: 18,
+                              family: 'Roboto',
+                          }
+                      }
+                  }
+              },
+              scales: {
+                  y: {
+                      type: 'linear',
+                      display: true
+                  }
+              },
+          }
+      });
+    }
+  }
+
   generateTotalAuthorsChart(idChart: string, label: string, data: any[]) {
     const years = data.map(entry => entry.year);
     const totalAuthors = data.map(entry => entry.totalAuthors);
+    const totalPapers = data.map(entry => entry.totalPapers);
+    const totalArticles = data.map(entry => entry.totalArticles);
+
 
     if(idChart == "lineChart6"){
       this.lineChart6 = new Chart(idChart, {
@@ -1080,42 +1145,51 @@ export class StatisticsComponent implements OnInit {
         }
       });
     }
-    if(idChart == "lineChart7"){
+    
+    if (idChart == "lineChart7") {
       this.lineChart7 = new Chart(idChart, {
-        type: 'line',
-        data: {
-          labels: years,
-          datasets: [
-            {
-              label: label,
-              data: totalAuthors,
-              fill: false,
-              borderColor: 'rgb(0, 22, 68)',
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: {
-                color: 'black',
-                font: {
-                  size: 18,
-                  family: 'Roboto',
-                }
-              }
-            }
+          type: 'line',
+          data: {
+              labels: years,
+              datasets: [
+                  {
+                      label: 'Papers',
+                      data: totalPapers,
+                      fill: false,
+                      borderColor: "rgba(51, 153, 255)",
+                      borderWidth: 1
+                  },
+                  {
+                      label: 'Articles',
+                      data: totalArticles,
+                      fill: false,
+                      borderColor: "rgba(255, 0, 0, 1)", // Choose a different color for Articles
+                      borderWidth: 1
+                  }
+              ]
           },
-          scales: {
-            y: {
-              type: 'linear',
-              display: true
-            }
-          },
-        }
+          options: {
+              plugins: {
+                  legend: {
+                      labels: {
+                          color: 'black',
+                          font: {
+                              size: 18,
+                              family: 'Roboto',
+                          }
+                      }
+                  }
+              },
+              scales: {
+                  y: {
+                      type: 'linear',
+                      display: true
+                  }
+              },
+          }
       });
     }
+  
   }
 
   generateChart(idChart: string, label: string, data: any[]) {
@@ -1530,7 +1604,7 @@ export class StatisticsComponent implements OnInit {
         this.generateTablesProceeding(this.stadisticsService.conferencesNames, this.stadisticsService.years, this.stadisticsService.inprocedings);
       }
       this.getResearchersConference();
-      this.getPapers();
+      this.getPapersAndArticles();
       this.getConferencebyProceeding();
   
       if(this.researchers.length == 0){

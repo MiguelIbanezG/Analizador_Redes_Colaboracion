@@ -237,7 +237,7 @@ export class InfoComponent implements OnInit{
     if (table instanceof HTMLElement) {
       researchers.forEach(({ School, NumberOfAuthors}) => {
         const row = document.createElement('tr');
-        row.innerHTML = `<td sty>${School}</td><td>${NumberOfAuthors}</td>`;
+        row.innerHTML = `<td >${School}</td><td>${NumberOfAuthors}</td>`;
         // Aplicar alineación de celdas
         const firstCell = row.querySelector('td:first-child') as HTMLElement;
             const lastCell = row.querySelector('td:last-child') as HTMLElement;

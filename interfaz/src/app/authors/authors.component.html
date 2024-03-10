@@ -40,18 +40,34 @@
 </div>
 
 <div *ngIf="showPublications">
-  <h3>Publications</h3>
+  <div id="legend" class="legend">
+    <div class="legend-item">
+      <div class="color-square red"></div>
+      <div class="legend-text">Journal Article</div>
+    </div>
+    <div class="legend-item">
+      <div class="color-square blue"></div>
+      <div class="legend-text">Workshop Paper</div>
+    </div>
+    <div class="legend-item">
+      <div class="color-square yellow"></div>
+      <div class="legend-text">Part in Books or Collection</div>
+    </div>
+  </div>
 </div>
+
+<hr class="line" *ngIf="showPublications">
+
   <div class="flex-container" >
     <div class="container-table2">
       <div class="table">
         <table id="tablePublications">
           <thead>
             <tr *ngIf="showPublications" >
-              <th>Title</th>
-              <th>Day Of Publication</th>
+              <th></th>
+              <th style="padding-left: 20px; padding-right: 50px;">Publications</th>
+              <th style="padding-right: 30px;">Date</th>
               <th>Author Name</th>
-              <th>Publication Type</th>
             </tr>
           </thead>
           <tbody></tbody>

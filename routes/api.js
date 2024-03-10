@@ -612,7 +612,7 @@ router.post('/filterAuthors', async (req, res) => {
       r.name as AuthorName,
       CASE 
         WHEN p.key STARTS WITH "conf/" THEN "Workshop Paper"
-        WHEN p.key STARTS WITH "journals/" THEN "Journal"
+        WHEN p.key STARTS WITH "journals/" THEN "Journal Article"
         ELSE "Part in Books or Collection"
       END AS PublicationType
     ORDER BY AuthorName, DayOfPublication
