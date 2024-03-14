@@ -6,6 +6,7 @@ import { InfoComponent } from './info/info.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { AuthorsComponent } from './authors/authors.component';
 import { HomeService } from './services/home.service';
+import { NetworksComponent } from './networks/networks.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -13,6 +14,7 @@ const routes: Routes = [
   { path: 'statistics', component: StatisticsComponent },
   { path: 'info', component: InfoComponent },
   { path: 'authors', component: AuthorsComponent },
+  { path: 'network', component: NetworksComponent },
 ];
 
 @NgModule({

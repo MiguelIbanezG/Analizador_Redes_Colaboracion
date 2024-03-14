@@ -31,9 +31,13 @@
     </div>  
 
     <!-- Buttons Filter -->
-    <div class="buttons">
+    <div fxFlex class="buttons" fxLayoutGap="20px">
       <div class="button-publications">
-        <button (click)="getAuthorsPublications(authors)" [disabled]="authors.length === 0 ">Search Publications</button>
+        <button (click)="getAuthorsPublications()" [disabled]="authors.length === 0 ">Search Publications</button>
+      </div>
+
+      <div class="button-publications">
+        <button (click)="getNetworksAuthor()" [disabled]="authors.length === 0 ">Create Graph</button>
       </div>
     </div>
 
@@ -75,6 +79,9 @@
       </div>
     </div>
   </div>
+
+
+
 
 
 

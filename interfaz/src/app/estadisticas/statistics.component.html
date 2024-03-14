@@ -21,11 +21,11 @@
    
   </div>
 
-  <hr class="line" *ngIf="this.papers.length > 0">
+  <hr class="line">
 
   <div class="flex-container">
 
-    <div class="flex-item" [hidden]="papers.length < 1">
+    <div class="flex-item">
       <h3>Conference Papers and Journal Articles / Year</h3>
 
       <div class="canvas-container" >
@@ -54,22 +54,18 @@
         <canvas id="lineChart3"></canvas>
       </div>
     </div>
-   
-  </div>
 
-  <hr class="line"> 
-
-  <div class="flex-container" >
     <!-- [hidden]="statistics[4].years.length === 0" -->
     <div class="flex-item" >
-      <h3>Percentage of single-author Papers / Year</h3>
+      <h3>Percentage of single-author Papers and Jorunal / Year</h3>
 
       <div class="canvas-container">
         <canvas id="barChart1"></canvas>
       </div>
     </div>
-
+   
   </div>
+
 
   <hr class="line">
   <h3 class="special">Distributions of authors by paper and journal and of papers and journals by author</h3>

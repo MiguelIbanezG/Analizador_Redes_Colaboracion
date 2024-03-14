@@ -20,7 +20,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { InfoService } from './services/info.service';
 import { SpinnerModule } from './spinner/spinner.module';
 import { AuthorsComponent } from './authors/authors.component';
-
+import { CommonModule } from '@angular/common';
+import { NetworksComponent } from './networks/networks.component';
+import { SpinnerService } from './services/spinner.service';
+import { SelectedNodesDirective } from './services/selected-nodes.directive';
+import { AppNetworkInitService } from './services/network.init.service';
+import { AppNetworkService } from './services/network.service';
 
 
 @NgModule({
@@ -29,7 +34,9 @@ import { AuthorsComponent } from './authors/authors.component';
     HomeComponent,
     StatisticsComponent,
     InfoComponent,
-    AuthorsComponent
+    AuthorsComponent,
+    NetworksComponent,
+    SelectedNodesDirective
   ],
   imports: [
     BrowserModule,
@@ -44,12 +51,16 @@ import { AuthorsComponent } from './authors/authors.component';
     MatOptionModule,
     MatInputModule,
     ReactiveFormsModule,
-    SpinnerModule
+    SpinnerModule,
+    CommonModule,
   ],
   providers: [
     ApiService,
     StadisticsService,
-    InfoService
+    InfoService,
+    SpinnerService,
+    AppNetworkService,
+    AppNetworkInitService
   ],
   bootstrap: [AppComponent]
 })

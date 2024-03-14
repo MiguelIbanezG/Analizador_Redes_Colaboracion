@@ -636,6 +636,40 @@ router.post('/filterAuthors', async (req, res) => {
   }
 });
 
+// Query to find the publications of Authors
+router.post('/networkAuthors', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+  const filterNames = req.body.filterNames; 
+
+
+  console.log(filterNames)
+
+  try {
+    const query = `
+    MATCH (p:Publication)-[:AUTHORED_BY]->(r:Researcher)
+    WHERE r.name IN $filterNames
+    MATCH (p)-[:AUTHORED_BY]->(r1:Researcher)
+    RETURN r1.name AS researcher, COLLECT(p.title) AS publications
+    `;
+    const result = await session.run(query, { filterNames });
+    const titles = result.records.map(record => {
+      return {
+        researcher: record.get('researcher'),
+        publications: record.get('publications'),
+      }
+    });
+
+    console.log(titles)
+
+    res.json(titles);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error in filterConferences', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
 module.exports = router;
   
 

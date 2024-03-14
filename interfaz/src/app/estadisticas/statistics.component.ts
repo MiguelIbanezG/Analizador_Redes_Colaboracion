@@ -874,7 +874,7 @@ export class StatisticsComponent implements OnInit {
     this.singlePapers = this.statistics[4];
     console.log(this.statistics[4])
     console.log(this.singlePapers)
-    this.generateBarChart('barChart1', 'Single Author Papers', this.statistics[4].years, this.statistics[4].porcentajes);          
+    this.generateBarChart('barChart1', 'Single Author Papers and Journals', this.statistics[4].years, this.statistics[4].porcentajes);          
     
   }  
 
@@ -1506,8 +1506,8 @@ export class StatisticsComponent implements OnInit {
             {
               label: label,
               data: data,
-              backgroundColor: 'rgb(51, 153, 255)',
-              borderColor: 'rgb(51, 153, 255)',
+              backgroundColor: 'rgb(0, 22, 68)',
+              borderColor: 'rgb(0, 22, 68)',
               borderWidth: 1
             }
           ]

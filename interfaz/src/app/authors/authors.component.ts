@@ -4,12 +4,15 @@ import { Chart } from 'chart.js';
 import { InfoService } from '../services/info.service';
 import { SpinnerService } from '../services/spinner.service';
 import { HomeService } from '../services/home.service';
+import { AppNetworkInitService } from '../services/network.init.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-authors',
   templateUrl: './authors.component.html',
   styleUrl: './authors.component.scss'
 })
+
 export class AuthorsComponent {
 
   filtersBOX: string = '';
@@ -18,10 +21,14 @@ export class AuthorsComponent {
   authorsQuery: string[] = [];
   publications: string[] = [];
   showPublications = false;
+  networkData: string[] = [];
+  
 
   constructor(
     private apiService: ApiService,
-    public homeService: HomeService
+    public homeService: HomeService,
+    private networkInitService: AppNetworkInitService,
+    private router: Router,
   ) { }
 
   autocompleteAuthor(term: string): void {
@@ -63,6 +70,7 @@ export class AuthorsComponent {
       }
     });
   }
+  
 
   normalized() {
     const uniqueAuthors: string[] = [];
@@ -89,9 +97,7 @@ export class AuthorsComponent {
     this.completeConference = uniqueAuthors;
 }
 
-  getAuthorsPublications(term: string[]): void {
-    this.publications = []
-    console.log(this.authors)
+  replace(){
     this.authorsQuery = this.authors.map(author => {
       // Reemplazar caracteres especiales
       author = author.replace(/á/g, '&aacute;')
@@ -120,6 +126,15 @@ export class AuthorsComponent {
         .replace(/Ö/g, '&Ouml;');
       return author;
     });
+
+  }
+
+  
+
+  getAuthorsPublications(): void {
+    this.publications = []
+    console.log(this.authors)
+    this.replace();
     console.log(this.authors)
     this.apiService.getAuthorsPublications(this.authorsQuery).subscribe({
       next: (response: string[]) => {
@@ -131,6 +146,32 @@ export class AuthorsComponent {
         console.error('Error in getAuthorsPublications', error);
       }
     });
+
+  }
+
+  async waitNetworks(){
+    while (!this.networkInitService.nameAuthors || this.networkInitService.nameAuthors.length === 0 ) {
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+    }
+    this.router.navigateByUrl('/network');
+  }
+
+  getNetworksAuthor(): void {
+    this.replace();
+    this.networkInitService.nameAuthors = [];
+    this.apiService.getNetworksAuthor(this.authorsQuery).subscribe({
+      next: (response: string[]) => {
+        this.networkInitService.nameAuthors = response;
+        console.log(this.networkInitService.nameAuthors)
+      },
+      error: (error: any) => {
+        console.error('Error in getAuthorsPublications', error);
+      }
+      
+    });
+
+    this.waitNetworks();
+   
   }
 
   completeSuggestion(suggestion: string) {

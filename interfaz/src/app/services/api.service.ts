@@ -93,4 +93,9 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/filterAuthors`, { filterNames });
   }
 
+  getNetworksAuthor(filterNames: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/networkAuthors`, { filterNames });
+  }
+
+
 }
