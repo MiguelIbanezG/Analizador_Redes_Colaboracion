@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const neo4j = require('neo4j-driver');
-const estadisticasController = require('../controllers/estadisticasController');
-const config = require('../controllers/config');
 
 const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', 'Miki22santa'), { encrypted: 'ENCRYPTION_OFF' });
 
@@ -214,7 +212,6 @@ router.post('/collaborations', async (req, res) => {
     AND size((p)-[:AUTHORED_BY]->()) > 1
     WITH y, collect(p) AS numpColaboraciones
     RETURN y.name AS year, toFloat(size(apoc.coll.flatten(collect(distinct(numpColaboraciones))))) AS totalColaboraciones
-
     `;
     const result = await session.run(query, { years, venueName });
     const colaboraciones = result.records.map(record => {
@@ -223,6 +220,8 @@ router.post('/collaborations', async (req, res) => {
         year: record.get('year')
       };
     });
+
+    console.log(colaboraciones)
     res.json(colaboraciones);
   } catch (error) {
     console.error(error);
@@ -641,9 +640,6 @@ router.post('/networkAuthors', async (req, res) => {
   const session = driver.session({ database: 'neo4j' });
   const filterNames = req.body.filterNames; 
 
-
-  console.log(filterNames)
-
   try {
     const query = `
     MATCH (p:Publication)-[:AUTHORED_BY]->(r:Researcher)
@@ -658,8 +654,6 @@ router.post('/networkAuthors', async (req, res) => {
         publications: record.get('publications'),
       }
     });
-
-    console.log(titles)
 
     res.json(titles);
   } catch (error) {

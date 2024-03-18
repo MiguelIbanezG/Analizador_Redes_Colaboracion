@@ -159,12 +159,8 @@
       <button [hidden]="(this.noResultsFoundConference === true) &&
       (this.noResultsFoundJournal === true)" [disabled]="!existSelectTitle()" (click)="generateStatistics()">Generate Stats</button>
     </div>
-    <div class="button-stats" *ngIf="showButtons">
-      <button [hidden]="(this.noResultsFoundConference === true) &&
-      (this.noResultsFoundJournal === true)" [disabled]="!existSelectTitle()" (click)="generateConf()">Info</button>
-    </div>
     <div class="button-clear" *ngIf="filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ">
-      <button (click)="clear2()">Cancel</button>
+      <button (click)="clear()">Cancel</button>
     </div>
     
   </div>

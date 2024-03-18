@@ -8,7 +8,7 @@ export class AppNetworkService {
       autoResize: true,
       height: "600px",
       width: "100%",
-      physics: { enabled: true },
+      physics: { enabled: false },
       layout: {
         improvedLayout: true,
       },

@@ -40,10 +40,7 @@ export class HomeComponent implements OnInit {
   noResultsFoundJournal = false;
   modalRef: BsModalRef | undefined;
   showButtons = false;
-  filVenues: Observable<string[]> | undefined;
-
-  //info
-
+ 
 
   constructor(
     private apiService: ApiService, 
@@ -69,11 +66,6 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  async waitTitlesNoEmpty() {
-    while (!this.filteredTitles || this.filteredTitles.length === 0 ) {
-      await new Promise(resolve => setTimeout(resolve, 100)); 
-    }
-  }
 
   isFilteringDisabled(): boolean {
     return this.filtersList.length === 0 && this.homeService.Communities.every(community => !community.selected);
@@ -221,6 +213,12 @@ export class HomeComponent implements OnInit {
 
   }
 
+  async waitTitlesNoEmpty() {
+    while (!this.filteredTitles || this.filteredTitles.length === 0 ) {
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+    }
+  }
+
   execFunctionsYear(){
     this.showButtons= true;
     this.filteredTitlesJournal = [];
@@ -264,7 +262,13 @@ export class HomeComponent implements OnInit {
       }
   }
 
-  clear2(){
+  clear(){
+    this.filteredTitles = [];
+    this.filtersList = [];
+    this.filteredTitlesConference = [];
+    this.filteredTitlesJournal = [];
+    this.completeConference = [];
+    this.currentConferences = [];
     this.filteredTitlesJournal = [];
     this.filteredTitlesConference = [];
     this.showButtons= false;
@@ -564,11 +568,6 @@ export class HomeComponent implements OnInit {
 
     this.router.navigateByUrl('/statistics');
 
-  }
-
-  generateConf() {
-
-    this.router.navigateByUrl('/config');
   }
 
   openModal(template: TemplateRef<any>) {

@@ -51,13 +51,16 @@
       <h3>Density evolution over the years</h3>
 
       <div class="canvas-container">
+        <div class="overlay2" *ngIf="loadingTable2">
+          <app-spinner ></app-spinner>
+        </div>
         <canvas id="lineChart3"></canvas>
       </div>
     </div>
 
     <!-- [hidden]="statistics[4].years.length === 0" -->
     <div class="flex-item" >
-      <h3>Percentage of single-author Papers and Jorunal / Year</h3>
+      <h3>Percentage of single-author / Year</h3>
 
       <div class="canvas-container">
         <canvas id="barChart1"></canvas>
@@ -78,7 +81,11 @@
             <th>Papers/Journal (%)</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          <div class="overlay" *ngIf="loadingTable2">
+            <app-spinner ></app-spinner>
+          </div>
+        </tbody>
       </table>
     </div>
     <div class="linev"></div>
@@ -90,7 +97,11 @@
             <th>Papers/Journal (%)</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          <div class="overlay" *ngIf="loadingTable2">
+            <app-spinner ></app-spinner>
+          </div>
+        </tbody>
       </table>
     </div>
   </div>

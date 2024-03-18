@@ -26,7 +26,7 @@ interface DecadeStats {
 }
 
 @Component({
-  selector: 'istics',
+  selector: 'statistics',
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.scss'],
 })
@@ -69,6 +69,7 @@ export class StatisticsComponent implements OnInit {
   loadingTable2 = true;
   conferenceName: string[] = [];
   commonNames: { [key: string]: { frec_paises: { [key: string]: number }, genero: string } } = {};
+
   options: CloudOptions = {
     width: 500,
     height: 200,
@@ -77,6 +78,7 @@ export class StatisticsComponent implements OnInit {
     strict: false,
     step: 2,
   };
+
   cloudData: CloudData[] = []
 
   constructor(
@@ -90,18 +92,6 @@ export class StatisticsComponent implements OnInit {
   ngOnInit() {
     this.loadCommonNames();
     this.main();
-  }
-
-  async waitResearcherNoEmpty() {
-    while (!this.researchers || this.researchers.length === 0) {
-      await new Promise(resolve => setTimeout(resolve, 100)); 
-    }
-  }
-
-  async waitPapersNoEmpty() {
-    while (!this.papers || this.papers.length === 0) {
-      await new Promise(resolve => setTimeout(resolve, 100)); 
-    }
   }
 
   getResearchersConference() {
@@ -124,23 +114,6 @@ export class StatisticsComponent implements OnInit {
       }
     });
   }
-
-  statsTotalAuthorsByYear() {
-    const years = this.selectedTitles.map(title => title.properties.name);
-    years.sort((a, b) => parseInt(a) - parseInt(b));
-    this.totalAuthorsByYear = years.map(year => {
-      const totalAuthors = this.researchers.reduce((total, researcher) => {
-        if (researcher.years.includes(year)) {
-          return total + 1;
-        }
-        return total;
-      }, 0);
-      return {
-        year: year,
-        totalAuthors: totalAuthors
-      };
-    });
-  }
   
   getPapersAndArticles() {
     this.apiService.getPapersAndArticles(this.selectedTitles, this.venueName).subscribe({
@@ -158,41 +131,6 @@ export class StatisticsComponent implements OnInit {
       }
     });
   }
-
-
-  statsTotalPapersByYear() {
-    let years = this.papers.map(paper => paper.year);
-    years = years.filter((value, index, self) => self.indexOf(value) === index); // Eliminar años duplicados
-    years.sort((a, b) => parseInt(a) - parseInt(b)); // Ordenar años
-    
-    // Filtrar Papers y Articles
-    const papersByYear = this.papers.filter(paper => paper.type === "Paper");
-    const articlesByYear = this.papers.filter(paper => paper.type === "Article");
-
-    // Calcular el total de Papers y Articles por año
-    this.PapersAndArticlesByYear = years.map(year => {
-      const papersOfYear = papersByYear.filter(paper => paper.year === year);
-      const articlesOfYear = articlesByYear.filter(article => article.year === year);
-      
-      const totalPapers = papersOfYear.reduce((total, paper) => {
-        return total + paper.numPapersAndArticles.low;
-      }, 0);
-      
-      const totalArticles = articlesOfYear.reduce((total, article) => {
-        return total + article.numPapersAndArticles.low;
-      }, 0);
-
-      return {
-        year: year,
-        totalPapers: totalPapers,
-        totalArticles: totalArticles
-      };
-    });
-    
-    // Llamar a la función para generar el gráfico
-    this.generateTotalAuthorsChart('lineChart7', 'Total Papers and Articles by Year', this.PapersAndArticlesByYear);
-  }
-
 
   getCollaborations() {
     this.apiService.getCollaborations(this.selectedTitles, this.venueName).subscribe({
@@ -259,14 +197,75 @@ export class StatisticsComponent implements OnInit {
     });
   }
 
+  getAuthorsPapers() {
+    this.apiService.getAuthorsPapers(this.selectedTitles, this.conferenceOption, this.venueName)
+      .subscribe({
+        next: async (response: any) => {
+          this.singleAuthor = response;
+          console.log(this.singleAuthor)
+          this.statsSingleAuthor();
+          
+        },
+        error: (error: any) => {
+          console.error('Error in getAuthorsPapers:', error);
+        }
+      });
+}
+
+  statsTotalAuthorsByYear() {
+    const years = this.selectedTitles.map(title => title.properties.name);
+    years.sort((a, b) => parseInt(a) - parseInt(b));
+    this.totalAuthorsByYear = years.map(year => {
+      const totalAuthors = this.researchers.reduce((total, researcher) => {
+        if (researcher.years.includes(year)) {
+          return total + 1;
+        }
+        return total;
+      }, 0);
+      return {
+        year: year,
+        totalAuthors: totalAuthors
+      };
+    });
+  }
+
+  statsTotalPapersByYear() {
+    let years = this.papers.map(paper => paper.year);
+    years = years.filter((value, index, self) => self.indexOf(value) === index); // Eliminar años duplicados
+    years.sort((a, b) => parseInt(a) - parseInt(b)); // Ordenar años
+    
+    const papersByYear = this.papers.filter(paper => paper.type === "Paper");
+    const articlesByYear = this.papers.filter(paper => paper.type === "Article");
+
+    this.PapersAndArticlesByYear = years.map(year => {
+      const papersOfYear = papersByYear.filter(paper => paper.year === year);
+      const articlesOfYear = articlesByYear.filter(article => article.year === year);
+      
+      const totalPapers = papersOfYear.reduce((total, paper) => {
+        return total + paper.numPapersAndArticles.low;
+      }, 0);
+      
+      const totalArticles = articlesOfYear.reduce((total, article) => {
+        return total + article.numPapersAndArticles.low;
+      }, 0);
+
+      return {
+        year: year,
+        totalPapers: totalPapers,
+        totalArticles: totalArticles
+      };
+    });
+    
+    this.generateTotalAuthorsChart('lineChart7', 'Total Papers and Articles by Year', this.PapersAndArticlesByYear);
+  }
+
   
   generateTablesProceeding(venueTitles: string[], years: string[], numberOfInProceedings: number[]) {
     const table = document.querySelector('#tableProceeding tbody');
     if (table instanceof HTMLElement) {
-      table.innerHTML = ''; // Limpiar tabla existente antes de agregar nuevas filas
+      table.innerHTML = ''; 
   
       venueTitles.forEach((venueTitle, index) => {
-        // Divide el título en partes usando la coma como delimitador
         const parts = venueTitle.split(',');
 
         if( parts.length== 6){
@@ -274,27 +273,20 @@ export class StatisticsComponent implements OnInit {
           parts[4]= parts[4].replace("Proceedings","");
           const date = parts[4].split('.')
           
-
-          // Construye el objeto que contiene los datos para la tabla
           const rowData = {
             name: parts[0] + '-' + parts[1].trim(),
             location: parts[2] + ',' + parts[3],
             date: date.slice(0).join(' ')
           };
 
-          // Crea una fila para la tabla y agrega los datos
           const row = document.createElement('tr');
           row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
           
-
-          // Agrega la fila a la tabla
           table.appendChild(row);
         }
 
-
         if(parts.length== 5){
           
-            
           parts[3] = parts[3].replace("Proceedings","").trim();
           const date = parts[3].split('.')
           const hasNumber = /\d/.test(date[0]);
@@ -313,37 +305,30 @@ export class StatisticsComponent implements OnInit {
               table.appendChild(row);
             }else{
 
-              // Construye el objeto que contiene los datos para la tabla
               const rowData = {
                 name: parts[0] + '-' + parts[1].trim(),
                 location: parts[2],
                 date: date[0]
               };
-              // Crea una fila para la tabla y agrega los datos
               const row = document.createElement('tr');
               row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
-              // Agrega la fila a la tabla
               table.appendChild(row);
             }
 
           }else{
 
-            // Construye el objeto que contiene los datos para la tabla
             const rowData = {
               name: parts[0] + '-' + parts[1].trim(),
               location: parts[2] + ', ' + parts[3],
               date: parts[4] 
             };
 
-            // Crea una fila para la tabla y agrega los datos
             const row = document.createElement('tr');
             row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
-            // Agrega la fila a la tabla
             table.appendChild(row);
           }
 
         }
-
 
         if( parts.length== 7){
             
@@ -405,34 +390,6 @@ export class StatisticsComponent implements OnInit {
         }  
       });
     }
-  }
-  
-  
-  async waitAuthorsWithPapersNoEmpty(){
-    while (!this.papersWithAuthors || this.papersWithAuthors.length === 0) {
-      await new Promise(resolve => setTimeout(resolve, 100)); 
-    }
-  }
-
-  async waitSingleAuthorsNoEmpty(){
-    while (!this.singleAuthor || this.singleAuthor.length === 0) {
-      await new Promise(resolve => setTimeout(resolve, 100)); 
-    }
-  }
-
-  getAuthorsPapers() {
-      this.apiService.getAuthorsPapers(this.selectedTitles, this.conferenceOption, this.venueName)
-        .subscribe({
-          next: async (response: any) => {
-            this.singleAuthor = response;
-            console.log(this.singleAuthor)
-            this.statsSingleAuthor();
-            
-          },
-          error: (error: any) => {
-            console.error('Error in getAuthorsPapers:', error);
-          }
-        });
   }
 
   /**Function to obtain the distributions of both authors by papers and papers by authors*/
@@ -528,17 +485,11 @@ export class StatisticsComponent implements OnInit {
   }
 
   clearTitle(title: string, stopwords: string[]) {
-    // Separate the title into words
-    const words = title.toLowerCase().split(" ").map(word => word.replace(/[^\w\s]/g, ""));
 
-    // We eliminate repetitions of letters and plurals to improve frequency
+    const words = title.toLowerCase().split(" ").map(word => word.replace(/[^\w\s]/g, ""));
     const wordsNoRepeat = words.map(word => word.replace(/(.)\1+/g, "$1"));
     const singularWords = wordsNoRepeat.map(word => singular(word));
-    
-    // Filter words to remove stopwords
     const filteredWords = singularWords.filter(word => !stopwords.includes(word));
-  
-    // Join the filtered words into a new title
     const newTitle = filteredWords.join(' ');
     
     return newTitle;
@@ -551,7 +502,6 @@ export class StatisticsComponent implements OnInit {
 
   getTopicAnalysis(){
 
-      // We require natural to tokenize and remove stopwords, and calculate frequencies
       const stopwords = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now', '.', ','];
 
       const cleanTitles = this.papersWithAuthors.map(paper => {
@@ -632,10 +582,6 @@ export class StatisticsComponent implements OnInit {
     return Math.round(normWeight);
   }
 
-  /**
-   * ############################################
-   */
-
   statsResearchers() {
     const names = new Set(this.researchers.map(researcher => researcher.name));
     this.ConferencesAuthors = names.size;
@@ -698,8 +644,7 @@ export class StatisticsComponent implements OnInit {
     });
     colabsXtotal = colabsXtotal.concat(colabsPapers);
 
-    // Sumar densidades por año
-    const densidadesPorAño: { [key: number]: number } = {}; // Tipo explícito para densidadesPorAño
+    const densidadesPorAño: { [key: number]: number } = {}; 
     colabsXtotal.forEach(dato => {
         const { year, numColabs, numPapersAndArticles } = dato;
         if (!densidadesPorAño[year]) {
@@ -708,7 +653,6 @@ export class StatisticsComponent implements OnInit {
         densidadesPorAño[year] += numColabs / numPapersAndArticles;
     });
 
-    // Convertir el objeto en un array de objetos
     const density = Object.entries(densidadesPorAño).map(([year, density]) => ({
         year: parseInt(year),
         density
@@ -721,20 +665,16 @@ export class StatisticsComponent implements OnInit {
 }
 
   statsConnectedComponents() {
-    // Copiar los datos originales para no afectar el orden original
     const copiedData = [...this.connectedComponents];
 
-    // Ordenar los datos por año
     copiedData.sort((a, b) => a.year - b.year);
 
-    // Extraer los años y componentes conectados ordenados
     const years = copiedData.map(item => item.year);
     const connectedComponents = copiedData.map(item => item.connectedComponents);
   
     this.statistics[5] = {
         years: years,
         connectedComponents: connectedComponents
-        // Puedes agregar otras propiedades si es necesario
     };
 }
 
@@ -793,8 +733,6 @@ export class StatisticsComponent implements OnInit {
     
     const papersWithAuthors: { ipName: string, numAuthors: number, authorNames: string[], year: string }[] = [];
 
-    // Map all the researchers, to create papersWithAuthors, which is an array that has the name of a publication
-    // and the authors who have contributed to it.
     this.singleAuthor.forEach((author: { ipNames: string[], researcher: string, year: string }) => {
       author.ipNames.forEach(ipName => {
         const paperIndex = papersWithAuthors.findIndex(paper => paper.ipName === ipName);
@@ -814,7 +752,6 @@ export class StatisticsComponent implements OnInit {
 
     this.papersWithAuthors = papersWithAuthors;
 
-    // We get all the entries whose author is one, for the statistics
     const papersWithOneAuthor = papersWithAuthors.filter(paper => paper.numAuthors === 1);
 
     const porcentajeByYear = this.papers.map(paper => {
@@ -838,10 +775,8 @@ export class StatisticsComponent implements OnInit {
     let years = this.statistics[4].years;
     let porcentajes = this.statistics[4].porcentajes;
     
-    // Crear un objeto para mapear años a porcentajes
     let datosPorAño:any = {};
     
-    // Iterar sobre los datos y agrupar los porcentajes por año
     for (let i = 0; i < years.length; i++) {
         let year = years[i];
         let porcentaje = porcentajes[i];
@@ -853,7 +788,6 @@ export class StatisticsComponent implements OnInit {
         }
     }
     
-    // Calcular la media de los porcentajes y eliminar años duplicados
     let añosUnicos = [];
     let porcentajesMedios = [];
     
@@ -867,7 +801,6 @@ export class StatisticsComponent implements OnInit {
 
     this.statistics[4] = [];
     
-    // Actualizar los datos originales
     this.statistics[4].years = añosUnicos;
     this.statistics[4].porcentajes = porcentajesMedios;
 
@@ -882,14 +815,10 @@ export class StatisticsComponent implements OnInit {
     const mappingDate: {[date: string]: {[country: string]: number}} = {};
     const datasetFiltered = datasets.filter((object: any) => Object.keys(object.frecuencias).length > 0);
     
-    // Obtener todas las fechas únicas
     const uniqueDates = [...new Set(datasetFiltered.map(dato => dato.year))];
 
-    // Iterar sobre las fechas
     for (const date of uniqueDates) {
       const objectDate = datasetFiltered.filter(dato => dato.year === date);
-
-      // Crear objeto de mapeo para la fecha actual
       mappingDate[date] = {};
   
     for (const object of objectDate) {
@@ -910,7 +839,6 @@ export class StatisticsComponent implements OnInit {
       }
     }
 
-    // We normalize values according to their total
     for (const year in mappingDate) {
       let total = 0;
       for (const country in mappingDate[year]) {
@@ -1380,12 +1308,10 @@ export class StatisticsComponent implements OnInit {
         }
       });
 
-      // Create an object to store the ordered data
       const sortedData: { [anio: string]: { hombres: number; mujeres: number; total: number} } = {};
       const men = datasetsByGenre['Men'];
       const women = datasetsByGenre['Women'];
 
-      // Sort men's data
       men.forEach(dato => {
         const year = dato.year;
         const count = dato.count;
@@ -1393,7 +1319,6 @@ export class StatisticsComponent implements OnInit {
         sortedData[year] = { hombres: count, mujeres: 0, total: count };
       });
 
-      // Sort the women's data and combine it with the men's data
       women.forEach(dato => {
         const year = dato.year;
         const count = dato.count;
@@ -1406,8 +1331,6 @@ export class StatisticsComponent implements OnInit {
         }
       });
 
-
-      // Get the years sorted
       const organizedYears = Object.keys(sortedData).sort();
 
 
@@ -1465,7 +1388,7 @@ export class StatisticsComponent implements OnInit {
     const datasets = datasetsLabels.map((label, index) => ({
       label: label,
       data: datasetsData[index],
-      backgroundColor: colors[index],  // Cambia la opacidad a un valor más alto
+      backgroundColor: colors[index],  
       borderColor: 'black',
     }));
   
@@ -1493,8 +1416,6 @@ export class StatisticsComponent implements OnInit {
     const ctx = document.getElementById(chartId) as HTMLCanvasElement;
     new Chart(ctx, chartConfig);
   }
-
-  
 
   generateBarChart(idChart: string, label: string, labels: any[], data: any[]) {
     if(idChart = "barChart1"){
@@ -1593,6 +1514,30 @@ export class StatisticsComponent implements OnInit {
     return dict;
   }
 
+  async waitResearcherNoEmpty() {
+    while (!this.researchers || this.researchers.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+    }
+  }
+
+  async waitPapersNoEmpty() {
+    while (!this.papers || this.papers.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+    }
+  }
+  
+  async waitAuthorsWithPapersNoEmpty(){
+    while (!this.papersWithAuthors || this.papersWithAuthors.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+    }
+  }
+
+  async waitSingleAuthorsNoEmpty(){
+    while (!this.singleAuthor || this.singleAuthor.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+    }
+  }
+
   async main(){
     try {
       this.selectedTitles = this.stadisticsService.getSelectedTitles();
@@ -1622,6 +1567,13 @@ export class StatisticsComponent implements OnInit {
          this.getCollaborations();;
          this.getAuthorsPapers();
       }
+
+      while(this.collaborations.length < 1){
+        this.loadingTable2 = true;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        this.spinnerService.show();
+      }
+      this.loadingTable2 = false;
 
       if(this.papersWithAuthors.length == 0){
         await this.waitAuthorsWithPapersNoEmpty();
