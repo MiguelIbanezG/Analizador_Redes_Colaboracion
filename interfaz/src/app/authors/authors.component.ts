@@ -219,7 +219,8 @@ export class AuthorsComponent {
           default:
             color = 'black';
         }
-        row.innerHTML = `<td style="background-color: ${color}; width: 10px; border: 1px solid black; height: 10px;"></td><td style="padding-left: 20px; padding-right: 50px;">${title}</td><td style="padding-right: 30px;">${DayOfPublication}</td><td>${AuthorName}</td>`;
+        const formattedAuthorNames = AuthorName.join(', '); 
+        row.innerHTML = `<td style="background-color: ${color}; width: 10px; border: 1px solid black; height: 10px; max-height: 10px;white-space: nowrap;"></td><td style="padding-left: 20px; padding-right: 50px;">${title}</td><td style="padding-right: 30px; white-space: nowrap;">${DayOfPublication}</td><td>${formattedAuthorNames}</td>`;
   
         table.appendChild(row);
       });

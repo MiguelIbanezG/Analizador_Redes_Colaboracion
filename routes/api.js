@@ -220,8 +220,6 @@ router.post('/collaborations', async (req, res) => {
         year: record.get('year')
       };
     });
-
-    console.log(colaboraciones)
     res.json(colaboraciones);
   } catch (error) {
     console.error(error);
@@ -605,16 +603,17 @@ router.post('/filterAuthors', async (req, res) => {
     const query = `
     MATCH (p:Publication)-[:AUTHORED_BY]->(r:Researcher) 
     WHERE r.name IN $filterNames
+    MATCH (p)-[:AUTHORED_BY]->(r1)
     RETURN 
       p.title as title, 
       p.mdate as DayOfPublication, 
-      r.name as AuthorName,
+      COLLECT(r1.name) as AuthorName,
       CASE 
         WHEN p.key STARTS WITH "conf/" THEN "Workshop Paper"
         WHEN p.key STARTS WITH "journals/" THEN "Journal Article"
         ELSE "Part in Books or Collection"
       END AS PublicationType
-    ORDER BY AuthorName, DayOfPublication
+    ORDER BY DayOfPublication;
     `;
     const result = await session.run(query, { filterNames });
     const titles = result.records.map(record => {
