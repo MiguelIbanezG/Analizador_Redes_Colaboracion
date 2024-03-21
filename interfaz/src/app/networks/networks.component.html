@@ -1,18 +1,40 @@
 <div class="container">
     
-    <div #treeContainer > </div>
+  <div #treeContainer></div>
 
-    <div #menuDiv style="flex:4" *ngIf="selectedData">
-      <h1> Previous Selected Node</h1>
+  <div #menuDiv style="flex:4" *ngIf="selectedData">
+    <h1> Previous Selected Node</h1>
       <!--<div>{{prevSelectNode | json}}</div>-->
-      <div selected-nodes [selected]="selectedData"> </div>
-    </div>
+    <div selected-nodes [selected]="selectedData"> </div>
+  </div>
+
+  <div #treeContainer style="flex:4"></div>
 
   <div style="flex:1">
-   <h1 *ngIf="selectNode"> Selected node</h1>
+    <h1 *ngIf="selectNode"> Selected node {{ selectNode.nodes }}</h1> 
+    <!-- <div>{{selectNode| json}} </div> -->
+    <div *ngIf="selectNode">
+      <div *ngFor="let edge of selectNode.edges">
+        <div> Common publications of {{ selectNode.nodes }} and {{ edge }}:</div>
+        <div *ngFor="let key of objectKeys(publicationsNode)">
+          <ul>
+            <li> {{ publicationsNode[key] }}</li>
+          </ul>
+        </div>
+      </div>
 
-    <div>{{selectNode| json}} </div>
+   
+
+    </div>
   </div>  
+
+  <div #menuDiv style="flex:4" *ngIf="selectEdge && selectEdge.type === 'edge'">
+    <h1> Selected edge {{ selectEdge.edge.from }} from {{ selectEdge.edge.to }}</h1> 
+    <div> Common publications of  {{ selectEdge.edge.from }} and {{ selectEdge.edge.to }}:</div>
+    <ul>
+      <li *ngFor="let publication of publications">{{ publication }}</li>
+    </ul>
+  </div>
 
 </div>  
  

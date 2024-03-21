@@ -7,6 +7,42 @@ export class AppNetworkInitService {
   public nameAuthors:any = [];
 
   getNodes(): DataSet<Node> {
+    
+    this.nameAuthors = this.nameAuthors.map((author: any) => {
+      let researcher = author.researcher; // Obtiene el nombre del investigador del objeto author
+  
+      // Reemplazar caracteres especiales en el nombre del investigador
+      researcher = researcher.replace(/&aacute;/g, 'á')
+          .replace(/&eacute;/g, 'é')
+          .replace(/&iacute;/g, 'í')
+          .replace(/&oacute;/g, 'ó')
+          .replace(/&uacute;/g, 'ú')
+          .replace(/&ntilde;/g, 'ñ')
+          .replace(/&Aacute;/g, 'Á')
+          .replace(/&Eacute;/g, 'É')
+          .replace(/&Iacute;/g, 'Í')
+          .replace(/&Oacute;/g, 'Ó')
+          .replace(/&Uacute;/g, 'Ú')
+          .replace(/&Ntilde;/g, 'Ñ')
+          .replace(/&agrave;/g, 'à')
+          .replace(/&egrave;/g, 'è')
+          .replace(/&ograve;/g, 'ò')
+          .replace(/&Agrave;/g, 'À')
+          .replace(/&Egrave;/g, 'È')
+          .replace(/&Ograve;/g, 'Ò')
+          .replace(/&acirc;/g, 'â')
+          .replace(/&Acirc;/g, 'Â')
+          .replace(/&atilde;/g, 'ã')
+          .replace(/&Atilde;/g, 'Ã')
+          .replace(/&ouml;/g, 'ö')
+          .replace(/&Ouml;/g, 'Ö');
+  
+      // Asigna el nombre del investigador modificado de vuelta al objeto author
+      author.researcher = researcher;
+  
+      return author;
+  });
+
     // Obtener al autor con más publicaciones
     const authorWithMostPublications = this.nameAuthors.reduce((prev: any, current: any) => (prev.publications.length > current.publications.length) ? prev : current);
 
@@ -43,13 +79,12 @@ export class AppNetworkInitService {
       }
       const x = Math.cos(angle) * distanceFromCenter;
       const y = Math.sin(angle) * distanceFromCenter;
-      console.log(author.researcher);
-      console.log(distanceFromCenter);
+
       return {
         id: author.researcher,
         label: author.researcher,
         font: {
-          size: Math.floor(author.publications.length) + 12, // Tamaño de fuente ajustado
+          size: Math.floor(author.publications.length*1.5) + 22, // Tamaño de fuente ajustado
           color: "#ffffff"
         },
         x: x,

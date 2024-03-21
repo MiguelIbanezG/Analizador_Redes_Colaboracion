@@ -1601,7 +1601,7 @@ export class StatisticsComponent implements OnInit {
 
       while(this.stadisticsService.conferencesNames.length <1){
         this.loadingTable1 = true;
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 100));
         this.spinnerService.show()
       }
       this.loadingTable1 = false;

@@ -16,6 +16,7 @@ import { Chart } from 'chart.js';
 import { InfoService } from '../services/info.service';
 import { SpinnerService } from '../services/spinner.service';
 import { HomeService } from '../services/home.service';
+import { auth } from 'neo4j-driver';
 
 @Component({
   selector: 'app-networks',
@@ -23,6 +24,7 @@ import { HomeService } from '../services/home.service';
   styleUrl: './networks.component.scss'
 })
 export class NetworksComponent  implements OnInit, OnDestroy {
+[x: string]: any;
 
   @ViewChild('menuDiv', { static: true })
   menuDiv!: ElementRef;
@@ -33,7 +35,13 @@ export class NetworksComponent  implements OnInit, OnDestroy {
   menuStatus: boolean = true;
 
   selectNode: any;
+  selectEdge: any;
   prevSelectNode: any;
+
+  publications: any[] = [];
+  publicationsNode: { [key: string]: string[] } = {};
+  objectKeys = Object.keys;
+
 
   private data: any = {};
 
@@ -45,6 +53,8 @@ export class NetworksComponent  implements OnInit, OnDestroy {
   private network!: Network;
 
   private nodeNo: number = 6;
+
+
 
   constructor(
     private appNetworkService: AppNetworkService,
@@ -69,62 +79,97 @@ export class NetworksComponent  implements OnInit, OnDestroy {
       this.appNetworkService.getNetworkOptions()
     );
 
-  
+    this.network.on('select', (params) => this.onSelect(params));
+    this.network.on('click', (params) => this.onClickEdge(params));
   }
 
   public ngOnDestroy(): void {
     if (this.network != null) this.network.destroy();
   }
 
-  // private onSelect(params: any): void {
-  //   if (params.nodes.length == 1) {
-  //     this.nodes.add({
-  //       id: this.nodeNo,
-  //       label: `Node ${this.nodeNo}`,
-  //     });
-  //     this.edges.add({
-  //       from: params.nodes[0],
-  //       to: this.nodeNo,
-  //     });
-  //     this.nodeNo++;
-  //     const result = {
-  //       edges: params.edges,
-  //       nodes: params.nodes,
-  //       pointer: params.pointer,
-  //     };
-  //     if (this.selectNode) {
-  //       this.prevSelectNode = this.selectNode;
-  //     }
-  //     this.selectNode = result;
+  private onClickEdge(params: any): void {
+    // Get the edge information
+    const edgeId = params.edges[0];
+    const edge = this.edges.get(edgeId);
+    this.publications = [];
+  
+    // Update selectNode with edge information
+    this.selectEdge = {
+      edge: edge,
+      type: 'edge'
+    };
 
-  //     const newEdges = this.edges
-  //       .get()
-  //       .filter((value) => {
-  //         return this.network
-  //           .getSelectedEdges()
-  //           .some((val) => val == value['id']);
-  //       })
-  //       .map((value) => {
-  //         return { to: value['to'], from: value['from'] };
-  //       });
+    const researcherName = this.selectEdge.edge.to; 
 
-  //     const rootSelected: number = <number>this.network.getSelectedNodes()[0];
+    this.appNetworkInitService.nameAuthors = this.appNetworkInitService.nameAuthors.map((author: any) => {
+      if (author.researcher === researcherName) {
+        // Concatenar las publicaciones del autor a this.publications
+        this.publications = this.publications.concat(author.publications);
+      }
+      return author;
+    });
 
-  //     let newNodes = this.nodes.get().filter((value) => {
-  //       return newEdges.some((s) => s.to == value.id);
-  //     });
+    console.log(this.publications)
+  }
 
-  //     if (!newNodes.some((value) => value.id == rootSelected)) {
-  //       const self = this.nodes.get().find((val) => val.id == rootSelected);
-  //       if (self !== undefined) {
-  //           newNodes.unshift(self);
-  //       }
-  //     } else {
-  //       const root = this.nodes.get()[0];
-  //       newNodes.unshift(root);
-  //     }
-  //     this.selectedData.next({ edges: newEdges, nodes: newNodes });
-  //   }
-  // }
+  private onSelect(params: any): void {
+    if (params.nodes.length == 1) {
+      const selectedNodeId = params.nodes[0];
+      const connectedEdges = this.network.getConnectedEdges(selectedNodeId);
+      const connectedNodes: any[] = [];
+      this.publicationsNode = {};
+      
+      connectedEdges.forEach(edgeId => {
+        const edge = this.edges.get(edgeId);
+        if (edge) { // Comprobación de nulidad
+          if(edge.to == params.nodes ){
+            connectedNodes.push(edge.from);
+          }else  {
+            connectedNodes.push(edge.to);
+          }
+
+          this.appNetworkInitService.nameAuthors = this.appNetworkInitService.nameAuthors.map((author: any) => {
+            if (author.researcher === edge.to) {
+              const uniquePublications = new Set<string>();
+              // Agregar las publicaciones del autor al conjunto de publicaciones únicas
+              author.publications.forEach((publication: any) => {
+                  uniquePublications.add(publication);
+              });
+              // Convertir el conjunto de publicaciones únicas de nuevo a un arreglo
+              this.publicationsNode[author.researcher] = Array.from(uniquePublications);
+           }
+            return author;
+            
+          });
+       
+        }
+    
+      });
+
+      connectedEdges.forEach(edgeId => {
+        const edge = this.edges.get(edgeId);
+        if (edge !== null) { // Comprobación de nulidad
+          if(edge.to == params.nodes ){
+
+          }else  {
+            connectedNodes.push(edge.to);
+          }
+        }
+    
+      });
+
+  
+      const result = {
+        edges: connectedNodes,
+        nodes: params.nodes,
+        pointer: params.pointer,
+      };
+  
+      if (this.selectNode) {
+        this.prevSelectNode = this.selectNode;
+      }
+      this.selectNode = result;
+    }
+  }
 }
 

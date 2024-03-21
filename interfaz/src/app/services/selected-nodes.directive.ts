@@ -30,15 +30,15 @@ import {
     }
   
     ngOnInit(): void {
-      // this.subscriptions.add(
-      //   this.selected.subscribe((value: Data) => {
-      //     const network = new Network(
-      //       this.el.nativeElement,
-      //       value,
-      //       this.appNetworkService.getNetworkOptions()
-      //     );
-      //   })
-      // );
+      this.subscriptions.add(
+        this.selected.subscribe((value: Data) => {
+          const network = new Network(
+            this.el.nativeElement,
+            value,
+            this.appNetworkService.getNetworkOptions()
+          );
+        })
+      );
     }
     ngOnDestroy(): void {
       if (this.subscriptions) this.subscriptions.unsubscribe();
