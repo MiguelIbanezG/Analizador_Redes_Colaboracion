@@ -77,12 +77,13 @@ export class HomeComponent implements OnInit {
     if (suggestion.trim() !== '') {
       const filtros = suggestion.trim();
 
-    if(this.filterComunities.includes(filtros)){
-      this.repeated = true;
-    }else{
-      this.repeated = false;
-    }
+      if(this.currentConferences.includes(filtros)){
+        this.repeated = true;
+      }else{
+        this.repeated = false;
+      }
     
+   
    
       this.apiService.getFilteredNodesConference([filtros]).subscribe({
         next: (response: any[]) => {
@@ -101,6 +102,7 @@ export class HomeComponent implements OnInit {
             }
           } else {
 
+            this.noResultsFoundConference = true;
             this.apiService.getFilteredNodesJournal([filtros]).subscribe({
               next: (response: any[]) => {
       
@@ -546,7 +548,7 @@ export class HomeComponent implements OnInit {
   }
 
   activateLink() {
-    this.homeService.setActiveLink(true);
+    this.homeService.setActiveLinkStatistics(true);
   }
 
 

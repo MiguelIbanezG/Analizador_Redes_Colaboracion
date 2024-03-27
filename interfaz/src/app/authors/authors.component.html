@@ -5,12 +5,18 @@
   
     <!-- Search Conference -->
     <div class="box-conference">
-      <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Conference or Journal" (input)="autocompleteAuthor(filtersBOX)">
+      <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Author" (input)="autocompleteAuthor(filtersBOX)">
       <button class="button-add" (click)="completeSuggestion(filtersBOX)" type="button">Add</button>
-      
+      <div class="noResults" *ngIf="noResults">
+        <p>Author not found. Please try another Author</p>
+      </div>  
+  
+      <div class="noResults" *ngIf="repeated">
+        <p>This Author is already selected</p>
+      </div>
       <div>
         <ul>
-          <li class="click-element " *ngFor="let suggestion of completeConference" (click)="selectSuggestion(suggestion)">
+          <li class="click-element " *ngFor="let suggestion of completeAuthor" (click)="selectSuggestion(suggestion)">
             {{ suggestion }}
           </li>
         </ul>

@@ -7,7 +7,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class HomeService {
 
   private communities: { name: string, filtersList: string[], selected: boolean  }[] = [];
-  private _activeLinkSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private _activeLinkSubjectStatistics: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private _activeLinkSubjectNetwork: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
   get Communities() {
     return this.communities;
@@ -17,13 +18,22 @@ export class HomeService {
      this.communities = communities;
   }
 
-  get activeLink$(): Observable<boolean> {
-    return this._activeLinkSubject.asObservable();
+  get activeLinkStatistics$(): Observable<boolean> {
+    return this._activeLinkSubjectStatistics.asObservable();
   }
 
-  setActiveLink(value: boolean) {
-    this._activeLinkSubject.next(value);
+  setActiveLinkStatistics(value: boolean) {
+    this._activeLinkSubjectStatistics.next(value);
   }
+
+  get activeLinkNetwork$(): Observable<boolean> {
+    return this._activeLinkSubjectNetwork.asObservable();
+  }
+
+  setActiveLinkNetwork(value: boolean) {
+    this._activeLinkSubjectNetwork.next(value);
+  }
+
 
 
 

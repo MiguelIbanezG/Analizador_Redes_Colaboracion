@@ -221,3 +221,16 @@ table{
     margin-right: 30px;
 }
 
+.noResults p{
+    color: rgb(230, 59, 37);
+    margin-left: 10px;
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+
+  .button-add:hover {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+  }
+

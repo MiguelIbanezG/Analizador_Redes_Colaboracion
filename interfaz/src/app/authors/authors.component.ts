@@ -1,8 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
-import { Chart } from 'chart.js';
-import { InfoService } from '../services/info.service';
-import { SpinnerService } from '../services/spinner.service';
 import { HomeService } from '../services/home.service';
 import { AppNetworkInitService } from '../services/network.init.service';
 import { Router } from '@angular/router';
@@ -16,12 +13,14 @@ import { Router } from '@angular/router';
 export class AuthorsComponent {
 
   filtersBOX: string = '';
-  completeConference: string[] = [];
+  completeAuthor: string[] = [];
   authors: string[] = [];
   authorsQuery: string[] = [];
   publications: string[] = [];
   showPublications = false;
   networkData: string[] = [];
+  noResults = false;
+  repeated = false;
   
 
   constructor(
@@ -35,7 +34,7 @@ export class AuthorsComponent {
     this.apiService.autocompleteAuthors(term).subscribe({
       next: (response: string[]) => {
 
-        this.completeConference = response.map(author => {
+        this.completeAuthor = response.map(author => {
           // Reemplazar caracteres especiales
           author = author.replace(/&aacute;/g, 'á')
             .replace(/&eacute;/g, 'é')
@@ -76,7 +75,7 @@ export class AuthorsComponent {
     const uniqueAuthors: string[] = [];
     const processedAuthors: string[] = [];
 
-    for (const author of this.completeConference) {
+    for (const author of this.completeAuthor) {
         const normalizedAuthor = author.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
         if (!processedAuthors.includes(normalizedAuthor)) {
@@ -94,7 +93,7 @@ export class AuthorsComponent {
 
 
     // Actualizar la lista completa de autores
-    this.completeConference = uniqueAuthors;
+    this.completeAuthor = uniqueAuthors;
 }
 
   replace(){
@@ -129,13 +128,9 @@ export class AuthorsComponent {
 
   }
 
-  
-
   getAuthorsPublications(): void {
     this.publications = []
-    console.log(this.authors)
     this.replace();
-    console.log(this.authors)
     this.apiService.getAuthorsPublications(this.authorsQuery).subscribe({
       next: (response: string[]) => {
         this.publications = response;
@@ -149,10 +144,15 @@ export class AuthorsComponent {
 
   }
 
+  activateLink() {
+    this.homeService.setActiveLinkNetwork(true);
+  }
+
   async waitNetworks(){
     while (!this.networkInitService.nameAuthors || this.networkInitService.nameAuthors.length === 0 ) {
       await new Promise(resolve => setTimeout(resolve, 100)); 
     }
+    this.activateLink();
     this.router.navigateByUrl('/network');
   }
 
@@ -162,10 +162,9 @@ export class AuthorsComponent {
     this.apiService.getNetworksAuthor(this.authorsQuery).subscribe({
       next: (response: string[]) => {
         this.networkInitService.nameAuthors = response;
-        console.log(this.networkInitService.nameAuthors)
       },
       error: (error: any) => {
-        console.error('Error in getAuthorsPublications', error);
+        console.error('Error in getNetworksAuthor', error);
       }
       
     });
@@ -176,11 +175,36 @@ export class AuthorsComponent {
 
   completeSuggestion(suggestion: string) {
 
-
     if (suggestion.trim() !== '') {
-      this.authors.push(suggestion.trim());
+
+      const author:any[] = [suggestion.trim()]
+
+      if(this.authors.includes(suggestion.trim())){
+        this.repeated = true;
+      }else{
+        this.repeated = false;
+      }
+      
+      this.apiService.getAuthorsPublications(author).subscribe({
+        next: (response: string[]) => {
+          if (response.length == 0) {
+            this.noResults = true;
+            console.log("quepasa")
+          }else{
+            this.noResults = false;
+            console.log("quepasa")
+            if(this.repeated == false){
+              this.authors.push(suggestion.trim());
+            }
+          }
+        },
+        error: (error: any) => {
+          console.error('Error in getAuthorsPublications', error);
+        }
+      });
     }
 
+  
 
   }
 

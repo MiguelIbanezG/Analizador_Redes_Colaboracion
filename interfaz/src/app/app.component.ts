@@ -20,12 +20,17 @@ export class AppComponent {
 
   }
 
-  activeLink = true
+  activeLinkStatistics = true
+  activeLinkNetwork = true
 
 
   ngOnInit() {
-    this.homeService.activeLink$.subscribe((activeLink) => {
-      this.activeLink = activeLink;
+    this.homeService.activeLinkStatistics$.subscribe((activeLinkStatistics) => {
+      this.activeLinkStatistics = activeLinkStatistics;
+    });
+
+    this.homeService.activeLinkNetwork$.subscribe((activeLinkNetwork) => {
+      this.activeLinkNetwork = activeLinkNetwork;
     });
   }
 }

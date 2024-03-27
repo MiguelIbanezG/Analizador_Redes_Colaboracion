@@ -8,6 +8,14 @@
   <div class="box-conference">
     <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Conference or Journal" (keyup.enter)="completeSuggestion(filtersBOX)" (input)="autocompleteConference(filtersBOX)">
     <button class="button-add"  type="button" (click)="completeSuggestion(filtersBOX)">Add</button>
+    <div class="noResults" *ngIf="noResultsFoundConference && noResultsFoundJournal">
+      <p>Conference or Journal not found. Please try another Conference or Journal</p>
+    </div>  
+
+    <div class="noResults" *ngIf="repeated">
+      <p>This conference or diary is already selected</p>
+    </div>
+
     <div>
       <ul>
         <li class="click-element " *ngFor="let suggestion of completeConference" (click)="selectSuggestion(suggestion)">
@@ -17,13 +25,6 @@
     </div>
   </div>
 
-  <div class="noResults" *ngIf="noResultsFoundConference && noResultsFoundJournal">
-    <p>Conference or Journal not found. Please try another Conference or Journal</p>
-  </div>
-
-  <div class="noResults" *ngIf="repeated">
-    <p>This conference is in one of the selected communities</p>
-  </div>
 
 
 
@@ -44,7 +45,7 @@
     </div>
 
     <div *ngIf="this.currentConferences.length > 0">
-      <p>Current Conferences:</p>
+      <p>Current Conferences and Journls:</p>
       <hr>
       <ul>
         <li *ngFor="let filter of currentConferences">
