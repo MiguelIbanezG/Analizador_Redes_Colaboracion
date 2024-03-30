@@ -189,12 +189,13 @@ export class AuthorsComponent {
         next: (response: string[]) => {
           if (response.length == 0) {
             this.noResults = true;
-            console.log("quepasa")
+
           }else{
             this.noResults = false;
-            console.log("quepasa")
+
             if(this.repeated == false){
               this.authors.push(suggestion.trim());
+              this.networkInitService.selectedAuthors = this.authors;
             }
           }
         },

@@ -71,6 +71,8 @@ p{
 h1 {
   text-align: center;
   font-size: 35px;
+  margin-top: -90px;
+  margin-bottom: 40px;
 }
 
 .box-conference{
@@ -217,7 +219,7 @@ span.selected {
 }
 
 .columns {
-  column-count: 6; /* Define el número de columnas */
+  column-count: 6;
 }
 
 .custom-modal {
@@ -229,37 +231,33 @@ span.selected {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.4); /* Fondo semitransparente */
+  background-color: rgba(0, 0, 0, 0.4); 
 }
 
-/* Estilo para el select */
 select {
-  width: 300px; /* Ajusta el ancho según tu diseño */
-  appearance: none; /* Oculta el estilo por defecto del sistema operativo */
+  width: 300px; 
+  appearance: none; 
   padding: 5px;
-  background-color: transparent; /* Fondo transparente */
-  border: 1px solid #ccc; /* Borde simple */
-  border-radius: 5px; /* Esquinas redondeadas */
+  background-color: transparent; 
+  border: 1px solid #ccc; 
+  border-radius: 5px; 
 }
 
-/* Estilo para las opciones */
 option {
   padding: 5px;
 }
 
-/* Estilo para las opciones seleccionadas */
 select[multiple] option:checked {
-  background-color: #f0f0f0; /* Color de fondo para las opciones seleccionadas */
+  background-color: #f0f0f0; 
 }
 
-/* Estilo para las casillas de verificación */
 select[multiple] option::before {
-  content: '\2610'; /* Caracter Unicode para una casilla vacía */
+  content: '\2610'; 
   margin-right: 5px;
 }
 
 select[multiple] option:checked::before {
-  content: '\2611'; /* Caracter Unicode para una casilla marcada */
+  content: '\2611'; 
 }
 
 .selectCommunities{
@@ -267,27 +265,25 @@ select[multiple] option:checked::before {
 }
 .modal-container {
   position: absolute;
-  top: 50%; /* Ajusta el valor según desees */
+  top: 50%; 
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
 .modal-content {
-  /* Estilos del contenido del modal */
-  min-width: 300px; /* Ancho del modal */
-  min-height: 350px; /* Altura del modal */
-  border: 2px solid black; /* Borde negro */
+  min-width: 300px; 
+  min-height: 350px;
+  border: 2px solid black; 
   background-color: white;
   padding: 20px;
-  /* Otros estilos... */
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid black; /* Borde inferior en la cabecera */
-  margin-bottom: 15px; /* Margen inferior para separar la cabecera del contenido */
+  border-bottom: 1px solid black; 
+  margin-bottom: 15px; 
   margin-top: 10px;
   font-size: 25px;
 }
@@ -325,17 +321,30 @@ hr {
   border: 0.5;
   border-color: black;
   height: 1px;
-  background-color: black; /* Adjust the color as needed */
+  background-color: black; 
   margin: 0;
   margin-bottom: 10px;
 }
 
 .slim{
-
   border: 0;
   border-color: black;
   height: 1px;
-  background-color: black; /* Adjust the color as needed */
+  background-color: black; 
   margin: 0;
 
 }
+
+.title-container {
+  position: relative;
+  text-align: center;
+}
+
+text{
+  font-family: "Roboto";
+  justify-content: center;
+  align-items: center;
+  font-size: 35px;
+  text-align: center;
+}
+

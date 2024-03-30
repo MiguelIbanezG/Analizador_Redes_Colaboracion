@@ -1,7 +1,10 @@
 <div class="container">
-    
-  <div #treeContainer></div>
 
+   <!-- Title -->
+   <h2>{{nameAuthor}} Collaboration Network</h2>
+
+   <div class="tree" #treeContainer style="height: 800px;"></div>
+   
   <div style="flex:1">
     <h1 *ngIf="selectNode">Selected node {{ selectNode.nodes }}</h1> 
     <div *ngIf="selectNode">

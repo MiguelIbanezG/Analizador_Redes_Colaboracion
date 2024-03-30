@@ -25,6 +25,7 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
   @ViewChild('treeContainer', { static: true })
   treeContainer!: ElementRef;
+  nameAuthor: any;
 
   menuStatus: boolean = true;
   selectNode: any;
@@ -49,6 +50,13 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
   public ngOnInit(): void {
 
+
+    this.nameAuthor = this.appNetworkInitService.selectedAuthors;
+
+    const networkOptions = this.appNetworkService.getNetworkOptions();
+    networkOptions.height = '800px'; 
+
+
     this.nodes = this.appNetworkInitService.getNodes();
     this.edges = this.appNetworkInitService.getEdges();
     this.data = {
@@ -59,7 +67,7 @@ export class NetworksComponent implements OnInit, OnDestroy {
     this.network = new Network(
       this.treeContainer.nativeElement,
       this.data,
-      this.appNetworkService.getNetworkOptions()
+      networkOptions
     );
 
     this.network.on('select', (params) => this.onSelect(params));
@@ -136,8 +144,6 @@ export class NetworksComponent implements OnInit, OnDestroy {
               var uniquePublications: any = Array.from(uniquePublicationsSet);
 
               this.publicationsNode[author.researcher] = uniquePublications;
-              console.log( author.researcher)
-              console.log( this.publicationsNode[author.researcher])
             }
             return author;
 

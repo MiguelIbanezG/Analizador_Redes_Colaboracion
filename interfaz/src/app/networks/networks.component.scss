@@ -1,5 +1,15 @@
 .conteiner{
     display: flex;
     justify-content: center;
+    min-height: 100vh;
+    
+}
 
+h2{
+    text-align: center;
+    font-size: 40px;
+}
+
+#treeContainer {
+    height: 800px; /* Ajusta la altura según sea necesario */
 }
