@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { ApiService } from './services/api.service';
 import { HomeComponent } from './home/home.component';
 import { FormsModule } from '@angular/forms';
-import { StatisticsComponent } from './estadisticas/statistics.component';
+import { StatisticsComponent } from './statistics/statistics.component';
 import { StadisticsService } from './services/stadistics.service';
 import { TagCloudComponent } from 'angular-tag-cloud-module';
 import { InfoComponent } from './info/info.component';

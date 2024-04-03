@@ -1,0 +1,346 @@
+<div>
+  <h2>Statistics</h2>
+
+  <div class="flex-container" >
+
+    <div class="flex-item">
+      <h3>Authors / Year</h3>
+
+      <div class="canvas-container">
+        <canvas id="lineChart6"></canvas>
+      </div>
+    </div>
+
+    <div class="flex-item"  [hidden]="ConferencesAuthors < 2">
+      <h3>Authors by Conference or Journal / Year</h3>
+
+      <div class="canvas-container">
+        <canvas id="lineChart1"></canvas>
+      </div>
+    </div>
+   
+  </div>
+
+  <hr class="line">
+
+  <div class="flex-container">
+
+    <div class="flex-item">
+      <h3>Conference Papers and Journal Articles / Year</h3>
+
+      <div class="canvas-container" >
+        <canvas id="lineChart7"></canvas>
+      </div>
+    </div>
+
+    <div class="flex-item"[hidden]="papers.length < 1 || ConferencesCount < 2">
+      <h3>Papers and Articles by Conference and Jorunal / Year</h3>
+
+      <div class="canvas-container">
+        <canvas id="lineChart2" ></canvas>
+      </div>
+    </div>
+   
+  </div>
+
+  <hr class="line" >
+
+  <div class="flex-container" >
+
+    <div class="flex-item">
+      <h3>Density evolution over the years</h3>
+
+      <div class="canvas-container">
+        <div class="overlay2" *ngIf="loadingTable2">
+          <app-spinner ></app-spinner>
+        </div>
+        <canvas id="lineChart3"></canvas>
+      </div>
+    </div>
+
+    <!-- [hidden]="statistics[4].years.length === 0" -->
+    <div class="flex-item" >
+      <h3>Percentage of single-author publications / Year</h3>
+
+      <div class="canvas-container">
+        <canvas id="barChart1"></canvas>
+      </div>
+    </div>
+   
+  </div>
+
+
+  <hr class="line">
+  <h3 class="special">Distributions of authors by paper and article and of papers and articles by author</h3>
+  <div class="container-table">
+    <div class="table">
+      <table id="authorsTable">
+        <thead>
+          <tr>
+            <th>Author</th>
+            <th>Papers/Journal (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <div class="overlay3" *ngIf="loadingTable2">
+            <app-spinner ></app-spinner>
+          </div>
+        </tbody>
+      </table>
+    </div>
+    <div class="linev"></div>
+    <div class="table">
+      <table id="papersTable">
+        <thead>
+          <tr>
+            <th>Papers</th>
+            <th>Papers/Journal (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <div class="overlay3" *ngIf="loadingTable2">
+            <app-spinner ></app-spinner>
+          </div>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="line">
+
+  <h3 class="special"> Percentage of Publications Men-Women / Year</h3>
+  <div class="flex-container2">
+
+    <div class="graph-bars">
+
+        <div class="canvas-container1">
+          <div class="legend">
+            <div class="men"></div> Men
+            <div class="women"></div> Women
+          </div>
+          <canvas class="circular" id="lineChart4"></canvas>
+        </div>
+        
+    </div>
+
+    <div class="graph-bars2">
+      <div class="canvas-container2">
+        <canvas id="lineChart8"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <hr class="line">
+
+  <h3> Percentage of publications by Country / Year</h3>
+  <div class="flex-container">
+    <div class="flex-item"> 
+      <div class="canvas-container">
+        <canvas id="lineChart5"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <hr class="line">
+
+  <h3 class="special">Most frequent Bigrams and Trigrams</h3>
+  <div class="container-table">
+    <div class="table">
+        <table id="tableBigramas">
+          <thead>
+            <tr>
+              <th>Bigrams</th>
+              <th>Appearances</th>
+              <th>First <br> año</th>
+              <th>Recent <br> año</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+    <div class="linev"></div>
+    <div class="table">
+        <table id="tableTrigramas">
+          <thead>
+            <tr>
+              <th>Trigrams</th>
+              <th>Appearances</th>
+              <th>First <br> año</th>
+              <th>Recent <br> año</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+  </div>
+
+  <hr class="line">
+  <h3 class="special">Frequent terms from all titles of papers</h3>
+  <div class="conceptual">
+    <angular-tag-cloud [config]="options" [data]="cloudData"></angular-tag-cloud>
+  </div>
+
+  <hr class="line">
+
+  <h3 class="special">Most prolific authors according to their number of publications accumulated by decade</h3>
+  <div class="container-table2">
+    <div class="table">
+        <table id="table90">
+          <thead>
+            <tr>
+              <th colspan="2">
+                (a) 1989-1999
+              </th>
+            </tr>
+            <hr>
+            <tr>
+              <th>Author</th>
+              <th>#</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+    <div class="linev"></div>
+    <div class="table">
+        <table id="table00">
+          <thead>
+            <tr>
+              <th colspan="2">
+                (b) 1999-2009
+              </th>
+            </tr>
+            <hr>
+            <tr>
+              <th>Author</th>
+              <th>#</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+    <div class="linev"></div>
+    <div class="table">
+      <table id="table10" class="centered-table">
+        <thead>
+          <tr>
+            <th colspan="2">
+              (a) 2009-2019
+            </th>
+          </tr>
+          <hr>
+          <tr>
+            <th>Author</th>
+            <th>#</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+  </div>
+  <div class="linev"></div>
+  <div class="table">
+      <table id="table20" class="centered-table">
+        <thead>
+          <tr>
+            <th colspan="2">
+              (a) 2019-2024
+            </th>
+          </tr>
+          <hr>
+          <tr>
+            <th>Author</th>
+            <th>#</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr class="line3">
+
+  <h3>Authors with their first and most recent year of publication</h3>
+  <div class="container-table2">
+    <div class="table">
+        <table id="degree">
+          <thead>
+            <tr>
+              <th>Author</th>
+              <th>Degree</th>
+              <th>First <br> year</th>
+              <th>Recent <br> year</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+    </div>
+  </div>
+
+  <hr class="line3" [hidden]="papers.length < 1">
+
+  <h3 [hidden]="papers.length < 1">Proceeding by Conference</h3>
+  <div class="container-table2">
+   
+    <div class="table" [hidden]="papers.length < 1">
+      <table id="tableProceeding">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Date</th>
+            <th>Year</th>
+            <th>numberOfInProceedings</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="overlay" [hidden]="papers.length < 1"*ngIf="loadingTable1">
+    <app-spinner ></app-spinner>
+  </div>
+  
+
+  <hr class="line3" [hidden]="papers.length < 1">
+
+  <div class="flex-container">
+
+    <div class="flex-item" [hidden]="papers.length < 1">
+      <h3>All Connected Components by year</h3>
+  
+      <div class="canvas-container">
+        <canvas id="lineChart11"></canvas>
+      </div>
+    </div>
+
+    <div class="flex-item" [hidden]="papers.length < 1">
+      <h3>Connected components for each Conference by year</h3>
+
+      <div class="canvas-container">
+        <canvas id="lineChart12"></canvas>
+      </div>
+    </div>
+   
+  </div>
+
+ 
+  <div class="flex-container">
+    <div class="flex-item" [hidden]="papers.length < 1"> 
+      <h3>Relative size of components connected by conference</h3>
+      <div class="canvas-container">
+        <canvas id="lineChart13"></canvas>
+      </div>
+    </div>
+  </div>
+
+
+  
+</div>
+
+
+
+
+
+ 
+
+

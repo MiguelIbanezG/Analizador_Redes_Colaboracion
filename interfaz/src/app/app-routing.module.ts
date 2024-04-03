@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { StatisticsComponent } from './estadisticas/statistics.component';
+import { StatisticsComponent } from './statistics/statistics.component';
 import { InfoComponent } from './info/info.component';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { AuthorsComponent } from './authors/authors.component';
