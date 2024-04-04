@@ -23,10 +23,13 @@
     margin-bottom: 20px;
  }
   
-h1 {
+ h1 {
     text-align: center;
     font-size: 35px;
-}
+    margin-top: -90px;
+    margin-bottom: 40px;
+  }
+  
 
 .box-conference{
     margin-bottom: 10px;
@@ -234,3 +237,8 @@ table{
     transition: transform 0.3s ease;
   }
 
+  .title-container {
+    position: relative;
+    text-align: center;
+  }
+  

@@ -4,3 +4,10 @@
     margin: 0;
     padding: 0;
   }
+
+  footer{
+    color: white;
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+  }

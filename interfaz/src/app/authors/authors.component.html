@@ -1,8 +1,47 @@
 <div class="container">
 
+  <div class="title-container">
+    <svg width="600" height="200">
+      <!-- Círculos -->
+      <image class="img" href="assets/imagen1.png" x="20" y="90" width="50" height="50" />
+      <image class="img" href="assets/imagen1.png" x="60" y="30" width="30" height="30" />
+      <image class="img" href="assets/imagen1.png" x="110" y="0" width="40" height="40" />
+      <image class="img" href="assets/imagen1.png" x="120" y="75" width="25" height="25" />
+      <image class="img" href="assets/imagen1.png" x="180" y="38" width="30" height="30" />
+      <image class="img" href="assets/imagen1.png" x="225" y="0" width="40" height="40" />
+      <image class="img" href="assets/imagen1.png" x="280" y="55" width="35" height="35" />
+      <image class="img" href="assets/imagen1.png" x="355" y="22" width="25" height="25" />
+      <image class="img" href="assets/imagen1.png" x="390" y="50" width="50" height="50" />
+      <image class="img" href="assets/imagen1.png" x="460" y="0" width="40" height="40" />
+      <image class="img" href="assets/imagen1.png" x="470" y="65" width="20" height="20" />
+      <image class="img" href="assets/imagen1.png" x="530" y="90" width="50" height="50" />
+      
+      <!-- Líneas -->
+      <line x1="40" y1="130" x2="70" y2="50" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="40" y1="130" x2="140" y2="90" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="70" y1="50" x2="130" y2="30" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="70" y1="50" x2="135" y2="95" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="130" y1="30" x2="132" y2="80" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="130" y1="30" x2="250" y2="30" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="132" y1="95" x2="190" y2="60" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="190" y1="60" x2="250" y2="30" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="190" y1="60" x2="300" y2="80" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="250" y1="30" x2="300" y2="80" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="250" y1="30" x2="370" y2="40" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="300" y1="80" x2="370" y2="40" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="300" y1="80" x2="420" y2="87" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="370" y1="40" x2="420" y2="87" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="370" y1="40" x2="480" y2="30" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="420" y1="87" x2="480" y2="30" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="420" y1="87" x2="480" y2="80" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="480" y1="30" x2="480" y2="70" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="480" y1="80" x2="550" y2="130" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+      <line x1="480" y1="30" x2="550" y2="130" style="stroke:rgb(0, 22, 68);stroke-width:2" />
+    </svg>
     <!-- Title -->
     <h1>Authors</h1>
-  
+  </div>
+
     <!-- Search Conference -->
     <div class="box-conference">
       <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Author" (input)="autocompleteAuthor(filtersBOX)">

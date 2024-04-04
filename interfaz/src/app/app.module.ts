@@ -26,6 +26,7 @@ import { SpinnerService } from './services/spinner.service';
 import { SelectedNodesDirective } from './services/selected-nodes.directive';
 import { AppNetworkInitService } from './services/network.init.service';
 import { AppNetworkService } from './services/network.service';
+import { FooterComponent } from './footer/footer.component';
 
 
 @NgModule({
@@ -36,7 +37,8 @@ import { AppNetworkService } from './services/network.service';
     InfoComponent,
     AuthorsComponent,
     NetworksComponent,
-    SelectedNodesDirective
+    SelectedNodesDirective,
+    FooterComponent
   ],
   imports: [
     BrowserModule,

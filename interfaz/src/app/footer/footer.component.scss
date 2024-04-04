@@ -1,0 +1,23 @@
+
+  .v4-footer-text-color {
+    color: white;
+  
+    &:visited {
+      color: white;
+    }
+  
+    &:link {
+      color: white;
+    }
+}
+
+.right{
+    text-align: right;
+    margin-right: 15px;
+}
+
+.center{
+    text-align: center;
+    margin-right: -15px;
+}
+  

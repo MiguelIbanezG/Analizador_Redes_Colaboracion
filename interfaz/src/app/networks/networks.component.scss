@@ -7,9 +7,21 @@
 
 h2{
     text-align: center;
-    font-size: 40px;
+    font-size: 35px;
+    margin-bottom:0;
 }
 
 #treeContainer {
-    height: 800px; /* Ajusta la altura según sea necesario */
+    height: 700px;
 }
+.espacio {
+    margin-bottom: 50px;
+}
+
+hr{
+    width: 50%;
+    border-width: 1px; 
+    border-color: black;
+
+}
+

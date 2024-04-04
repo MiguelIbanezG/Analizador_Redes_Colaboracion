@@ -11,17 +11,19 @@ import { HomeService } from './services/home.service';
 export class AppComponent {
   publications: any[] = [];
   title = 'interfaz';
-  info = 'Web app for dblp stats'
+  info = 'Web app for dblp stats';
+  fechaHoraActual = "";
 
   constructor(
     private http: HttpClient,
     private homeService: HomeService
   ){
-
+    this.obtenerFechaHoraActual();
   }
 
   activeLinkStatistics = true
   activeLinkNetwork = true
+
 
 
   ngOnInit() {
@@ -32,5 +34,10 @@ export class AppComponent {
     this.homeService.activeLinkNetwork$.subscribe((activeLinkNetwork) => {
       this.activeLinkNetwork = activeLinkNetwork;
     });
+  }
+
+  obtenerFechaHoraActual() {
+    const fechaHora = new Date();
+    this.fechaHoraActual = fechaHora.toLocaleString(); // Formatear la fecha y la hora
   }
 }

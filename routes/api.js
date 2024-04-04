@@ -212,6 +212,7 @@ router.post('/collaborations', async (req, res) => {
     AND size((p)-[:AUTHORED_BY]->()) > 1
     WITH y, collect(p) AS numpColaboraciones
     RETURN y.name AS year, toFloat(size(apoc.coll.flatten(collect(distinct(numpColaboraciones))))) AS totalColaboraciones
+    
     `;
     const result = await session.run(query, { years, venueName });
     const colaboraciones = result.records.map(record => {
@@ -220,6 +221,7 @@ router.post('/collaborations', async (req, res) => {
         year: record.get('year')
       };
     });
+  
     res.json(colaboraciones);
   } catch (error) {
     console.error(error);

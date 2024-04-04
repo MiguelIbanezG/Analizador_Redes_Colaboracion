@@ -79,6 +79,9 @@ export class NetworksComponent implements OnInit, OnDestroy {
   }
 
   private onClick(params: any): void {
+
+    const scrollHeight = document.body.scrollHeight;
+    window.scrollTo({ top: scrollHeight, behavior: 'smooth' });
    
     if (params.nodes.length < 1) {
       if (params.edges.length > 0) {
@@ -109,13 +112,18 @@ export class NetworksComponent implements OnInit, OnDestroy {
       }
       return author;
     });
-
+    
+    this.Scroll();
     this.selectNode = null;
+ 
+  }
 
+  private Scroll(){
+    const scrollHeight = document.body.scrollHeight;
+    window.scrollTo({ top: scrollHeight, behavior: 'smooth' });
   }
 
   private onSelect(params: any): void {
-
 
     if (params.nodes.length == 1) {
       const selectedNodeId = params.nodes[0];
@@ -165,6 +173,8 @@ export class NetworksComponent implements OnInit, OnDestroy {
       this.selectNode = result;
       this.selectEdge = null;
     }
+    this.Scroll();
+
   }
 }
 
