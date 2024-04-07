@@ -95,12 +95,13 @@ export class AppNetworkInitService {
 
   getEdges(): DataSet<Edge> {
 
-    const edgesData: Edge[] = this.nameAuthors.filter((author: { researcher: any; }) =>
-      author.researcher !== this.selectedAuthors[0]
-    ).map((author: { researcher: any; }) =>
-      ({ from:  this.selectedAuthors[0], to: author.researcher })
-    );
-  
+    const edgesData: Edge[] = this.nameAuthors
+    .filter((author: { researcher: any; }) => author.researcher !== this.selectedAuthors[0])
+    .map((author: { publications: string | any[]; researcher: any; }) => {
+      const numPublications = author.publications.length.toString();
+      return { from: this.selectedAuthors[0], to: author.researcher, label: numPublications };
+    });
+
     const edges: DataSet<Edge> = new DataSet(edgesData);
     return edges;
 }

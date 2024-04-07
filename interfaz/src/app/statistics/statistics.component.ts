@@ -1,8 +1,6 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, destroyPlatform } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { StadisticsService } from '../services/stadistics.service';
-//import { Chart, CategoryScale, LineController  } from 'chart.js';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 import { HttpClient } from '@angular/common/http';
@@ -807,7 +805,7 @@ export class StatisticsComponent implements OnInit {
     this.singlePapers = this.statistics[4];
     console.log(this.statistics[4])
     console.log(this.singlePapers)
-    this.generateBarChart('barChart1', 'Single Author Papers and Journals', this.statistics[4].years, this.statistics[4].porcentajes);          
+    this.generateBarChart('barChart1', 'Single Author Papers and Single Author Journals', this.statistics[4].years, this.statistics[4].porcentajes);          
     
   }  
 
@@ -849,11 +847,10 @@ export class StatisticsComponent implements OnInit {
       }
     }
 
-    const years = Object.keys(mappingDate); // Get the keys of the years
-    const countries = Object.keys(mappingDate[years[0]]); // Get country names
-    const datasetsLabels = countries; // Labels of the data sets will be the names of the countries 
+    const years = Object.keys(mappingDate); 
+    const countries = Object.keys(mappingDate[years[0]]); 
+    const datasetsLabels = countries; 
 
-    // Create the data matrix for the countries
     const datasetsData = countries.map((country) =>
       years.map((year) => mappingDate[year][country])
     );
@@ -865,20 +862,18 @@ export class StatisticsComponent implements OnInit {
   filterAuthorsByDecade(authors: Author[], startYear: number, endYear: number): Author[] {
     const filteredAuthors: Author[] = [];
   
-    // Browse the original authors
     authors.forEach((author) => {
-      // Check if the author is within the specified decade
       const authorYears = author.year.split(",").map(Number).filter((year) => year >= startYear && year <= endYear);
 
       if (authorYears.length > 0) {
-        // Search if there is already a merged author with the same name and decade
+     
         const existingAuthor = filteredAuthors.find((filteredAuthor) => filteredAuthor.researcher === author.researcher);
         if (existingAuthor) {
-          // Merge the existing author's entries with the current author's entries
+
           existingAuthor.numPublications += author.numPublications;
           existingAuthor.year += `, ${author.year}`;
         } else {
-          // Add the current author to the list of filtered authors
+ 
           filteredAuthors.push({
             ipNames: author.ipNames,
             numPublications: author.numPublications,

@@ -3,6 +3,8 @@ import { Options, DataSet } from "vis";
 
 @Injectable()
 export class AppNetworkService {
+
+
   public getNetworkOptions(): Options {
     return {
       autoResize: true,
@@ -11,6 +13,26 @@ export class AppNetworkService {
       physics: { enabled: false },
       layout: {
         improvedLayout: true,
+      },
+      edges: {
+        font: {
+          size: 60,
+          color: "rgb(0, 22, 68)",
+       },
+        color: {
+          color: "rgb(0, 22, 68)", 
+          highlight: "#00ff00",
+          hover: "#0000ff"
+        },
+        width: 2, 
+        arrows: {
+          to: { enabled: true, scaleFactor: 0.5 } 
+        },
+        smooth: {
+          enabled: true,
+          type: 'dynamic',
+          roundness: 0.5
+        }
       },
       nodes: {
         scaling: {
