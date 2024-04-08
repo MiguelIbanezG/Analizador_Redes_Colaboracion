@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Network, DataSet, Options, Data, IdType, Edge } from 'vis';
 import { Node } from '../models/network.model';
+import { auth } from 'neo4j-driver';
 @Injectable()
 export class AppNetworkInitService {
 
@@ -42,39 +43,61 @@ export class AppNetworkInitService {
       return author;
   });
 
-    const distances: { [key: string]: number } = {};
-    this.nameAuthors.forEach((author: any) => {
-      const distance = author === this.selectedAuthors[0] ? 0 : 500 / author.publications.length ;
-      distances[author.researcher] = distance;
+      const authorWithMostPublications = this.nameAuthors.reduce((prevAuthor: any, currentAuthor: any) => {
+        if (currentAuthor.researcher !== this.selectedAuthors[0]) {
+            if (!prevAuthor || currentAuthor.publications.length > prevAuthor.publications.length) {
+                return currentAuthor;
+            }
+        }
+        return prevAuthor;
+    }, null);
+
+    const authorWithLeastPublications = this.nameAuthors.reduce((prevAuthor: { publications: string | any[]; }, currentAuthor: { publications: string | any[]; }) => {
+      return (prevAuthor.publications.length < currentAuthor.publications.length) ? prevAuthor : currentAuthor;
     });
 
-    const nodesData: Node[] = this.nameAuthors.map((author: any) => {
-      let nodeSize = Math.floor(author.publications.length * 3) + 30;
+    const maxPublications = authorWithMostPublications.publications.length;
+    const minPublications = authorWithLeastPublications.publications.length;
+
+    const distances: { [key: string]: number } = {};
+    this.nameAuthors.forEach((author: any) => {
+        if (author.researcher !== this.selectedAuthors[0]) {
+            const proportion = (maxPublications - author.publications.length) / (maxPublications - minPublications);
+            const distance = Math.pow(proportion, 4) * (500 - 220) + 220; // Distancia proporcional entre 20 y 300
+            distances[author.researcher] = distance;
+        }
+    });
+
+    console.log(distances)
+
+    const sortedAuthors = this.nameAuthors.slice().sort((a: any, b: any) => {
+      return a.publications.length - b.publications.length;
+    });
+
+    const totalAuthors = sortedAuthors.length;
+    const angleStep = (Math.PI * 2) / totalAuthors;
+    let currentAngle = 0;
+
+    const nodesData: Node[] = sortedAuthors.map((author: any) => {
+      let nodeSize = Math.floor(author.publications.length * 3) + 60;
       if (author.researcher === this.selectedAuthors[0]) {
-          nodeSize = 100; 
+          nodeSize = nodeSize + 50; 
+      }
+      if(nodeSize > 200){
+        nodeSize = 200
       }
 
-      var distanceFromCenter = distances[author.researcher] * 5
-      const angle = Math.random() * Math.PI * 2;
+      var distanceFromCenter = 0;
 
-      if(distanceFromCenter > 2000 ){
-        distanceFromCenter =  distanceFromCenter - 1200;
-      }
-      else if(distanceFromCenter > 1500 ){
-        distanceFromCenter =  distanceFromCenter - 700;
-      }
-      else if(distanceFromCenter > 1000 ){
-        distanceFromCenter =  distanceFromCenter - 400;
-      }
-      else if(distanceFromCenter > 500 ){
-        distanceFromCenter =  distanceFromCenter - 100;
-      }
-      else if(distanceFromCenter < 100 && distanceFromCenter != 0){
-        distanceFromCenter = distanceFromCenter + 300;
+      if(this.selectedAuthors[0] != author.researcher){
+        var distanceFromCenter = distances[author.researcher] * 5
       }
       
-      const x = Math.cos(angle) * distanceFromCenter;
-      const y = Math.sin(angle) * distanceFromCenter;
+      const angle = Math.random() * Math.PI * 2;  
+    
+      const x = Math.cos(currentAngle) * distanceFromCenter;
+      const y = Math.sin(currentAngle) * distanceFromCenter;
+      currentAngle += angleStep;
 
       return {
         id: author.researcher,

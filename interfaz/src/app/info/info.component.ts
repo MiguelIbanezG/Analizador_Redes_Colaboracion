@@ -256,6 +256,7 @@ export class InfoComponent implements OnInit{
           this.getAuthors();
           this.getConferences();
           this.getPublications();
+          
           if(this.infoService.instituions.length < 1){
             this.getSchools();
           }else{

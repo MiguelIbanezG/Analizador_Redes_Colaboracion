@@ -5,9 +5,9 @@ import { Injectable } from '@angular/core';
 })
 export class StadisticsService {
 
-  private selectedTitles: string[] = [];
-  private conferenceOption = "";
-  private venueName: string[] = [];
+  public selectedTitles: any[] = [];
+  public conferenceOption = "";
+  public venueName: string[] = [];
   public venueNameConfirm: string[] = [];
   public conferencesNames: string[] = [];
   public years: string[] = [];

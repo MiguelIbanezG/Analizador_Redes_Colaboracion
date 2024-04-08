@@ -11,17 +11,29 @@ h2{
     margin-bottom:0;
 }
 
-#treeContainer {
-    height: 700px;
-}
+
 .espacio {
-    margin-bottom: 50px;
+    margin: 70px;
+    
 }
 
 hr{
     width: 50%;
     border-width: 1px; 
     border-color: black;
-
 }
 
+.tree{
+    top: 0;
+    left: 0;
+    width: 65%; 
+    height: 50%; 
+    border: 2px solid rgb(0,22,68); 
+    box-sizing: border-box; 
+    margin-top: 70px;
+    margin-bottom: 50px;
+  }
+
+  .fila {
+    display: flex; /* Hace que los elementos hijos se organicen en una fila */
+  }

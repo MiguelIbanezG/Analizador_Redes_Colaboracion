@@ -32,10 +32,7 @@ interface DecadeStats {
 export class StatisticsComponent implements OnInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
 
-  selectedTitles: any[] = [];
   selectedYears: any[] = [];
-  conferenceOption: string = "";
-  venueName: any[] = [];
   papers: any[] = [];
   collaborations: any[] = [];
   connectedComponents: any[] = [];
@@ -93,7 +90,7 @@ export class StatisticsComponent implements OnInit {
   }
 
   getResearchersConference() {
-    this.apiService.getResearchersConference(this.selectedTitles, this.venueName).subscribe({
+    this.apiService.getResearchersConference(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
       next: (response: any) => {
         this.researchers = [];
         this.researchers = response;
@@ -114,7 +111,7 @@ export class StatisticsComponent implements OnInit {
   }
   
   getPapersAndArticles() {
-    this.apiService.getPapersAndArticles(this.selectedTitles, this.venueName).subscribe({
+    this.apiService.getPapersAndArticles(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
       next: (response: any) => {
         this.papers = response;
         this.statsPapers();
@@ -131,7 +128,7 @@ export class StatisticsComponent implements OnInit {
   }
 
   getCollaborations() {
-    this.apiService.getCollaborations(this.selectedTitles, this.venueName).subscribe({
+    this.apiService.getCollaborations(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
       next: (response: any) => {
         this.collaborations = response;
         console.log(this.collaborations)
@@ -145,7 +142,7 @@ export class StatisticsComponent implements OnInit {
   }
 
   getConnectedComponents(){
-    this.apiService.getConnectedComponents(this.selectedTitles, this.venueName).subscribe({
+    this.apiService.getConnectedComponents(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
       next: (response: any) => {
         this.connectedComponents = response;
         this.statsConnectedComponents();
@@ -158,7 +155,7 @@ export class StatisticsComponent implements OnInit {
   }
 
   getConnectedComponentsByvenue(){
-    this.apiService.getConnectedComponentsByvenue(this.selectedTitles, this.venueName).subscribe({
+    this.apiService.getConnectedComponentsByvenue(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
       next: (response: any) => {
         this.connectedComponents = response;
         this.statsConnectedComponentsByvenue();
@@ -173,7 +170,7 @@ export class StatisticsComponent implements OnInit {
   }
 
   getConferencebyProceeding(){
-    this.apiService.getConferencebyProceeding(this.selectedTitles, this.venueName).subscribe({
+    this.apiService.getConferencebyProceeding(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
       next: (response: any) => {
         this.stadisticsService.conferencesNames = [];
         this.stadisticsService.years = [];
@@ -196,7 +193,7 @@ export class StatisticsComponent implements OnInit {
   }
 
   getAuthorsPapers() {
-    this.apiService.getAuthorsPapers(this.selectedTitles, this.conferenceOption, this.venueName)
+    this.apiService.getAuthorsPapers(this.stadisticsService.selectedTitles, this.stadisticsService.conferenceOption, this.stadisticsService.venueName)
       .subscribe({
         next: async (response: any) => {
           this.singleAuthor = response;
@@ -211,7 +208,7 @@ export class StatisticsComponent implements OnInit {
 }
 
   statsTotalAuthorsByYear() {
-    const years = this.selectedTitles.map(title => title.properties.name);
+    const years = this.stadisticsService.selectedTitles.map(title => title.properties.name);
     years.sort((a, b) => parseInt(a) - parseInt(b));
     this.totalAuthorsByYear = years.map(year => {
       const totalAuthors = this.researchers.reduce((total, researcher) => {
@@ -585,7 +582,7 @@ export class StatisticsComponent implements OnInit {
     this.ConferencesAuthors = names.size;
     this.statsAuthors = [];
     this.statsAuthors = Array.from(names).map(name => {
-      const years = this.selectedTitles.map(titulo => titulo.properties.name);
+      const years = this.stadisticsService.selectedTitles.map(titulo => titulo.properties.name);
       years.sort((a, b) => parseInt(a) - parseInt(b));
       this.selectedYears = years;
       const numResearchersPorAnio = years.map(anio =>
@@ -1535,9 +1532,7 @@ export class StatisticsComponent implements OnInit {
 
   async main(){
     try {
-      this.selectedTitles = this.stadisticsService.getSelectedTitles();
-      this.conferenceOption = this.stadisticsService.getConferenceOption();
-      this.venueName = this.stadisticsService.getVenueName();
+
       if(this.stadisticsService.venueNameConfirm != this.stadisticsService.getVenueName()){
         this.getConferencebyProceeding();
       }else{

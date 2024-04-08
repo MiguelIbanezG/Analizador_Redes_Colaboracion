@@ -16,7 +16,7 @@ export class AppNetworkService {
       },
       edges: {
         font: {
-          size: 60,
+          size: 100,
           color: "rgb(0, 22, 68)",
        },
         color: {
