@@ -69,12 +69,12 @@
 
 
 
-  <div *ngIf="this.filtersList.length > 0 || this.communities.length >0 " class="filters-list">
+  <div *ngIf="this.homeService.filtersList.length > 0 || this.homeService.Communities.length >0 " class="filters-list">
     
-    <div *ngIf="this.communities.length > 0" class="community-container">
+    <div *ngIf="this.homeService.Communities.length > 0" class="community-container">
       <p>Communities</p>
       <hr>
-      <div *ngFor="let filter of communities; let last = last" class="filter-item">
+      <div *ngFor="let filter of homeService.Communities; let last = last" class="filter-item">
         <input type="checkbox" [(ngModel)]="filter.selected" />
         <span class="filter-name">{{ filter.name }}</span>
         <button class="button-delete" (click)="deleteCommunity(filter)">X</button>
@@ -85,18 +85,18 @@
       </div>
     </div>
 
-    <div *ngIf="this.currentConferences.length > 0">
+    <div *ngIf="this.homeService.currentConferences.length > 0">
       <p>Current Conferences and Journls:</p>
       <hr>
       <ul>
-        <li *ngFor="let filter of currentConferences">
+        <li *ngFor="let filter of homeService.currentConferences">
           {{ filter }}
           <button class="button-delete" (click)="deleteFilter(filter)">X</button>
         </li>
       </ul>
 
       <div class="button-community">
-        <button (click)="openModal(community)" [disabled]="filtersList.length === 0">Create Community</button>
+        <button (click)="openModal(community)" [disabled]="homeService.filtersList.length === 0">Create Community</button>
       </div>
 
     </div>
@@ -118,13 +118,13 @@
           <div class="modal-body">
             <input type="text" [(ngModel)]="nameCommunity" placeholder="Add name Community">
             <ul>
-              <li *ngFor="let filter of currentConferences">
+              <li *ngFor="let filter of homeService.currentConferences">
                 {{ filter }}
                 <button class="button-delete" (click)="deleteFilter(filter)">X</button>
               </li>
             </ul>
             <div class="button-community">
-              <button (click)="createCommunity(currentConferences)">Create</button>
+              <button (click)="createCommunity(homeService.currentConferences)">Create</button>
             </div>
             
           </div>
@@ -137,37 +137,37 @@
   <!-- Buttons Filter -->
   <div class="buttons">
     <div class="button-years">
-      <button (click)="execFunctionsYear()" [disabled]="filtersList.length === 0 && communities.length === 0">Filter by years</button>
+      <button (click)="execFunctionsYear()" [disabled]="homeService.filtersList.length === 0 && homeService.Communities.length === 0">Filter by years</button>
     </div>
     <div class="button-decade">
-      <button (click)="execFunctionsDecades()" [disabled]="filtersList.length  === 0 && communities.length === 0">Filter by decades</button>
+      <button (click)="execFunctionsDecades()" [disabled]="homeService.filtersList.length  === 0 && homeService.Communities.length === 0">Filter by decades</button>
     </div>
   </div>
 
   <!-- Filter by Decade -->
   <div class="decades" *ngIf="showDecades && !showYears">
-    <div *ngIf="filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ">
+    <div *ngIf="homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ">
       <label>
         <input type="checkbox" [(ngModel)]="selectDecades" (change)="selectDecade()">
         <span>1989-1999</span>
       </label>
     </div>
   
-    <div *ngIf="filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ">
+    <div *ngIf="homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ">
       <label>
         <input type="checkbox" [(ngModel)]="selectDecades2" (change)="selectDecade2()">
         <span>1999-2009</span>
       </label>
     </div>
   
-    <div *ngIf="filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ">
+    <div *ngIf="homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ">
       <label>
         <input type="checkbox" [(ngModel)]="selectDecades3" (change)="selectDecade3()">
         <span>2009-2019</span>
       </label>
     </div>
   
-    <div *ngIf="filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ">
+    <div *ngIf="homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ">
       <label>
         <input type="checkbox" [(ngModel)]="selectDecades4" (change)="selectDecade4()">
         <span>2019-2024</span>
@@ -176,7 +176,7 @@
   </div>
       
   <!-- Select All -->
-  <div *ngIf="(filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ) && !showDecades">
+  <div *ngIf="(homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ) && !showDecades">
     <label>
       <input type="checkbox" [(ngModel)]="selectAll" (change)="selectAlls()">
       <span>All</span>
@@ -186,7 +186,7 @@
   <!-- Filter by Year -->
   <div *ngIf="!showDecades">
     <div class="columns">
-      <div class="column" *ngFor="let title of filteredTitles; let i = index">
+      <div class="column" *ngFor="let title of homeService.filteredTitles; let i = index">
         <label>
           <input type="checkbox" [(ngModel)]="title.selected" (change)="titleChanged()">
           <span [ngClass]="{ 'selected': title.selected }">{{ title.title }}</span>
@@ -201,7 +201,7 @@
       <button [hidden]="(this.noResultsFoundConference === true) &&
       (this.noResultsFoundJournal === true)" [disabled]="!existSelectTitle()" (click)="generateStatistics()">Generate Stats</button>
     </div>
-    <div class="button-clear" *ngIf="filteredTitlesConference.length > 0 || filteredTitlesJournal.length > 0 ">
+    <div class="button-clear" *ngIf="homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ">
       <button (click)="clear()">Cancel</button>
     </div>
     

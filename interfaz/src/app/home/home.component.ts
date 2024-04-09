@@ -13,20 +13,14 @@ import { HomeService } from '../services/home.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
 
   filtersString : string = '';
   filtersBOX: string = '';
-  filtersList: string[] = [];
-  communities: { name: string, filtersList: string[], selected: boolean  }[] = [];
   filterComunities: string[] = [];
-  currentConferences: string[] = [];
   nameCommunity: string = '';
   completeConference: string[] = [];
   filteredResults: string[] = [];
-  filteredTitles: { title: string, pr_objeto: any, selected: boolean }[] = [];
-  filteredTitlesJournal: { title: string, pr_objeto: any, selected: boolean }[] = [];
-  filteredTitlesConference: { title: string, pr_objeto: any, selected: boolean }[] = [];
   selectAll = false;
   selectDecades = false;
   selectDecades2 = false;
@@ -51,10 +45,6 @@ export class HomeComponent implements OnInit {
     public homeService: HomeService
   ) { }
   
-  ngOnInit() {
-    this.communities = this.homeService.Communities   
-  }
-
   autocompleteConference(term: string): void {
     this.apiService.autocompleteConference(term).subscribe({
       next: (response: string[]) => {
@@ -68,7 +58,7 @@ export class HomeComponent implements OnInit {
 
 
   isFilteringDisabled(): boolean {
-    return this.filtersList.length === 0 && this.homeService.Communities.every(community => !community.selected);
+    return this.homeService.filtersList.length === 0 && this.homeService.Communities.every(community => !community.selected);
   }
 
   completeSuggestion(suggestion: string) {
@@ -77,7 +67,7 @@ export class HomeComponent implements OnInit {
     if (suggestion.trim() !== '') {
       const filtros = suggestion.trim();
 
-      if(this.currentConferences.includes(filtros)){
+      if(this.homeService.currentConferences.includes(filtros)){
         this.repeated = true;
       }else{
         this.repeated = false;
@@ -92,13 +82,13 @@ export class HomeComponent implements OnInit {
 
             this.noResultsFoundConference = false;
 
-            if (!this.filtersList.includes(filtros)) {
-              this.filtersList.push(filtros);
+            if (!this.homeService.filtersList.includes(filtros)) {
+              this.homeService.filtersList.push(filtros);
               
-              const newFilters = this.filterComunities.filter(item => !this.filtersList.includes(item));
+              const newFilters = this.filterComunities.filter(item => !this.homeService.filtersList.includes(item));
 
-              this.filtersList = this.filtersList.concat(newFilters);
-              this.filtersString  = this.filtersList.join(','); 
+              this.homeService.filtersList = this.homeService.filtersList.concat(newFilters);
+              this.filtersString  = this.homeService.filtersList.join(','); 
             }
           } else {
 
@@ -110,25 +100,25 @@ export class HomeComponent implements OnInit {
       
                   this.noResultsFoundJournal = false;
       
-                  if (!this.filtersList.includes(filtros)) {
-                    this.filtersList.push(filtros);
-                    const newFilters = this.filterComunities.filter(item => !this.filtersList.includes(item));
+                  if (!this.homeService.filtersList.includes(filtros)) {
+                    this.homeService.filtersList.push(filtros);
+                    const newFilters = this.filterComunities.filter(item => !this.homeService.filtersList.includes(item));
       
-                    this.filtersList = this.filtersList.concat(newFilters);
-                    this.filtersString  = this.filtersList.join(','); 
+                    this.homeService.filtersList = this.homeService.filtersList.concat(newFilters);
+                    this.filtersString  = this.homeService.filtersList.join(','); 
                   }
 
-                  for (const filter of this.filtersList) {
+                  for (const filter of this.homeService.filtersList) {
                     if (!this.filterComunities.includes(filter)) {
-                        this.currentConferences.push(filter);
+                        this.homeService.currentConferences.push(filter);
                    
                     }
         
-                    const filtersListSinDuplicados: string[] = this.currentConferences.filter((valor, indice, self) => {
+                    const filtersListSinDuplicados: string[] = this.homeService.currentConferences.filter((valor, indice, self) => {
                       return self.indexOf(valor) === indice;
                     });
         
-                    this.currentConferences = filtersListSinDuplicados
+                    this.homeService.currentConferences = filtersListSinDuplicados
                   }   
                 } else {
                   this.noResultsFoundJournal = true;
@@ -143,17 +133,17 @@ export class HomeComponent implements OnInit {
               }
             });
           }
-          for (const filter of this.filtersList) {
+          for (const filter of this.homeService.filtersList) {
             if (!this.filterComunities.includes(filter)) {
-                this.currentConferences.push(filter);
+                this.homeService.currentConferences.push(filter);
            
             }
 
-            const filtersListSinDuplicados: string[] = this.currentConferences.filter((valor, indice, self) => {
+            const filtersListSinDuplicados: string[] = this.homeService.currentConferences.filter((valor, indice, self) => {
               return self.indexOf(valor) === indice;
             });
 
-            this.currentConferences = filtersListSinDuplicados
+            this.homeService.currentConferences = filtersListSinDuplicados
           }   
         },
         error: (error: any) => {
@@ -171,15 +161,15 @@ export class HomeComponent implements OnInit {
   }
 
   deleteFilter(filter: string) {
-    const i = this.filtersList.indexOf(filter);
+    const i = this.homeService.filtersList.indexOf(filter);
     if (i !== -1) {
-      this.filtersList.splice(i, 1); 
-      this.filtersString = this.filtersList.join(',');
+      this.homeService.filtersList.splice(i, 1); 
+      this.filtersString = this.homeService.filtersList.join(',');
     }
 
-    const R = this.currentConferences.indexOf(filter);
+    const R = this.homeService.currentConferences.indexOf(filter);
     if (R !== -1) {
-      this.currentConferences.splice(i, 1); 
+      this.homeService.currentConferences.splice(i, 1); 
     }
   }
 
@@ -192,10 +182,10 @@ export class HomeComponent implements OnInit {
     
     for (const filter of communityToDelete.filtersList) {
             
-      const i = this.filtersList.indexOf(filter);
+      const i = this.homeService.filtersList.indexOf(filter);
       if (i !== -1) {
-        this.filtersList.splice(i, 1); 
-        this.filtersString = this.filtersList.join(',');
+        this.homeService.filtersList.splice(i, 1); 
+        this.filtersString = this.homeService.filtersList.join(',');
       }
 
 
@@ -206,32 +196,31 @@ export class HomeComponent implements OnInit {
   createCommunity(filtersList: string[]){
    
     this.homeService.Communities.push({ name: this.nameCommunity, filtersList: filtersList, selected: false });
-    this.communities = this.homeService.Communities
     this.closeModal()
     this.nameCommunity = '';
 
-    this.filtersList = [];
-    this.currentConferences = [];
+    this.homeService.filtersList = [];
+    this.homeService.currentConferences = [];
 
   }
 
   async waitTitlesNoEmpty() {
-    while (!this.filteredTitles || this.filteredTitles.length === 0 ) {
+    while (!this.homeService.filteredTitles || this.homeService.filteredTitles.length === 0 ) {
       await new Promise(resolve => setTimeout(resolve, 100)); 
     }
   }
 
   execFunctionsYear(){
     this.showButtons= true;
-    this.filteredTitlesJournal = [];
-    this.filteredTitlesConference = [];
-    this.filteredTitles = [];
+    this.homeService.filteredTitlesJournal = [];
+    this.homeService.filteredTitlesConference = [];
+    this.homeService.filteredTitles = [];
     this.getFilteredNodesJournal();
     this.getFilteredNodesConference();
     this.waitTitlesNoEmpty();
     const uniqueTitles: { title: string; pr_objeto: any; selected: boolean; }[] = [];
     
-    for (const title of this.filteredTitles) {
+    for (const title of this.homeService.filteredTitles) {
         if (!uniqueTitles.some(existingTitle => existingTitle.title == title.title)) {
             uniqueTitles.push(title);
         }
@@ -241,9 +230,9 @@ export class HomeComponent implements OnInit {
 
   execFunctionsDecades(){
     this.showButtons= true;
-    this.filteredTitlesJournal = [];
-    this.filteredTitlesConference = [];
-    this.filteredTitles = [];
+    this.homeService.filteredTitlesJournal = [];
+    this.homeService.filteredTitlesConference = [];
+    this.homeService.filteredTitles = [];
     this.getFilteredNodesJournal();
     this.getFilteredNodesConference();
     this.waitTitlesNoEmpty();
@@ -265,14 +254,14 @@ export class HomeComponent implements OnInit {
   }
 
   clear(){
-    this.filteredTitles = [];
-    this.filtersList = [];
-    this.filteredTitlesConference = [];
-    this.filteredTitlesJournal = [];
+    this.homeService.filteredTitles = [];
+    this.homeService.filtersList = [];
+    this.homeService.filteredTitlesConference = [];
+    this.homeService.filteredTitlesJournal = [];
     this.completeConference = [];
-    this.currentConferences = [];
-    this.filteredTitlesJournal = [];
-    this.filteredTitlesConference = [];
+    this.homeService.currentConferences = [];
+    this.homeService.filteredTitlesJournal = [];
+    this.homeService.filteredTitlesConference = [];
     this.showButtons= false;
   }
 
@@ -284,15 +273,15 @@ export class HomeComponent implements OnInit {
         this.filterComunities = this.filterComunities.concat(community.filtersList);
       }else{
         this.filterComunities = this.filterComunities.filter(filterItem => !community.filtersList.includes(filterItem));
-        this.filtersList = this.filtersList.filter(filterItem => !community.filtersList.includes(filterItem));
+        this.homeService.filtersList = this.homeService.filtersList.filter(filterItem => !community.filtersList.includes(filterItem));
       }
     
     });
 
-    this.filtersList = this.filtersList.concat(this.filterComunities);
-    this.filtersString  = this.filtersList.join(','); 
+    this.homeService.filtersList = this.homeService.filtersList.concat(this.filterComunities);
+    this.filtersString  = this.homeService.filtersList.join(','); 
 
-    this.filtersList = this.filtersList.filter((value, index, self) => {
+    this.homeService.filtersList = this.homeService.filtersList.filter((value, index, self) => {
       return self.indexOf(value) === index;
     });
 
@@ -300,12 +289,12 @@ export class HomeComponent implements OnInit {
       return self.indexOf(value) === index;
     });
 
-    this.apiService.getFilteredNodesConference(this.filtersList).subscribe({
+    this.apiService.getFilteredNodesConference(this.homeService.filtersList).subscribe({
       next: (response: any[]) => {
         // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
         this.filteredResults = response.map(item => item);
-        if(this.filteredTitlesConference.length < 1){
-          this.filteredTitlesConference = Object.values(response.reduce((obj, item) => {
+        if(this.homeService.filteredTitlesConference.length < 1){
+          this.homeService.filteredTitlesConference = Object.values(response.reduce((obj, item) => {
             const yearNode = item.properties;
             obj[yearNode.name] = {
               title: yearNode.name,
@@ -320,11 +309,11 @@ export class HomeComponent implements OnInit {
             this.noResultsFoundConference = false;
           }
         }
-        this.filteredTitles = [];
-        this.filteredTitles = [...this.filteredTitlesJournal, ...this.filteredTitlesConference];
+        this.homeService.filteredTitles = [];
+        this.homeService.filteredTitles = [...this.homeService.filteredTitlesJournal, ...this.homeService.filteredTitlesConference];
         const uniqueTitles: { title: string; pr_objeto: any; selected: boolean; }[] = [];
 
-        for (const title of this.filteredTitles) {
+        for (const title of this.homeService.filteredTitles) {
             if (!uniqueTitles.some(existingTitle => existingTitle.title == title.title)) {
                 uniqueTitles.push(title);
             }
@@ -338,7 +327,7 @@ export class HomeComponent implements OnInit {
 
         uniqueTitles.sort(compararPorAño);
     
-        this.filteredTitles = uniqueTitles;
+        this.homeService.filteredTitles = uniqueTitles;
         
       },
       error: (error: any) => {
@@ -357,15 +346,15 @@ export class HomeComponent implements OnInit {
         this.filterComunities = this.filterComunities.concat(community.filtersList);
       }else{
         this.filterComunities = this.filterComunities.filter(filterItem => !community.filtersList.includes(filterItem));
-        this.filtersList = this.filtersList.filter(filterItem => !community.filtersList.includes(filterItem));
+        this.homeService.filtersList = this.homeService.filtersList.filter(filterItem => !community.filtersList.includes(filterItem));
       }
     
     });
 
-    this.filtersList = this.filtersList.concat(this.filterComunities);
-    this.filtersString  = this.filtersList.join(','); 
+    this.homeService.filtersList = this.homeService.filtersList.concat(this.filterComunities);
+    this.filtersString  = this.homeService.filtersList.join(','); 
 
-    this.filtersList = this.filtersList.filter((value, index, self) => {
+    this.homeService.filtersList = this.homeService.filtersList.filter((value, index, self) => {
       return self.indexOf(value) === index;
     });
 
@@ -373,12 +362,12 @@ export class HomeComponent implements OnInit {
       return self.indexOf(value) === index;
     });
 
-    this.apiService.getFilteredNodesJournal(this.filtersList).subscribe({
+    this.apiService.getFilteredNodesJournal(this.homeService.filtersList).subscribe({
       next: (response: any[]) => {
         // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
         this.filteredResults = response.map(item => item);
-        if(this.filteredTitlesJournal.length < 1){
-          this.filteredTitlesJournal = Object.values(response.reduce((obj, item) => {
+        if(this.homeService.filteredTitlesJournal.length < 1){
+          this.homeService.filteredTitlesJournal = Object.values(response.reduce((obj, item) => {
             const yearNode = item.properties;
             obj[yearNode.name] = {
               title: yearNode.name,
@@ -394,11 +383,11 @@ export class HomeComponent implements OnInit {
             this.noResultsFoundJournal = false;
           }
         }
-        this.filteredTitles = [];
-        this.filteredTitles = [...this.filteredTitlesJournal, ...this.filteredTitlesConference];
+        this.homeService.filteredTitles = [];
+        this.homeService.filteredTitles = [...this.homeService.filteredTitlesJournal, ...this.homeService.filteredTitlesConference];
         const uniqueTitles: { title: string; pr_objeto: any; selected: boolean; }[] = [];
 
-        for (const title of this.filteredTitles) {
+        for (const title of this.homeService.filteredTitles) {
             if (!uniqueTitles.some(existingTitle => existingTitle.title == title.title)) {
                 uniqueTitles.push(title);
             }
@@ -412,7 +401,7 @@ export class HomeComponent implements OnInit {
 
         uniqueTitles.sort(compararPorAño);
     
-        this.filteredTitles = uniqueTitles;
+        this.homeService.filteredTitles = uniqueTitles;
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);
@@ -423,32 +412,32 @@ export class HomeComponent implements OnInit {
 
   existSelectTitle(): boolean {
     let select = false;
-    if (this.filteredTitlesJournal.some(titulo => titulo.selected) || this.filteredTitlesConference.some(titulo => titulo.selected)){
+    if (this.homeService.filteredTitlesJournal.some(titulo => titulo.selected) || this.homeService.filteredTitlesConference.some(titulo => titulo.selected)){
       select = true;
     }
     return select;
   }
 
   selectAlls() {
-    if (this.filteredTitlesConference.length > 0 || this.filteredTitlesJournal.length > 0){
-      for (let title of this.filteredTitlesJournal) {
+    if (this.homeService.filteredTitlesConference.length > 0 || this.homeService.filteredTitlesJournal.length > 0){
+      for (let title of this.homeService.filteredTitlesJournal) {
         title.selected = this.selectAll;
       }
-      for (let title of this.filteredTitlesConference) {
+      for (let title of this.homeService.filteredTitlesConference) {
         title.selected = this.selectAll;
       }
     }
   }
 
   selectDecade() {
-    for (let year of this.filteredTitlesConference) {
+    for (let year of this.homeService.filteredTitlesConference) {
       if (year.title == "1989" || year.title == "1990" ||year.title == "1991" || year.title == "1992" ||
       year.title == "1993" || year.title == "1994" ||year.title == "1995" || year.title == "1996" ||
       year.title == "1997" || year.title == "1998" || year.title == "1999") {
         year.selected = this.selectDecades;
       } 
     }
-    for (let year of this.filteredTitlesJournal) {
+    for (let year of this.homeService.filteredTitlesJournal) {
       if (year.title == "1989" || year.title == "1990" ||year.title == "1991" || year.title == "1992" ||
       year.title == "1993" || year.title == "1994" ||year.title == "1995" || year.title == "1996" ||
       year.title == "1997" || year.title == "1998" || year.title == "1999") {
@@ -459,14 +448,14 @@ export class HomeComponent implements OnInit {
 
   selectDecade2() {
   
-    for (let year of this.filteredTitlesConference) {
+    for (let year of this.homeService.filteredTitlesConference) {
       if (year.title == "2000" || year.title == "2001" ||year.title == "2002" ||year.title == "2003" ||
       year.title == "2004" || year.title == "2005" ||year.title == "2006" ||year.title == "2007" ||
       year.title == "2008" || year.title == "2009") {
         year.selected = this.selectDecades2;
       } 
     }
-    for (let year of this.filteredTitlesJournal) {
+    for (let year of this.homeService.filteredTitlesJournal) {
       if (year.title == "2000" || year.title == "2001" ||year.title == "2002" ||year.title == "2003" ||
       year.title == "2004" || year.title == "2005" ||year.title == "2006" ||year.title == "2007" ||
       year.title == "2008" || year.title == "2009") {
@@ -477,7 +466,7 @@ export class HomeComponent implements OnInit {
 
   selectDecade3() {
   
-    for (let year of this.filteredTitlesConference) {
+    for (let year of this.homeService.filteredTitlesConference) {
       if (year.title == "2010" ||year.title == "2011" ||year.title == "2012" ||
       year.title == "2013" || year.title == "2014" ||year.title == "2015" || year.title == "2016" ||
       year.title == "2017" || year.title == "2018" || year.title == "2019") {
@@ -485,7 +474,7 @@ export class HomeComponent implements OnInit {
       } 
     }
 
-    for (let year of this.filteredTitlesJournal) {
+    for (let year of this.homeService.filteredTitlesJournal) {
       if (year.title == "2010" ||year.title == "2011" ||year.title == "2012" ||
       year.title == "2013" || year.title == "2014" ||year.title == "2015" || year.title == "2016" ||
       year.title == "2017" || year.title == "2018" || year.title == "2019") {
@@ -496,14 +485,14 @@ export class HomeComponent implements OnInit {
 
   selectDecade4() {
   
-    for (let year of this.filteredTitlesConference) {
+    for (let year of this.homeService.filteredTitlesConference) {
       if (year.title == "2020" ||year.title == "2021" ||year.title == "2022" ||
       year.title == "2023" || year.title == "2024"){
         year.selected = this.selectDecades4;
       } 
     }
 
-    for (let year of this.filteredTitlesJournal) {
+    for (let year of this.homeService.filteredTitlesJournal) {
       if (year.title == "2020" ||year.title == "2021" ||year.title == "2022" ||
       year.title == "2023" || year.title == "2024"){
         year.selected = this.selectDecades4;
@@ -514,15 +503,15 @@ export class HomeComponent implements OnInit {
   titleChanged() {
     let all = true;
 
-    for (let titulo1 of this.filteredTitles) {
-      for (let titulo of this.filteredTitlesJournal) {
+    for (let titulo1 of this.homeService.filteredTitles) {
+      for (let titulo of this.homeService.filteredTitlesJournal) {
         if (titulo1.title == titulo.title) {
           if(titulo1.selected == true){
             titulo.selected == true;
           }
         }
       }
-      for (let titulo of this.filteredTitlesConference) {
+      for (let titulo of this.homeService.filteredTitlesConference) {
         if (titulo1.title == titulo.title) {
           if(titulo1.selected == true){
             titulo.selected == true;
@@ -531,13 +520,13 @@ export class HomeComponent implements OnInit {
       }
     }
 
-    for (let titulo of this.filteredTitlesConference) {
+    for (let titulo of this.homeService.filteredTitlesConference) {
       if (!titulo.selected) {
         all = false;
         break;
       }
     }
-    for (let titulo of this.filteredTitlesJournal) {
+    for (let titulo of this.homeService.filteredTitlesJournal) {
       if (!titulo.selected) {
         all = false;
         break;
@@ -554,11 +543,11 @@ export class HomeComponent implements OnInit {
 
   async generateStatistics() {
 
-    const titles = this.filteredTitlesConference.
+    const titles = this.homeService.filteredTitlesConference.
     filter(titulo => titulo.selected).map(titulo => titulo.pr_objeto);
     
-    const titles2 = this.filteredTitlesJournal
-    .filter(titulo => titulo.selected && !this.filteredTitlesConference.map(titulo => titulo.title).includes(titulo.title))
+    const titles2 = this.homeService.filteredTitlesJournal
+    .filter(titulo => titulo.selected && !this.homeService.filteredTitlesConference.map(titulo => titulo.title).includes(titulo.title))
     .map(titulo => titulo.pr_objeto);
     const titles3 = [...titles, ...titles2];
     const splitFilters = this.filtersString.split(',').map(filtersString => filtersString.trim());
