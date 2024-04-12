@@ -21,7 +21,7 @@ export class AuthorsComponent {
   networkData: string[] = [];
   noResults = false;
   repeated = false;
-  
+
 
   constructor(
     private apiService: ApiService,
@@ -31,6 +31,7 @@ export class AuthorsComponent {
   ) { }
 
   autocompleteAuthor(term: string): void {
+    term = this.replaceAuthor(term);
     this.apiService.autocompleteAuthors(term).subscribe({
       next: (response: string[]) => {
 
@@ -69,34 +70,34 @@ export class AuthorsComponent {
       }
     });
   }
-  
+
 
   normalized() {
     const uniqueAuthors: string[] = [];
     const processedAuthors: string[] = [];
 
     for (const author of this.completeAuthor) {
-        const normalizedAuthor = author.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const normalizedAuthor = author.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-        if (!processedAuthors.includes(normalizedAuthor)) {
-            uniqueAuthors.push(author);
-            processedAuthors.push(normalizedAuthor);
-        }else{
-          uniqueAuthors.push(normalizedAuthor);
-          const index = uniqueAuthors.findIndex(a => a.normalize("NFD").replace(/[\u0300-\u036f]/g, "") === normalizedAuthor);
-            if (index !== -1) {
-                uniqueAuthors.splice(index, 1); // Eliminar el autor que no está normalizado de uniqueAuthors
-            }
+      if (!processedAuthors.includes(normalizedAuthor)) {
+        uniqueAuthors.push(author);
+        processedAuthors.push(normalizedAuthor);
+      } else {
+        uniqueAuthors.push(normalizedAuthor);
+        const index = uniqueAuthors.findIndex(a => a.normalize("NFD").replace(/[\u0300-\u036f]/g, "") === normalizedAuthor);
+        if (index !== -1) {
+          uniqueAuthors.splice(index, 1); // Eliminar el autor que no está normalizado de uniqueAuthors
         }
+      }
 
     }
 
 
     // Actualizar la lista completa de autores
     this.completeAuthor = uniqueAuthors;
-}
+  }
 
-  replace(){
+  replaceQuery() {
     this.authorsQuery = this.authors.map(author => {
       // Reemplazar caracteres especiales
       author = author.replace(/á/g, '&aacute;')
@@ -128,9 +129,39 @@ export class AuthorsComponent {
 
   }
 
+  replaceAuthor(author: string) {
+      // Reemplazar caracteres especiales
+      author = author.replace(/á/g, '&aacute;')
+        .replace(/é/g, '&eacute;')
+        .replace(/í/g, '&iacute;')
+        .replace(/ó/g, '&oacute;')
+        .replace(/ú/g, '&uacute;')
+        .replace(/ñ/g, '&ntilde;')
+        .replace(/Á/g, '&Aacute;')
+        .replace(/É/g, '&Eacute;')
+        .replace(/Í/g, '&Iacute;')
+        .replace(/Ó/g, '&Oacute;')
+        .replace(/Ú/g, '&Uacute;')
+        .replace(/Ñ/g, '&Ntilde;')
+        .replace(/à/g, '&agrave;')
+        .replace(/è/g, '&egrave;')
+        .replace(/ò/g, '&ograve;')
+        .replace(/À/g, '&Agrave;')
+        .replace(/È/g, '&Egrave;')
+        .replace(/Ò/g, '&Ograve;')
+        .replace(/â/g, '&acirc;')
+        .replace(/Â/g, '&Acirc;')
+        .replace(/ã/g, '&atilde;')
+        .replace(/Ã/g, '&Atilde;')
+        .replace(/ö/g, '&ouml;')
+        .replace(/Ö/g, '&Ouml;');
+      return author;
+  }
+
   getAuthorsPublications(): void {
     this.publications = []
-    this.replace();
+    this.replaceQuery();
+    console.log(this.authorsQuery)
     this.apiService.getAuthorsPublications(this.authorsQuery).subscribe({
       next: (response: string[]) => {
         this.publications = response;
@@ -148,16 +179,16 @@ export class AuthorsComponent {
     this.homeService.setActiveLinkNetwork(true);
   }
 
-  async waitNetworks(){
-    while (!this.networkInitService.nameAuthors || this.networkInitService.nameAuthors.length === 0 ) {
-      await new Promise(resolve => setTimeout(resolve, 100)); 
+  async waitNetworks() {
+    while (!this.networkInitService.nameAuthors || this.networkInitService.nameAuthors.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
     this.activateLink();
     this.router.navigateByUrl('/network');
   }
 
   getNetworksAuthor(): void {
-    this.replace();
+    this.replaceQuery();
     this.networkInitService.nameAuthors = [];
     this.apiService.getNetworksAuthor(this.authorsQuery).subscribe({
       next: (response: string[]) => {
@@ -166,34 +197,38 @@ export class AuthorsComponent {
       error: (error: any) => {
         console.error('Error in getNetworksAuthor', error);
       }
-      
+
     });
 
     this.waitNetworks();
-   
+
   }
 
   completeSuggestion(suggestion: string) {
 
     if (suggestion.trim() !== '') {
 
-      const author:any[] = [suggestion.trim()]
+      const author: string = suggestion.trim()
 
-      if(this.authors.includes(suggestion.trim())){
+      if (this.authors.includes(suggestion.trim())) {
         this.repeated = true;
-      }else{
+      } else {
         this.repeated = false;
       }
-      
-      this.apiService.getAuthorsPublications(author).subscribe({
+
+      const authorQuery:string[] = [this.replaceAuthor(author)]
+
+      console.log(authorQuery)
+
+      this.apiService.getAuthorsPublications(authorQuery).subscribe({
         next: (response: string[]) => {
           if (response.length == 0) {
             this.noResults = true;
 
-          }else{
+          } else {
             this.noResults = false;
 
-            if(this.repeated == false){
+            if (this.repeated == false) {
               this.authors.push(suggestion.trim());
               this.networkInitService.selectedAuthors = this.authors;
             }
@@ -205,7 +240,7 @@ export class AuthorsComponent {
       });
     }
 
-  
+
 
   }
 
@@ -225,7 +260,7 @@ export class AuthorsComponent {
 
   generateTablePublications(publications: any[]) {
     const table = document.querySelector('#tablePublications tbody');
-  
+
     if (table instanceof HTMLElement) {
       table.innerHTML = '';
       publications.forEach(({ title, DayOfPublication, AuthorName, PublicationType }) => {
@@ -244,13 +279,13 @@ export class AuthorsComponent {
           default:
             color = 'black';
         }
-        const formattedAuthorNames = AuthorName.join(', '); 
+        const formattedAuthorNames = AuthorName.join(', ');
         row.innerHTML = `<td style="background-color: ${color}; width: 15px; border: 1px solid black; height: 10px; max-height: 10px;white-space: nowrap;"></td><td style="padding-left: 20px; padding-right: 50px;">${title}</td><td style="padding-right: 30px; white-space: nowrap;">${DayOfPublication}</td><td>${formattedAuthorNames}</td>`;
-  
+
         table.appendChild(row);
       });
     }
-  }  
+  }
 
 }
 

@@ -131,7 +131,6 @@ export class StatisticsComponent implements OnInit {
     this.apiService.getCollaborations(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
       next: (response: any) => {
         this.collaborations = response;
-        console.log(this.collaborations)
         this.statsColaboraciones();
         this.generateChart3('lineChart3', 'Density', this.statistics[3].years, this.statistics[3].densidades);
       },
@@ -170,6 +169,7 @@ export class StatisticsComponent implements OnInit {
   }
 
   getConferencebyProceeding(){
+    console.log(this.stadisticsService.selectedTitles)
     this.apiService.getConferencebyProceeding(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
       next: (response: any) => {
         this.stadisticsService.conferencesNames = [];
@@ -193,11 +193,11 @@ export class StatisticsComponent implements OnInit {
   }
 
   getAuthorsPapers() {
+    console.log(this.stadisticsService.selectedTitles)
     this.apiService.getAuthorsPapers(this.stadisticsService.selectedTitles, this.stadisticsService.conferenceOption, this.stadisticsService.venueName)
       .subscribe({
         next: async (response: any) => {
           this.singleAuthor = response;
-          console.log(this.singleAuthor)
           this.statsSingleAuthor();
           
         },
@@ -208,7 +208,7 @@ export class StatisticsComponent implements OnInit {
 }
 
   statsTotalAuthorsByYear() {
-    const years = this.stadisticsService.selectedTitles.map(title => title.properties.name);
+    const years = this.stadisticsService.selectedTitles;
     years.sort((a, b) => parseInt(a) - parseInt(b));
     this.totalAuthorsByYear = years.map(year => {
       const totalAuthors = this.researchers.reduce((total, researcher) => {
@@ -582,7 +582,7 @@ export class StatisticsComponent implements OnInit {
     this.ConferencesAuthors = names.size;
     this.statsAuthors = [];
     this.statsAuthors = Array.from(names).map(name => {
-      const years = this.stadisticsService.selectedTitles.map(titulo => titulo.properties.name);
+      const years = this.stadisticsService.selectedTitles;
       years.sort((a, b) => parseInt(a) - parseInt(b));
       this.selectedYears = years;
       const numResearchersPorAnio = years.map(anio =>
@@ -758,14 +758,10 @@ export class StatisticsComponent implements OnInit {
       return { year, percentage };
     });
 
-    console.log(this.statistics[4])
-
     this.statistics[4] = {
       years: porcentajeByYear.map(dato => dato.year),
       porcentajes: porcentajeByYear.map(dato => dato.percentage)
     };
-
-    console.log(this.statistics[4])
     
     let years = this.statistics[4].years;
     let porcentajes = this.statistics[4].porcentajes;
@@ -800,8 +796,6 @@ export class StatisticsComponent implements OnInit {
     this.statistics[4].porcentajes = porcentajesMedios;
 
     this.singlePapers = this.statistics[4];
-    console.log(this.statistics[4])
-    console.log(this.singlePapers)
     this.generateBarChart('barChart1', 'Single Author Papers and Single Author Journals', this.statistics[4].years, this.statistics[4].porcentajes);          
     
   }  

@@ -32,7 +32,7 @@ export class AppNetworkService {
           enabled: true,
           type: 'dynamic',
           roundness: 0.5
-        }
+        },
       },
       nodes: {
         scaling: {

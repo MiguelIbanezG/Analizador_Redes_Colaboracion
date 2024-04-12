@@ -10,8 +10,8 @@
     <div class="tree" #treeContainer></div>
   
     <div class="espacio" style="flex:1">
-      <h1>Selected node {{ selectNode.nodes }}</h1> 
       <div *ngIf="selectNode">
+        <h1>Selected node {{ selectNode.nodes }}</h1> 
         <div *ngFor="let edge of selectNode.edges">
           <div>Common publications of {{ selectNode.nodes }} and {{ edge }}:</div>
           <ul>
@@ -22,15 +22,14 @@
           </ul>
         </div>
       </div>
-    </div>
-  
-    <div class="espacio" #menuDiv style="flex:4" *ngIf="selectEdge && selectEdge.type === 'edge'">
-      <h1> Selected edge {{ selectEdge.edge.from }} from {{ selectEdge.edge.to }}</h1> 
-      <div> Common publications of  {{ selectEdge.edge.from }} and {{ selectEdge.edge.to }}:</div>
-      <ul>
-        <li *ngFor="let publication of publications">{{ publication }}</li>
-      </ul>
-    </div>
+      <div *ngIf="selectEdge && selectEdge.type === 'edge'">
+        <h1> Selected edge {{ selectEdge.edge.from }} from {{ selectEdge.edge.to }}</h1> 
+        <div> Common publications of  {{ selectEdge.edge.from }} and {{ selectEdge.edge.to }}:</div>
+        <ul>
+          <li *ngFor="let publication of publications">{{ publication }}</li>
+        </ul>
+      </div>
+    </div>   
   </div>
 </div>  
  

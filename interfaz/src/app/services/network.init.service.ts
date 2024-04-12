@@ -79,7 +79,7 @@ export class AppNetworkInitService {
     let currentAngle = 0;
 
     const nodesData: Node[] = sortedAuthors.map((author: any) => {
-      let nodeSize = Math.floor(author.publications.length * 3) + 60;
+      let nodeSize = Math.floor(author.publications.length * 4) + 60;
       if (author.researcher === this.selectedAuthors[0]) {
           nodeSize = nodeSize + 50; 
       }

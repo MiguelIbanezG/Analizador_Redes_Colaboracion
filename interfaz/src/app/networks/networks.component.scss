@@ -13,8 +13,7 @@ h2{
 
 
 .espacio {
-    margin: 70px;
-    
+    margin:50px; 
 }
 
 hr{
@@ -23,17 +22,19 @@ hr{
     border-color: black;
 }
 
-.tree{
+.tree {
     top: 0;
     left: 0;
-    width: 65%; 
-    height: 50%; 
-    border: 2px solid rgb(0,22,68); 
-    box-sizing: border-box; 
+    width: 65%;
+    height: 50%;
+    border: 2px solid rgb(0, 22, 68);
+    background-color: #e0e0e0; 
+    box-sizing: border-box;
     margin-top: 70px;
     margin-bottom: 50px;
-  }
+    box-shadow: 0px 0px 5px 2px rgba(0, 22, 68, 0.3); 
+}
 
   .fila {
-    display: flex; /* Hace que los elementos hijos se organicen en una fila */
+    display: flex; 
   }

@@ -33,7 +33,7 @@ export class HomeComponent {
   noResultsFoundConference = false;
   noResultsFoundJournal = false;
   modalRef: BsModalRef | undefined;
-  showButtons = false;
+  select = false;
  
 
   constructor(
@@ -171,6 +171,7 @@ export class HomeComponent {
     if (R !== -1) {
       this.homeService.currentConferences.splice(i, 1); 
     }
+    this.execFunctionsYear();
   }
 
   deleteCommunity(communityToDelete: { name: string, filtersList: string[], selected: boolean }) {
@@ -211,25 +212,18 @@ export class HomeComponent {
   }
 
   execFunctionsYear(){
-    this.showButtons= true;
     this.homeService.filteredTitlesJournal = [];
+    this.homeService.showButtons= false;
     this.homeService.filteredTitlesConference = [];
     this.homeService.filteredTitles = [];
     this.getFilteredNodesJournal();
     this.getFilteredNodesConference();
     this.waitTitlesNoEmpty();
-    const uniqueTitles: { title: string; pr_objeto: any; selected: boolean; }[] = [];
-    
-    for (const title of this.homeService.filteredTitles) {
-        if (!uniqueTitles.some(existingTitle => existingTitle.title == title.title)) {
-            uniqueTitles.push(title);
-        }
-    }
     this.toggleYears();
   }
 
   execFunctionsDecades(){
-    this.showButtons= true;
+    this.homeService.showButtons= false;
     this.homeService.filteredTitlesJournal = [];
     this.homeService.filteredTitlesConference = [];
     this.homeService.filteredTitles = [];
@@ -262,7 +256,7 @@ export class HomeComponent {
     this.homeService.currentConferences = [];
     this.homeService.filteredTitlesJournal = [];
     this.homeService.filteredTitlesConference = [];
-    this.showButtons= false;
+    this.homeService.showButtons= false;
   }
 
   getFilteredNodesConference() {
@@ -293,16 +287,14 @@ export class HomeComponent {
       next: (response: any[]) => {
         // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
         this.filteredResults = response.map(item => item);
+        console.log(response)
         if(this.homeService.filteredTitlesConference.length < 1){
-          this.homeService.filteredTitlesConference = Object.values(response.reduce((obj, item) => {
-            const yearNode = item.properties;
-            obj[yearNode.name] = {
-              title: yearNode.name,
-              pr_objeto: item,
-              selected: false
-            };
-            return obj;
-          }, {}));
+          this.homeService.showButtons = true;
+          const uniqueYears = [...new Set(response)]; // Elimina años duplicados
+          this.homeService.filteredTitlesConference = uniqueYears.map(year => ({
+            title: year,
+            selected: false
+          }));
           if (this.filteredResults.length === 0) {
             this.noResultsFoundConference = true;
           } else {
@@ -311,23 +303,36 @@ export class HomeComponent {
         }
         this.homeService.filteredTitles = [];
         this.homeService.filteredTitles = [...this.homeService.filteredTitlesJournal, ...this.homeService.filteredTitlesConference];
-        const uniqueTitles: { title: string; pr_objeto: any; selected: boolean; }[] = [];
+        
+        const uniqueTitlesSet = new Set(this.homeService.filteredTitles.map(title => title.title));
+        
+        // Convertir el conjunto de nuevo a una matriz si es necesario
+        this.homeService.filteredTitles = Array.from(uniqueTitlesSet).map(title => ({
+          title,
+          selected: false
+        }));
 
-        for (const title of this.homeService.filteredTitles) {
-            if (!uniqueTitles.some(existingTitle => existingTitle.title == title.title)) {
-                uniqueTitles.push(title);
-            }
-        }
-
-        function compararPorAño(a: { title: string; }, b: { title: string; }) {
-          const yearA = parseInt(a.title);
-          const yearB = parseInt(b.title);
+        this.homeService.filteredTitles.sort((a, b) => {
+          const yearA = parseInt(a.title, 10);
+          const yearB = parseInt(b.title, 10);
           return yearA - yearB;
-        }
+        });
 
-        uniqueTitles.sort(compararPorAño);
+        // for (const title of this.homeService.filteredTitles) {
+        //     if (!uniqueTitles.some(existingTitle => existingTitle.title == title.title)) {
+        //         uniqueTitles.push(title);
+        //     }
+        // }
+
+        // function compararPorAño(a: { title: string; }, b: { title: string; }) {
+        //   const yearA = parseInt(a.title);
+        //   const yearB = parseInt(b.title);
+        //   return yearA - yearB;
+        // }
+
+        //  uniqueTitles.sort(compararPorAño);
     
-        this.homeService.filteredTitles = uniqueTitles;
+        //  this.homeService.filteredTitles = uniqueTitles;
         
       },
       error: (error: any) => {
@@ -367,16 +372,12 @@ export class HomeComponent {
         // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
         this.filteredResults = response.map(item => item);
         if(this.homeService.filteredTitlesJournal.length < 1){
-          this.homeService.filteredTitlesJournal = Object.values(response.reduce((obj, item) => {
-            const yearNode = item.properties;
-            obj[yearNode.name] = {
-              title: yearNode.name,
-              pr_objeto: item,
-              selected: false
-            };
-            return obj;
-          }, {}));
-
+          this.homeService.showButtons = true;
+          const uniqueYears = [...new Set(response)]; // Elimina años duplicados
+          this.homeService.filteredTitlesJournal = uniqueYears.map(year => ({
+            title: year,
+            selected: false
+          }));
           if (this.filteredResults.length === 0) {
             this.noResultsFoundJournal = true;
           } else {
@@ -385,23 +386,38 @@ export class HomeComponent {
         }
         this.homeService.filteredTitles = [];
         this.homeService.filteredTitles = [...this.homeService.filteredTitlesJournal, ...this.homeService.filteredTitlesConference];
-        const uniqueTitles: { title: string; pr_objeto: any; selected: boolean; }[] = [];
 
-        for (const title of this.homeService.filteredTitles) {
-            if (!uniqueTitles.some(existingTitle => existingTitle.title == title.title)) {
-                uniqueTitles.push(title);
-            }
-        }
+        const uniqueTitlesSet = new Set(this.homeService.filteredTitles.map(title => title.title));
 
-        function compararPorAño(a: { title: string; }, b: { title: string; }) {
-          const yearA = parseInt(a.title);
-          const yearB = parseInt(b.title);
+        // Convertir el conjunto de nuevo a una matriz si es necesario
+        this.homeService.filteredTitles = Array.from(uniqueTitlesSet).map(title => ({
+          title,
+          selected: false
+        }));
+
+        this.homeService.filteredTitles.sort((a, b) => {
+          const yearA = parseInt(a.title, 10);
+          const yearB = parseInt(b.title, 10);
           return yearA - yearB;
-        }
+        });
 
-        uniqueTitles.sort(compararPorAño);
+        // const uniqueTitles: { title: string; pr_objeto: any; selected: boolean; }[] = [];
+
+        // for (const title of this.homeService.filteredTitles) {
+        //     if (!uniqueTitles.some(existingTitle => existingTitle.title == title.title)) {
+        //         uniqueTitles.push(title);
+        //     }
+        // }
+
+        // function compararPorAño(a: { title: string; }, b: { title: string; }) {
+        //   const yearA = parseInt(a.title);
+        //   const yearB = parseInt(b.title);
+        //   return yearA - yearB;
+        // }
+
+        // uniqueTitles.sort(compararPorAño);
     
-        this.homeService.filteredTitles = uniqueTitles;
+        // this.homeService.filteredTitles = uniqueTitles;
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);
@@ -410,24 +426,30 @@ export class HomeComponent {
     });
   }
 
-  existSelectTitle(): boolean {
-    let select = false;
-    if (this.homeService.filteredTitlesJournal.some(titulo => titulo.selected) || this.homeService.filteredTitlesConference.some(titulo => titulo.selected)){
-      select = true;
+  existSelectTitle() {
+    if (this.homeService.filteredTitles.some(titulo => titulo.selected)){
+      this.select = true;
+    }else{
+      this.select = false;
     }
-    return select;
   }
 
   selectAlls() {
-    if (this.homeService.filteredTitlesConference.length > 0 || this.homeService.filteredTitlesJournal.length > 0){
-      for (let title of this.homeService.filteredTitlesJournal) {
-        title.selected = this.selectAll;
-      }
-      for (let title of this.homeService.filteredTitlesConference) {
-        title.selected = this.selectAll;
-      }
+    // Verificar si se debe seleccionar todos los títulos
+    if (this.selectAll) {
+      // Iterar sobre cada título y establecer selected en true
+      this.homeService.filteredTitles.forEach(title => {
+        title.selected = true;
+      });
+    } else {
+      // Si el checkbox se desmarca, deseleccionar todos los títulos
+      this.homeService.filteredTitles.forEach(title => {
+        title.selected = false;
+      });
     }
+    this.existSelectTitle();
   }
+  
 
   selectDecade() {
     for (let year of this.homeService.filteredTitlesConference) {
@@ -543,16 +565,12 @@ export class HomeComponent {
 
   async generateStatistics() {
 
-    const titles = this.homeService.filteredTitlesConference.
-    filter(titulo => titulo.selected).map(titulo => titulo.pr_objeto);
-    
-    const titles2 = this.homeService.filteredTitlesJournal
-    .filter(titulo => titulo.selected && !this.homeService.filteredTitlesConference.map(titulo => titulo.title).includes(titulo.title))
-    .map(titulo => titulo.pr_objeto);
-    const titles3 = [...titles, ...titles2];
+    const titles = this.homeService.filteredTitles.
+    filter(titulo => titulo.selected).map(titulo => titulo.title);
+
     const splitFilters = this.filtersString.split(',').map(filtersString => filtersString.trim());
     this.stadisticsService.cleanTitles();
-    this.stadisticsService.addTitles(titles3);
+    this.stadisticsService.addTitles(titles);
     this.stadisticsService.flagNameVenue(splitFilters)
 
     this.activateLink();

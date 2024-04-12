@@ -14,18 +14,18 @@ router.get('/autocompleteConference/:term', async (req, res) => {
     const query = `
       MATCH (v:Venue)
       WHERE v.name STARTS WITH $searchTerm
-      RETURN DISTINCT v.name as venueName
+      RETURN DISTINCT v.name as venueAndJournalNames
       LIMIT 3
       
       UNION
       
       MATCH (j:Journal)
       WHERE j.name STARTS WITH $searchTerm
-      RETURN DISTINCT j.name as venueName
+      RETURN DISTINCT j.name as venueAndJournalNames
       LIMIT 3
     `;
     const result = await session.run(query, { searchTerm });
-    const venues = result.records.map(record => record.get('venueName'));
+    const venues = result.records.map(record => record.get('venueAndJournalNames'));
 
     res.json(venues);
   } catch (error) {
@@ -70,11 +70,11 @@ router.post('/filterConferences', async (req, res) => {
     const query = `
       MATCH (v:Venue)-[:CELEBRATED_IN]->(a:Year)
       WHERE v.name IN $filterNames
-      RETURN DISTINCT a
+      RETURN DISTINCT a.name as year
     `;
     const result = await session.run(query, { filterNames });
     const years = result.records.map(record => {
-      const yearNode = record.get('a');
+      const yearNode = record.get('year');
       return yearNode;
     });
 
@@ -91,16 +91,16 @@ router.post('/filterConferences', async (req, res) => {
 router.post('/filterJournals', async (req, res) => {
   const session = driver.session({ database: 'neo4j' });
   const filterNames = req.body.filterNames; 
-
+ 
   try {
     const query = `
       MATCH (v:Journal)-[:PUBLISHED_IN]->(a:Year)
       WHERE v.name IN $filterNames
-      RETURN DISTINCT a
+      RETURN DISTINCT a.name as year
     `;
     const result = await session.run(query, { filterNames });
     const years = result.records.map(record => {
-      const yearNode = record.get('a');
+      const yearNode = record.get('year');
       return yearNode;
     });
 
@@ -115,26 +115,25 @@ router.post('/filterJournals', async (req, res) => {
 
 // Query to search the authors of the conferences by year
 router.post('/researchers', async (req, res) => {
-  const venueNames = req.body.venue;
-  const titulosSeleccionados = req.body.titulosSeleccionados;
-  const yearIds = titulosSeleccionados.map(titulo => parseInt(titulo.properties.name, 10)); 
+  const venueAndJournalNames = req.body.venue;
+  const listOfyears = req.body.titulosSeleccionados;
   const session = driver.session({ database: 'neo4j' });
 
 
   try {
     const query = `
     MATCH (v:Venue)-[:CELEBRATED_IN]->(w:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(:Inproceeding)-[:AUTHORED_BY]-(r2:Researcher)
-    WHERE toInteger(w.name) IN $yearIds AND v.name IN $venueNames
+    WHERE w.name IN $listOfyears AND v.name IN $venueAndJournalNames
     RETURN r2 AS researcher, COLLECT(DISTINCT w.name) AS years, v.name AS name
 
     UNION
 
     MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_NUMBER]->(n:Number)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
-    WHERE toInteger(y.name) IN $yearIds AND j.name IN $venueNames
+    WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
     RETURN r AS researcher, COLLECT(DISTINCT y.name) AS years, j.name AS name
 
     `;
-    const result = await session.run(query, { yearIds, venueNames});
+    const result = await session.run(query, { listOfyears, venueAndJournalNames});
     const researchers = result.records.map(record => {
       return {
         researcher: record.get('researcher'),
@@ -153,24 +152,23 @@ router.post('/researchers', async (req, res) => {
 
 // Query to find the papers by year
 router.post('/PapersAndArticles', async (req, res) => {
-  const titulosSeleccionados = req.body.titulosSeleccionados;
-  const venueName = req.body.venue;
-  const years = titulosSeleccionados.map(titulo => parseInt(titulo.properties.name, 10)); 
+  const listOfyears = req.body.titulosSeleccionados;
+  const venueAndJournalNames = req.body.venue;
   const session = driver.session({ database: 'neo4j' });
 
   try {
     query = `
       MATCH (y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Inproceeding)
-      WHERE toInteger(y.name) IN $years AND p.bookTitle IN $venueName
+      WHERE y.name IN $listOfyears AND p.bookTitle IN $venueAndJournalNames
       RETURN toInteger(count(p)) AS numPapersAndArticles, y.name AS yearName, p.bookTitle AS name, "Paper" AS type
 
       UNION 
 
       MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_NUMBER]->(n:Number)-[:HAS_ARTICLE]->(p:Publication)
-      WHERE toInteger(y.name) IN $years AND j.name IN $venueName
+      WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
       RETURN toInteger(count(p)) AS numPapersAndArticles, y.name AS yearName, j.name AS name, "Article" AS type
       `;
-    const result = await session.run(query, { years, venueName });
+    const result = await session.run(query, { listOfyears, venueAndJournalNames });
     const papers = result.records.map(record => {
       return {
         numPapersAndArticles: record.get('numPapersAndArticles'),
@@ -179,6 +177,7 @@ router.post('/PapersAndArticles', async (req, res) => {
         type: record.get('type'),
       };
     });
+
     res.json(papers);
   } catch (error) {
     console.error(error);
@@ -191,15 +190,14 @@ router.post('/PapersAndArticles', async (req, res) => {
 
 // Query to find collaborations by year
 router.post('/collaborations', async (req, res) => {
-  const titulosSeleccionados = req.body.titulosSeleccionados;
-  const venueName = req.body.venue;
-  const years = titulosSeleccionados.map(titulo => parseInt(titulo.properties.name, 10)); 
+  const listOfyears = req.body.titulosSeleccionados;
+  const venueAndJournalNames = req.body.venue;
   const session = driver.session({ database: 'neo4j' });
 
   try {
     let query = `
     MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(ip:Inproceeding)
-    WHERE toInteger(y.name) IN $years AND p.bookTitle IN $venueName
+    WHERE y.name IN $listOfyears AND p.bookTitle IN $venueAndJournalNames
     AND size((p)-[:EDITED_BY]->()) > 1
     AND size((ip)-[:AUTHORED_BY]->()) > 1
     WITH y, collect(p) AS numpColaboraciones, collect(ip) AS numiColaboraciones
@@ -208,13 +206,13 @@ router.post('/collaborations', async (req, res) => {
     UNION
 
     MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_NUMBER]->(n:Number)-[:HAS_ARTICLE]->(p:Publication)
-    WHERE toInteger(y.name) IN $years AND j.name IN $venueName
+    WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
     AND size((p)-[:AUTHORED_BY]->()) > 1
     WITH y, collect(p) AS numpColaboraciones
     RETURN y.name AS year, toFloat(size(apoc.coll.flatten(collect(distinct(numpColaboraciones))))) AS totalColaboraciones
     
     `;
-    const result = await session.run(query, { years, venueName });
+    const result = await session.run(query, { listOfyears, venueAndJournalNames });
     const colaboraciones = result.records.map(record => {
       return {
         numColabs: record.get('totalColaboraciones'),
@@ -233,17 +231,16 @@ router.post('/collaborations', async (req, res) => {
 
 // Query to find the author of the papers by year
 router.post('/AuthorsPapers', async (req, res) => {
-  const titulosSeleccionados = req.body.titulosSeleccionados;
-  const venueName = req.body.venue;
-  const years = titulosSeleccionados.map(titulo => parseInt(titulo.properties.name, 10)); 
+  const listOfyears = req.body.titulosSeleccionados;
+  const venueAndJournalNames = req.body.venue;
   const session = driver.session({ database: 'neo4j' });
 
   try {
     let query = ` 
     MATCH (v:Venue)
-    WHERE v.name IN $venueName
+    WHERE v.name IN $venueAndJournalNames
     MATCH (v)-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(ip:Inproceeding)-[:AUTHORED_BY]->(r1:Researcher)
-    WHERE toInteger(y.name) IN $years AND p.bookTitle IN $venueName
+    WHERE y.name IN $listOfyears AND p.bookTitle IN $venueAndJournalNames
     WITH r1, y, collect(ip.title) AS ipNames, count(distinct ip) AS numPublications
     RETURN r1.name AS researcher, numPublications AS numPublications, y.name AS year, ipNames AS ipNames
 
@@ -251,12 +248,12 @@ router.post('/AuthorsPapers', async (req, res) => {
 
 
     MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_NUMBER]->(n:Number)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r1:Researcher)
-    WHERE toInteger(y.name) IN $years AND j.name IN $venueName
+    WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
     WITH r1, y, collect(p.title) AS ipNames, count(distinct p) AS numPublications
     RETURN r1.name AS researcher, numPublications AS numPublications, y.name AS year, ipNames AS ipNames
     `;
 
-    const result = await session.run(query, { years, venueName });
+    const result = await session.run(query, { listOfyears, venueAndJournalNames });
     const autxpub = result.records.map(record => {
       return {
         researcher: record.get('researcher'),
@@ -277,18 +274,17 @@ router.post('/AuthorsPapers', async (req, res) => {
 
 // Query to find the authors' degree by year
 router.post('/AuthorsDegree', async (req, res) => {
-  const titulosSeleccionados = req.body.titulosSeleccionados;
-  const yearIds = titulosSeleccionados.map(titulo => titulo.identity.low);
+  const listOfyears = req.body.titulosSeleccionados;
   const session = driver.session({ database: 'neo4j' });
 
   try {
     const query = `
         MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(ip:Inproceeding)-[:AUTHORED_BY]->(r:Researcher)
-        WHERE id(y) IN $yearIds
+        WHERE y.name IN $listOfyears
         RETURN r.name AS researcher, degree(r) AS degree
       `;
 
-    const result = await session.run(query, { yearIds });
+    const result = await session.run(query, { listOfyears });
     const autxgrade = result.records.map(record => {
       return {
         researcher: record.get('researcher'),
@@ -494,21 +490,20 @@ router.post('/allConferences', async (req, res) => {
 
 
 router.post('/connectedComponents', async (req, res) => {
-  const venueNames = req.body.venue;
-  const titulosSeleccionados = req.body.titulosSeleccionados;
-  const yearIds = titulosSeleccionados.map(titulo => parseInt(titulo.properties.name, 10)); 
+  const venueAndJournalNames = req.body.venue;
+  const listOfyears = req.body.titulosSeleccionados;
   const session = driver.session({ database: 'neo4j' });
 
   try {
     const query = `
       MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)
-      WHERE v.name IN $venueNames AND toInteger(y.name) IN $yearIds
+      WHERE v.name IN $venueAndJournalNames AND y.name IN $listOfyears
       WITH y
       MATCH p = (y)-[:HAS_PROCEEDING]->(proceeding)-[:HAS_IN_PROCEEDING]->(inproceeding)-[:AUTHORED_BY]->(r:Researcher)
       RETURN y.name AS year, count(DISTINCT ID(r)) AS connectedComponents
     `;
     
-    const result = await session.run(query, { yearIds, venueNames });
+    const result = await session.run(query, { listOfyears, venueAndJournalNames });
     const connectedComponents = result.records.map(record => {
       return {
         year: record.get('year'),
@@ -528,24 +523,23 @@ router.post('/connectedComponents', async (req, res) => {
 
 
 router.post('/connectedComponentsBYvenue', async (req, res) => {
-  const venueNames = req.body.venue;
-  const titulosSeleccionados = req.body.titulosSeleccionados;
-  const yearIds = titulosSeleccionados.map(titulo => parseInt(titulo.properties.name, 10)); 
+  const venueAndJournalNames = req.body.venue;
+  const listOfyears = req.body.titulosSeleccionados;
   const session = driver.session({ database: 'neo4j' });
 
   try {
     const query = `
       MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)
-      WHERE v.name IN $venueNames AND toInteger(y.name) IN $yearIds
-      WITH y, v.name AS venueName
+      WHERE v.name IN $venueAndJournalNames AND y.name IN $listOfyears
+      WITH y, v.name AS venueAndJournalNames
       MATCH p = (y)-[:HAS_PROCEEDING]->(proceeding)-[:HAS_IN_PROCEEDING]->(inproceeding)-[:AUTHORED_BY]->(r:Researcher)
-      RETURN y.name AS year, venueName, count(DISTINCT ID(r)) AS connectedComponents
+      RETURN y.name AS year, venueAndJournalNames, count(DISTINCT ID(r)) AS connectedComponents
     `;
-    const result = await session.run(query, { yearIds, venueNames });
+    const result = await session.run(query, { listOfyears, venueAndJournalNames });
     const connectedComponents = result.records.map(record => {
       return {
         year: record.get('year'),
-        venueName: record.get('venueName'),
+        venueAndJournalNames: record.get('venueAndJournalNames'),
         connectedComponents: record.get('connectedComponents').low,
       };
     });
@@ -563,22 +557,21 @@ router.post('/connectedComponentsBYvenue', async (req, res) => {
 
 // Query to find the authors' degree by year
 router.post('/ConferencebyProceeding', async (req, res) => {
-  const venueNames = req.body.venue;
-  const titulosSeleccionados = req.body.titulosSeleccionados;
-  const yearIds = titulosSeleccionados.map(titulo => parseInt(titulo.properties.name, 10)); 
+  const venueAndJournalNames = req.body.venue;
+  const listOfyears = req.body.titulosSeleccionados;
   const session = driver.session({ database: 'neo4j' });
 
   try {
     const query = `
     MATCH (r:Researcher)-[:AUTHORED_BY]-(inProc:Inproceeding)-[:HAS_IN_PROCEEDING]-(p:Proceeding)-[:HAS_PROCEEDING]-(y:Year)
     WITH p, y, COUNT(DISTINCT inProc) as numberOfInProceedings
-    WHERE (p.bookTitle is null or p.bookTitle IN $venueNames) 
-    AND ANY(venueName IN $venueNames WHERE p.key =~ ("conf/" + tolower(venueName) + "/.*"))
-    AND toInteger(y.name) IN $yearIds
+    WHERE (p.bookTitle is null or p.bookTitle IN $venueAndJournalNames) 
+    AND ANY(venueAndJournalNames IN $venueAndJournalNames WHERE p.key =~ ("conf/" + tolower(venueAndJournalNames) + "/.*"))
+    AND y.name IN $listOfyears
     RETURN REPLACE(REPLACE(REPLACE(p.title, ", Proceedings", ""), y.name, ""), " - ", "") AS title, y.name AS year, numberOfInProceedings
     ORDER BY year
       `;
-    const result = await session.run(query, { yearIds, venueNames });
+    const result = await session.run(query, { listOfyears, venueAndJournalNames });
     const proceedings = result.records.map(record => {
       return {
         title: record.get('title'),

@@ -188,7 +188,7 @@
     <div class="columns">
       <div class="column" *ngFor="let title of homeService.filteredTitles; let i = index">
         <label>
-          <input type="checkbox" [(ngModel)]="title.selected" (change)="titleChanged()">
+          <input type="checkbox" [(ngModel)]="title.selected" (change)=" existSelectTitle()">
           <span [ngClass]="{ 'selected': title.selected }">{{ title.title }}</span>
         </label>
       </div>
@@ -197,9 +197,9 @@
 
    <!-- Generate Stats -->
    <div class="stats" >
-    <div class="button-stats" *ngIf="showButtons">
+    <div class="button-stats" *ngIf="homeService.showButtons">
       <button [hidden]="(this.noResultsFoundConference === true) &&
-      (this.noResultsFoundJournal === true)" [disabled]="!existSelectTitle()" (click)="generateStatistics()">Generate Stats</button>
+      (this.noResultsFoundJournal === true)" [disabled]="!this.select" (click)="generateStatistics()">Generate Stats</button>
     </div>
     <div class="button-clear" *ngIf="homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ">
       <button (click)="clear()">Cancel</button>

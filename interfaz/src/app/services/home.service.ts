@@ -9,9 +9,10 @@ export class HomeService {
   private communities: { name: string, filtersList: string[], selected: boolean  }[] = [];
   public filtersList: string[] = [];
   public currentConferences: string[] = [];
-  public filteredTitles: { title: string, pr_objeto: any, selected: boolean }[] = [];
-  public filteredTitlesJournal: { title: string, pr_objeto: any, selected: boolean }[] = [];
-  public filteredTitlesConference: { title: string, pr_objeto: any, selected: boolean }[] = [];
+  public showButtons = false
+  public filteredTitles: { title: string, selected: boolean }[] = [];
+  public filteredTitlesJournal: { title: string, selected: boolean }[] = [];
+  public filteredTitlesConference: { title: string, selected: boolean }[] = [];
   private _activeLinkSubjectStatistics: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private _activeLinkSubjectNetwork: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 

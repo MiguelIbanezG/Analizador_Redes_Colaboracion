@@ -80,14 +80,12 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
   private onClick(params: any): void {
 
-   
     if (params.nodes.length < 1) {
       if (params.edges.length > 0) {
         this.onClickEdge(params);
       }
     }
-
-}
+  }
 
   private onClickEdge(params: any): void {
 
