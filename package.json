@@ -1,5 +1,5 @@
 {
-  "name": "rest_api",
+  "name": "miguel",
   "version": "1.0.0",
   "main": "server.js",
   "author": "Miguel Ibáñez",
@@ -16,5 +16,6 @@
     "ngx-spinner": "^16.0.2",
     "vis-network": "^9.1.9"
   },
-  "description": "dblp "
+  "description": "dblp ",
+  "devDependencies": {}
 }
