@@ -1,10 +1,8 @@
-import { Component, OnInit, TemplateRef } from '@angular/core';
+import { Component, TemplateRef } from '@angular/core';
 import { ApiService } from '../services/api.service';
-import { Observable, Subscription, map, startWith } from 'rxjs';
 import { Router } from '@angular/router';
 import { StadisticsService } from '../services/stadistics.service';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { InfoService } from '../services/info.service';
 import { HomeService } from '../services/home.service';
 
 
@@ -19,36 +17,30 @@ export class HomeComponent {
   filtersBOX: string = '';
   filterComunities: string[] = [];
   nameCommunity: string = '';
-  completeConference: string[] = [];
+  completeTextBox: string[] = [];
   filteredResults: string[] = [];
   selectAll = false;
-  selectDecades = false;
-  selectDecades2 = false;
-  selectDecades3 = false;
-  selectDecades4 = false;
-  conferenceOption: string = "main";
   showYears: boolean = false;
   showDecades: boolean = false;
   repeated: boolean = false;
   noResultsFoundConference = false;
   noResultsFoundJournal = false;
   modalRef: BsModalRef | undefined;
-  select = false;
+  selectYears = false;
  
-
   constructor(
     private apiService: ApiService, 
     private router: Router,
     private stadisticsService: StadisticsService,
     private modalService: BsModalService,
-    private infoService: InfoService,
     public homeService: HomeService
   ) { }
-  
-  autocompleteConference(term: string): void {
-    this.apiService.autocompleteConference(term).subscribe({
+
+  // API CALL: Function to autocomplete the text box.
+  autocompleteTextBox(term: string): void {
+    this.apiService.autocompleteConferenceAndJournals(term).subscribe({
       next: (response: string[]) => {
-        this.completeConference = response;
+        this.completeTextBox = response;
       },
       error: (error: any) => {
         console.error('Error in autocompleteConference', error);
@@ -56,13 +48,8 @@ export class HomeComponent {
     });
   }
 
-
-  isFilteringDisabled(): boolean {
-    return this.homeService.filtersList.length === 0 && this.homeService.Communities.every(community => !community.selected);
-  }
-
+  // Function to check that the chosen journal or conference exists and is not duplicated
   completeSuggestion(suggestion: string) {
-
 
     if (suggestion.trim() !== '') {
       const filtros = suggestion.trim();
@@ -73,8 +60,6 @@ export class HomeComponent {
         this.repeated = false;
       }
     
-   
-   
       this.apiService.getFilteredNodesConference([filtros]).subscribe({
         next: (response: any[]) => {
 
@@ -156,10 +141,12 @@ export class HomeComponent {
     }
   }
 
+  // Function to select conference o jorunal
   selectSuggestion(suggestion: string) {
     this.filtersBOX = suggestion;
   }
 
+  // Function to delete the conference or journal
   deleteFilter(filter: string) {
     const i = this.homeService.filtersList.indexOf(filter);
     if (i !== -1) {
@@ -171,68 +158,67 @@ export class HomeComponent {
     if (R !== -1) {
       this.homeService.currentConferences.splice(i, 1); 
     }
-    this.execFunctionsYear();
   }
 
+  // Function to delete Community
   deleteCommunity(communityToDelete: { name: string, filtersList: string[], selected: boolean }) {
  
     this.homeService.Communities = this.homeService.Communities.filter(community => {
-
       return !(community.name === communityToDelete.name && community.filtersList === communityToDelete.filtersList && community.selected === communityToDelete.selected);
     });
     
-    for (const filter of communityToDelete.filtersList) {
-            
+    for (const filter of communityToDelete.filtersList) {      
       const i = this.homeService.filtersList.indexOf(filter);
       if (i !== -1) {
         this.homeService.filtersList.splice(i, 1); 
         this.filtersString = this.homeService.filtersList.join(',');
       }
-
-
     }
-
   }
 
+  // Function to create Community
   createCommunity(filtersList: string[]){
    
     this.homeService.Communities.push({ name: this.nameCommunity, filtersList: filtersList, selected: false });
     this.closeModal()
     this.nameCommunity = '';
-
     this.homeService.filtersList = [];
     this.homeService.currentConferences = [];
 
   }
 
+  // Function to wait for the titles of Confrenece or Journal
   async waitTitlesNoEmpty() {
     while (!this.homeService.filteredTitles || this.homeService.filteredTitles.length === 0 ) {
       await new Promise(resolve => setTimeout(resolve, 100)); 
     }
   }
 
+  // Function to search for the years of the selected conferences and journals
   execFunctionsYear(){
     this.homeService.filteredTitlesJournal = [];
     this.homeService.showButtons= false;
     this.homeService.filteredTitlesConference = [];
     this.homeService.filteredTitles = [];
     this.getFilteredNodesJournal();
-    this.getFilteredNodesConference();
+    this.getYearsConference();
     this.waitTitlesNoEmpty();
     this.toggleYears();
   }
 
+  // Function to search for the decades of the selected conferences and journals
   execFunctionsDecades(){
     this.homeService.showButtons= false;
     this.homeService.filteredTitlesJournal = [];
     this.homeService.filteredTitlesConference = [];
     this.homeService.filteredTitles = [];
     this.getFilteredNodesJournal();
-    this.getFilteredNodesConference();
+    this.getYearsConference();
     this.waitTitlesNoEmpty();
     this.toggleDecades();
   }
 
+  // Function to change the selection of years
   toggleYears() {
     this.showYears = !this.showYears;
       if(this.showDecades == true){
@@ -240,6 +226,7 @@ export class HomeComponent {
       }
   }
 
+  // Function to change the selection of decades
   toggleDecades() {
     this.showDecades = !this.showDecades;
       if(this.showYears == true){
@@ -247,29 +234,29 @@ export class HomeComponent {
       }
   }
 
+  // Function to clear all selections
   clear(){
     this.homeService.filteredTitles = [];
     this.homeService.filtersList = [];
     this.homeService.filteredTitlesConference = [];
     this.homeService.filteredTitlesJournal = [];
-    this.completeConference = [];
+    this.completeTextBox = [];
     this.homeService.currentConferences = [];
     this.homeService.filteredTitlesJournal = [];
     this.homeService.filteredTitlesConference = [];
     this.homeService.showButtons= false;
   }
 
-  getFilteredNodesConference() {
+  // API CALL: Function to search for the years of the conferences
+  getYearsConference() {
 
     this.homeService.Communities.forEach(community => {
-
       if(community.selected == true){
         this.filterComunities = this.filterComunities.concat(community.filtersList);
       }else{
         this.filterComunities = this.filterComunities.filter(filterItem => !community.filtersList.includes(filterItem));
         this.homeService.filtersList = this.homeService.filtersList.filter(filterItem => !community.filtersList.includes(filterItem));
       }
-    
     });
 
     this.homeService.filtersList = this.homeService.filtersList.concat(this.filterComunities);
@@ -285,28 +272,30 @@ export class HomeComponent {
 
     this.apiService.getFilteredNodesConference(this.homeService.filtersList).subscribe({
       next: (response: any[]) => {
-        // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
+
         this.filteredResults = response.map(item => item);
-        console.log(response)
+
         if(this.homeService.filteredTitlesConference.length < 1){
           this.homeService.showButtons = true;
-          const uniqueYears = [...new Set(response)]; // Elimina años duplicados
+          const uniqueYears = [...new Set(response)]; 
+
           this.homeService.filteredTitlesConference = uniqueYears.map(year => ({
             title: year,
             selected: false
           }));
+
           if (this.filteredResults.length === 0) {
             this.noResultsFoundConference = true;
           } else {
             this.noResultsFoundConference = false;
           }
         }
+
         this.homeService.filteredTitles = [];
         this.homeService.filteredTitles = [...this.homeService.filteredTitlesJournal, ...this.homeService.filteredTitlesConference];
         
         const uniqueTitlesSet = new Set(this.homeService.filteredTitles.map(title => title.title));
         
-        // Convertir el conjunto de nuevo a una matriz si es necesario
         this.homeService.filteredTitles = Array.from(uniqueTitlesSet).map(title => ({
           title,
           selected: false
@@ -316,33 +305,15 @@ export class HomeComponent {
           const yearA = parseInt(a.title, 10);
           const yearB = parseInt(b.title, 10);
           return yearA - yearB;
-        });
-
-        // for (const title of this.homeService.filteredTitles) {
-        //     if (!uniqueTitles.some(existingTitle => existingTitle.title == title.title)) {
-        //         uniqueTitles.push(title);
-        //     }
-        // }
-
-        // function compararPorAño(a: { title: string; }, b: { title: string; }) {
-        //   const yearA = parseInt(a.title);
-        //   const yearB = parseInt(b.title);
-        //   return yearA - yearB;
-        // }
-
-        //  uniqueTitles.sort(compararPorAño);
-    
-        //  this.homeService.filteredTitles = uniqueTitles;
-        
+        });  
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);
-      }
-      
+      } 
     });
-
   }
 
+  // API CALL: Function to search for the years of the Journals
   getFilteredNodesJournal() {
 
     this.homeService.Communities.forEach(community => {
@@ -369,27 +340,30 @@ export class HomeComponent {
 
     this.apiService.getFilteredNodesJournal(this.homeService.filtersList).subscribe({
       next: (response: any[]) => {
-        // this.resultadosFiltrados = response.map(item => JSON.stringify(item));
+
         this.filteredResults = response.map(item => item);
+
         if(this.homeService.filteredTitlesJournal.length < 1){
           this.homeService.showButtons = true;
-          const uniqueYears = [...new Set(response)]; // Elimina años duplicados
+          const uniqueYears = [...new Set(response)]; 
+
           this.homeService.filteredTitlesJournal = uniqueYears.map(year => ({
             title: year,
             selected: false
           }));
+
           if (this.filteredResults.length === 0) {
             this.noResultsFoundJournal = true;
           } else {
             this.noResultsFoundJournal = false;
           }
         }
+
         this.homeService.filteredTitles = [];
         this.homeService.filteredTitles = [...this.homeService.filteredTitlesJournal, ...this.homeService.filteredTitlesConference];
 
         const uniqueTitlesSet = new Set(this.homeService.filteredTitles.map(title => title.title));
 
-        // Convertir el conjunto de nuevo a una matriz si es necesario
         this.homeService.filteredTitles = Array.from(uniqueTitlesSet).map(title => ({
           title,
           selected: false
@@ -400,169 +374,107 @@ export class HomeComponent {
           const yearB = parseInt(b.title, 10);
           return yearA - yearB;
         });
-
-        // const uniqueTitles: { title: string; pr_objeto: any; selected: boolean; }[] = [];
-
-        // for (const title of this.homeService.filteredTitles) {
-        //     if (!uniqueTitles.some(existingTitle => existingTitle.title == title.title)) {
-        //         uniqueTitles.push(title);
-        //     }
-        // }
-
-        // function compararPorAño(a: { title: string; }, b: { title: string; }) {
-        //   const yearA = parseInt(a.title);
-        //   const yearB = parseInt(b.title);
-        //   return yearA - yearB;
-        // }
-
-        // uniqueTitles.sort(compararPorAño);
-    
-        // this.homeService.filteredTitles = uniqueTitles;
       },
       error: (error: any) => {
         console.error('Error al obtener los resultados filtrados:', error);
-      }
-      
+      }   
     });
   }
 
+  // Function to check if there is any selected year
   existSelectTitle() {
     if (this.homeService.filteredTitles.some(titulo => titulo.selected)){
-      this.select = true;
+      this.selectYears = true;
     }else{
-      this.select = false;
+      this.selectYears = false;
     }
   }
 
+  // Function to select all years
   selectAlls() {
-    // Verificar si se debe seleccionar todos los títulos
+
     if (this.selectAll) {
-      // Iterar sobre cada título y establecer selected en true
       this.homeService.filteredTitles.forEach(title => {
         title.selected = true;
       });
     } else {
-      // Si el checkbox se desmarca, deseleccionar todos los títulos
       this.homeService.filteredTitles.forEach(title => {
         title.selected = false;
       });
     }
+
     this.existSelectTitle();
   }
-  
 
-  selectDecade() {
-    for (let year of this.homeService.filteredTitlesConference) {
+  // Select the decade of the 1980s
+  selectDecade1980() {
+  
+    for (let year of this.homeService.filteredTitles) {
+      if (year.title == "1979" || year.title == "1980" ||year.title == "1981" ||year.title == "1982" ||
+      year.title == "1983" || year.title == "1984" ||year.title == "1985" ||year.title == "1986" ||
+      year.title == "1987" || year.title == "1988" || year.title == "1989") {
+        year.selected = true;
+      } 
+    }
+    this.existSelectTitle()
+  }
+
+  // Select the decade of the 1990s
+  selectDecade1990() {
+    for (let year of this.homeService.filteredTitles) {
       if (year.title == "1989" || year.title == "1990" ||year.title == "1991" || year.title == "1992" ||
       year.title == "1993" || year.title == "1994" ||year.title == "1995" || year.title == "1996" ||
       year.title == "1997" || year.title == "1998" || year.title == "1999") {
-        year.selected = this.selectDecades;
+        year.selected = true;
       } 
     }
-    for (let year of this.homeService.filteredTitlesJournal) {
-      if (year.title == "1989" || year.title == "1990" ||year.title == "1991" || year.title == "1992" ||
-      year.title == "1993" || year.title == "1994" ||year.title == "1995" || year.title == "1996" ||
-      year.title == "1997" || year.title == "1998" || year.title == "1999") {
-        year.selected = this.selectDecades;
-      } 
-    }
+    this.existSelectTitle()
   }
 
-  selectDecade2() {
+  // Select the decade of the 2000s
+  selectDecade2000() {
   
-    for (let year of this.homeService.filteredTitlesConference) {
-      if (year.title == "2000" || year.title == "2001" ||year.title == "2002" ||year.title == "2003" ||
+    for (let year of this.homeService.filteredTitles) {
+      if (year.title == "1999" ||  year.title == "2000" || year.title == "2001" ||year.title == "2002" ||year.title == "2003" ||
       year.title == "2004" || year.title == "2005" ||year.title == "2006" ||year.title == "2007" ||
       year.title == "2008" || year.title == "2009") {
-        year.selected = this.selectDecades2;
+        year.selected = true;
       } 
     }
-    for (let year of this.homeService.filteredTitlesJournal) {
-      if (year.title == "2000" || year.title == "2001" ||year.title == "2002" ||year.title == "2003" ||
-      year.title == "2004" || year.title == "2005" ||year.title == "2006" ||year.title == "2007" ||
-      year.title == "2008" || year.title == "2009") {
-        year.selected = this.selectDecades2;
-      } 
-    }
+    this.existSelectTitle()
   }
 
-  selectDecade3() {
+  // Select the decade of the 2010s
+  selectDecade2010() {
   
-    for (let year of this.homeService.filteredTitlesConference) {
-      if (year.title == "2010" ||year.title == "2011" ||year.title == "2012" ||
+    for (let year of this.homeService.filteredTitles) {
+      if (year.title == "2009" || year.title == "2010" || year.title == "2011" ||year.title == "2012" ||
       year.title == "2013" || year.title == "2014" ||year.title == "2015" || year.title == "2016" ||
       year.title == "2017" || year.title == "2018" || year.title == "2019") {
-        year.selected = this.selectDecades3;
+        year.selected = true;
       } 
     }
-
-    for (let year of this.homeService.filteredTitlesJournal) {
-      if (year.title == "2010" ||year.title == "2011" ||year.title == "2012" ||
-      year.title == "2013" || year.title == "2014" ||year.title == "2015" || year.title == "2016" ||
-      year.title == "2017" || year.title == "2018" || year.title == "2019") {
-        year.selected = this.selectDecades3;
-      } 
-    }
+    this.existSelectTitle()
   }
 
-  selectDecade4() {
+  // Select the decade of the 2020s
+  selectDecade2020() {
   
-    for (let year of this.homeService.filteredTitlesConference) {
-      if (year.title == "2020" ||year.title == "2021" ||year.title == "2022" ||
+    for (let year of this.homeService.filteredTitles) {
+      if ( year.title == "2019" || year.title == "2020" ||year.title == "2021" ||year.title == "2022" ||
       year.title == "2023" || year.title == "2024"){
-        year.selected = this.selectDecades4;
+        year.selected = true;
       } 
     }
-
-    for (let year of this.homeService.filteredTitlesJournal) {
-      if (year.title == "2020" ||year.title == "2021" ||year.title == "2022" ||
-      year.title == "2023" || year.title == "2024"){
-        year.selected = this.selectDecades4;
-      } 
-    }
+    this.existSelectTitle()
   }
 
-  titleChanged() {
-    let all = true;
-
-    for (let titulo1 of this.homeService.filteredTitles) {
-      for (let titulo of this.homeService.filteredTitlesJournal) {
-        if (titulo1.title == titulo.title) {
-          if(titulo1.selected == true){
-            titulo.selected == true;
-          }
-        }
-      }
-      for (let titulo of this.homeService.filteredTitlesConference) {
-        if (titulo1.title == titulo.title) {
-          if(titulo1.selected == true){
-            titulo.selected == true;
-          }
-        }
-      }
-    }
-
-    for (let titulo of this.homeService.filteredTitlesConference) {
-      if (!titulo.selected) {
-        all = false;
-        break;
-      }
-    }
-    for (let titulo of this.homeService.filteredTitlesJournal) {
-      if (!titulo.selected) {
-        all = false;
-        break;
-      }
-    }
-
-    this.selectAll = all;
-  }
-
+  // Function to activate the statistics link
   activateLink() {
     this.homeService.setActiveLinkStatistics(true);
   }
 
-
+  // Function to generate statistics.
   async generateStatistics() {
 
     const titles = this.homeService.filteredTitles.
@@ -571,18 +483,18 @@ export class HomeComponent {
     const splitFilters = this.filtersString.split(',').map(filtersString => filtersString.trim());
     this.stadisticsService.cleanTitles();
     this.stadisticsService.addTitles(titles);
-    this.stadisticsService.flagNameVenue(splitFilters)
+    this.stadisticsService.flagConferenceOrJournalName(splitFilters)
 
     this.activateLink();
-
     this.router.navigateByUrl('/statistics');
-
   }
 
+  // Function to open the modal
   openModal(template: TemplateRef<any>) {
     this.modalRef = this.modalService.show(template)
   }
 
+  // Function to close the modal
   closeModal() {
     this.modalRef?.hide();
   }

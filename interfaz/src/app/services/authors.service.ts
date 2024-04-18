@@ -5,13 +5,13 @@ import { Injectable } from '@angular/core';
 })
 export class AuthorsService {
 
-    private authors:String[] = []
+    private authors: string[] = []
 
-    get Communities() {
+    get Authors() {
         return this.authors;
     }
     
-    set Communities( authors:String[] ) {
+    set Authors( authors: string[] ) {
         this.authors = authors;
     }
     

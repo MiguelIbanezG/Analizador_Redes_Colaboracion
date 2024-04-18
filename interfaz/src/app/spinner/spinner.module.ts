@@ -13,9 +13,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { SpinnerComponent } from './spinner.component';
 import { CommonModule } from '@angular/common';
 
-
-
-
 @NgModule({
   declarations: [
     SpinnerComponent,

@@ -10,8 +10,6 @@ import { AppNetworkService } from '../services/network.service';
 import { Subject } from 'rxjs';
 import { AppNetworkInitService } from '../services/network.init.service';
 import { Node } from '../models/network.model'
-import { ApiService } from '../services/api.service';
-
 
 @Component({
   selector: 'app-networks',
@@ -50,12 +48,10 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
   public ngOnInit(): void {
 
-
     this.nameAuthor = this.appNetworkInitService.selectedAuthors;
 
     const networkOptions = this.appNetworkService.getNetworkOptions();
     networkOptions.height = '800px'; 
-
 
     this.nodes = this.appNetworkInitService.getNodes();
     this.edges = this.appNetworkInitService.getEdges();
@@ -78,6 +74,7 @@ export class NetworksComponent implements OnInit, OnDestroy {
     if (this.network != null) this.network.destroy();
   }
 
+  // Function to differentiate the selection of edges and nodes
   private onClick(params: any): void {
 
     if (params.nodes.length < 1) {
@@ -87,6 +84,7 @@ export class NetworksComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Function so that common publications appear when clicking on an edge
   private onClickEdge(params: any): void {
 
     const edgeId = params.edges[0];
@@ -114,7 +112,7 @@ export class NetworksComponent implements OnInit, OnDestroy {
  
   }
 
-
+  // Function so that common publications appear when clicking on an node
   private onSelect(params: any): void {
 
     if (params.nodes.length == 1) {

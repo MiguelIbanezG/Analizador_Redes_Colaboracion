@@ -2,8 +2,10 @@
 <div class="container">
 
   <div class="title-container">
+
+    <!-- Homepage log -->
     <svg width="600" height="200">
-      <!-- Círculos -->
+      <!-- Circles -->
       <circle cx="40" cy="110" r="30" fill="rgb(0, 22, 68)" />
       <circle cx="70" cy="50" r="20" fill="rgb(0, 22, 68)" />
       <circle cx="130" cy="30" r="17" fill="rgb(0, 22, 68)" />
@@ -17,7 +19,7 @@
       <circle cx="480" cy="80" r="10" fill="rgb(0, 22, 68)" />
       <circle cx="550" cy="110" r="30" fill="rgb(0, 22, 68)" />
       
-      <!-- Líneas -->
+      <!-- Lines -->
       <line x1="40" y1="110" x2="70" y2="50" style="stroke:rgb(0, 22, 68);stroke-width:2" />
       <line x1="40" y1="110" x2="130" y2="70" style="stroke:rgb(0, 22, 68);stroke-width:2" />
       <line x1="70" y1="50" x2="130" y2="30" style="stroke:rgb(0, 22, 68);stroke-width:2" />
@@ -43,34 +45,38 @@
     <h1>Collaboration Networks</h1>
   </div>
 
- 
-
-  <!-- Search Conference -->
+  <!-- Search Conference or Journal-->
   <div class="box-conference">
-    <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Conference or Journal" (keyup.enter)="completeSuggestion(filtersBOX)" (input)="autocompleteConference(filtersBOX)">
+
+    <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Conference or Journal" (keyup.enter)="completeSuggestion(filtersBOX)" (input)="autocompleteTextBox(filtersBOX)">
     <button class="button-add"  type="button" (click)="completeSuggestion(filtersBOX)">Add</button>
+    
+     <!-- Not found result -->
     <div class="noResults" *ngIf="noResultsFoundConference && noResultsFoundJournal">
       <p>Conference or Journal not found. Please try another Conference or Journal</p>
     </div>  
 
+    <!-- Already selected-->
     <div class="noResults" *ngIf="repeated">
-      <p>This conference or diary is already selected</p>
+      <p>This conference or journal is already selected</p>
     </div>
 
+    <!-- Autocomplete options -->
     <div>
       <ul>
-        <li class="click-element " *ngFor="let suggestion of completeConference" (click)="selectSuggestion(suggestion)">
+        <li class="click-element " *ngFor="let suggestion of completeTextBox" (click)="selectSuggestion(suggestion)">
           {{ suggestion }}
         </li>
       </ul>
     </div>
+
   </div>
 
 
-
-
+   <!-- List of conferences and journals and Communities -->
   <div *ngIf="this.homeService.filtersList.length > 0 || this.homeService.Communities.length >0 " class="filters-list">
     
+    <!-- List of Coummunities -->
     <div *ngIf="this.homeService.Communities.length > 0" class="community-container">
       <p>Communities</p>
       <hr>
@@ -81,13 +87,19 @@
         <ul>
           <li *ngFor="let filterItem of filter.filtersList">{{ filterItem }}</li>
         </ul>
+
         <hr class="slim" *ngIf="!last">
+
       </div>
     </div>
 
+     <!-- List of conferences and journals -->
     <div *ngIf="this.homeService.currentConferences.length > 0">
+
       <p>Current Conferences and Journls:</p>
+
       <hr>
+
       <ul>
         <li *ngFor="let filter of homeService.currentConferences">
           {{ filter }}
@@ -103,8 +115,7 @@
     
   </div>
 
-
-
+  <!-- Modal to create Community -->
   <ng-template #community>
     <div class="custom-modal">
       <div class="modal-container">
@@ -134,7 +145,7 @@
   </ng-template>
   
 
-  <!-- Buttons Filter -->
+  <!-- Buttons Filter Years and Decades -->
   <div class="buttons">
     <div class="button-years">
       <button (click)="execFunctionsYear()" [disabled]="homeService.filtersList.length === 0 && homeService.Communities.length === 0">Filter by years</button>
@@ -146,30 +157,38 @@
 
   <!-- Filter by Decade -->
   <div class="decades" *ngIf="showDecades && !showYears">
+
     <div *ngIf="homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ">
       <label>
-        <input type="checkbox" [(ngModel)]="selectDecades" (change)="selectDecade()">
+        <input type="checkbox" (change)="selectDecade1980()">
+        <span>1979-1989</span>
+      </label>
+    </div>
+  
+    <div *ngIf="homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ">
+      <label>
+        <input type="checkbox" (change)="selectDecade1990()">
         <span>1989-1999</span>
       </label>
     </div>
   
     <div *ngIf="homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ">
       <label>
-        <input type="checkbox" [(ngModel)]="selectDecades2" (change)="selectDecade2()">
+        <input type="checkbox" (change)="selectDecade2000()">
         <span>1999-2009</span>
       </label>
     </div>
   
     <div *ngIf="homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ">
       <label>
-        <input type="checkbox" [(ngModel)]="selectDecades3" (change)="selectDecade3()">
+        <input type="checkbox" (change)="selectDecade2010()">
         <span>2009-2019</span>
       </label>
     </div>
   
     <div *ngIf="homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ">
       <label>
-        <input type="checkbox" [(ngModel)]="selectDecades4" (change)="selectDecade4()">
+        <input type="checkbox" (change)="selectDecade2020()">
         <span>2019-2024</span>
       </label>
     </div>
@@ -196,23 +215,25 @@
   </div>
 
    <!-- Generate Stats -->
-   <div class="stats" >
+  <div class="stats" >
+
     <div class="button-stats" *ngIf="homeService.showButtons">
       <button [hidden]="(this.noResultsFoundConference === true) &&
-      (this.noResultsFoundJournal === true)" [disabled]="!this.select" (click)="generateStatistics()">Generate Stats</button>
+      (this.noResultsFoundJournal === true)" [disabled]="!this.selectYears" (click)="generateStatistics()">Generate Stats</button>
     </div>
+
     <div class="button-clear" *ngIf="homeService.filteredTitlesConference.length > 0 || homeService.filteredTitlesJournal.length > 0 ">
       <button (click)="clear()">Cancel</button>
     </div>
     
   </div>
+
+    <!-- Button to open Help Modal -->
   <div class="modal-button">
     <button class="help" (click)="openModal(template)">?</button>
   </div>
 
-
 </div>
-
 
 <ng-template #template>
   <div class="custom-modal">
@@ -225,16 +246,15 @@
           </button>
         </div>
         <div class="modal-body">
-          <p>Buscar solo uno:</p>
+          <p>How do I generate statistics for journals and conferences?</p>
           <ul>
-            <li>ER</li>
-            <li>World Wide Web</li>
-            <!-- Agrega más elementos de la lista aquí -->
+            <li>First step: write down your conferences or journals and press add to add it to the list</li>
+            <li>Second step: then click on the filter by years button or on the filter by decades button </li>
+            <li>Third step, select the desired years and click on the generate statistics button </li>
           </ul>
           <p>Buscar mas de uno (separar por comas):</p>
           <ul>
             <li>ER, 3DOR, BDM</li>
-            <!-- Agrega más elementos de la lista aquí -->
           </ul>
         </div>
       </div>

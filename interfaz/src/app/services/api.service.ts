@@ -11,9 +11,9 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  autocompleteConference(term: string): Observable<string[]> {
+  autocompleteConferenceAndJournals(term: string): Observable<string[]> {
     const params = new HttpParams().set('term', term);
-    return this.http.get<string[]>(`${this.baseUrl}/autocompleteConference/${term}`, { params });
+    return this.http.get<string[]>(`${this.baseUrl}/autocompleteConferenceAndJournals/${term}`, { params });
   }
 
   autocompleteAuthors(term: string): Observable<string[]> {
@@ -29,7 +29,7 @@ export class ApiService {
     return this.http.post<string[]>(`${this.baseUrl}/filterJournals`, { filterNames: filtros });
   }
 
-  getResearchersConference(titulosSeleccionados: any[], venue: string[]): Observable<any> {
+  getResearchersConferenceAndJournals(titulosSeleccionados: any[], venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/researchers`, { titulosSeleccionados, venue});
   }
 
@@ -41,8 +41,8 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/collaborations`, { titulosSeleccionados, venue });
   }
 
-  getAuthorsPapers(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {
-     return this.http.post<any>(`${this.baseUrl}/AuthorsPapers`, { titulosSeleccionados, option, venue });
+  getAuthorsPapersAndArticles(titulosSeleccionados: any[], venue: string[]): Observable<any> {
+     return this.http.post<any>(`${this.baseUrl}/AuthorsPapersAndArticles`, { titulosSeleccionados, venue });
   }
 
   getAuthorsDegree(titulosSeleccionados: any[], option: string, venue: string[]): Observable<any> {

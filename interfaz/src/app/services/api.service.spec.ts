@@ -23,20 +23,4 @@ describe('ApiService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
-
-  // it('should retrieve publications', () => {
-  //   const dummyPublications = [
-  //     { id: 1, title: 'Publication 1' },
-  //     { id: 2, title: 'Publication 2' }
-  //   ];
-
-  //   service.getPublications().subscribe(publications => {
-  //     expect(publications.length).toBe(2);
-  //     expect(publications).toEqual(dummyPublications);
-  //   });
-
-  //   const req = httpMock.expectOne('http://localhost:3000/api/publications');
-  //   expect(req.request.method).toBe('GET');
-  //   req.flush(dummyPublications);
-  // });
 });

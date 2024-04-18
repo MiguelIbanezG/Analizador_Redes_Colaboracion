@@ -1,8 +1,9 @@
 <div class="container">
 
   <div class="title-container">
+    <!-- AuthorPage log -->
     <svg width="600" height="200">
-      <!-- Círculos -->
+      <!-- Circles -->
       <image class="img" href="assets/imagen1.png" x="20" y="90" width="50" height="50" />
       <image class="img" href="assets/imagen1.png" x="60" y="30" width="30" height="30" />
       <image class="img" href="assets/imagen1.png" x="110" y="0" width="40" height="40" />
@@ -16,7 +17,7 @@
       <image class="img" href="assets/imagen1.png" x="470" y="65" width="20" height="20" />
       <image class="img" href="assets/imagen1.png" x="530" y="90" width="50" height="50" />
       
-      <!-- Líneas -->
+      <!-- Lines -->
       <line x1="40" y1="130" x2="70" y2="50" style="stroke:rgb(0, 22, 68);stroke-width:2" />
       <line x1="40" y1="130" x2="140" y2="90" style="stroke:rgb(0, 22, 68);stroke-width:2" />
       <line x1="70" y1="50" x2="130" y2="30" style="stroke:rgb(0, 22, 68);stroke-width:2" />
@@ -46,13 +47,17 @@
     <div class="box-conference">
       <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Author" (input)="autocompleteAuthor(filtersBOX)">
       <button class="button-add" (click)="completeSuggestion(filtersBOX)" type="button">Add</button>
+      
+      <!-- Not found result -->
       <div class="noResults" *ngIf="noResults">
         <p>Author not found. Please try another Author</p>
       </div>  
-  
+      <!-- Already selected-->
       <div class="noResults" *ngIf="repeated">
         <p>This Author is already selected</p>
       </div>
+
+      <!-- Autocomplete options -->
       <div>
         <ul>
           <li class="click-element " *ngFor="let suggestion of completeAuthor" (click)="selectSuggestion(suggestion)">
@@ -62,12 +67,13 @@
       </div>
     </div>
 
-    <div *ngIf="this.authors.length > 0" class="filters-list">
+    <!-- List of Authors -->
+    <div *ngIf="this.authorService.Authors.length > 0" class="filters-list">
       <div>
         <p>Authors:</p>
         <hr>
         <ul>
-          <li *ngFor="let filter of authors">
+          <li *ngFor="let filter of this.authorService.Authors">
             {{ filter }}
             <button class="button-delete" (click)="deleteFilter(filter)">X</button>
           </li>
@@ -78,16 +84,17 @@
     <!-- Buttons Filter -->
     <div fxFlex class="buttons" fxLayoutGap="20px">
       <div class="button-publications">
-        <button (click)="getAuthorsPublications()" [disabled]="authors.length === 0 ">Search Publications</button>
+        <button (click)="getAuthorsPublications()" [disabled]="this.authorService.Authors.length === 0 ">Search Publications</button>
       </div>
 
       <div class="button-publications">
-        <button (click)="getNetworksAuthor()" [disabled]="authors.length === 0 || authors.length > 1">Create Graph</button>
+        <button (click)="getNetworksAuthor()" [disabled]="this.authorService.Authors.length === 0 || this.authorService.Authors.length > 1">Create Graph</button>
       </div>
     </div>
 
 </div>
 
+<!-- Legend Publications-->
 <div *ngIf="showPublications">
   <div id="legend" class="legend">
     <div class="legend-item">
@@ -107,23 +114,24 @@
 
 <hr class="line" *ngIf="showPublications">
 
-  <div class="flex-container" >
-    <div class="container-table2">
-      <div class="table">
-        <table id="tablePublications">
-          <thead>
-            <tr *ngIf="showPublications" >
-              <th></th>
-              <th style="padding-left: 20px; padding-right: 50px;">Publications</th>
-              <th style="padding-right: 30px;">Date</th>
-              <th>Authors Name</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+<!-- Publications-->
+<div class="flex-container" >
+  <div class="container-table">
+    <div class="table">
+      <table id="tablePublications">
+        <thead>
+          <tr *ngIf="showPublications" >
+            <th></th>
+            <th style="padding-left: 20px; padding-right: 50px;">Publications</th>
+            <th style="padding-right: 30px;">Date</th>
+            <th>Authors Name</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
+</div>
 
 
 

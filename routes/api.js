@@ -6,7 +6,7 @@ const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', '
 
 
 // Query to autocomplete in search engine
-router.get('/autocompleteConference/:term', async (req, res) => {
+router.get('/autocompleteConferenceAndJournals/:term', async (req, res) => {
   const searchTerm = req.params.term; 
   const session = driver.session({ database: 'neo4j' });
 
@@ -230,7 +230,7 @@ router.post('/collaborations', async (req, res) => {
 });
 
 // Query to find the author of the papers by year
-router.post('/AuthorsPapers', async (req, res) => {
+router.post('/AuthorsPapersAndArticles', async (req, res) => {
   const listOfyears = req.body.titulosSeleccionados;
   const venueAndJournalNames = req.body.venue;
   const session = driver.session({ database: 'neo4j' });
@@ -266,7 +266,7 @@ router.post('/AuthorsPapers', async (req, res) => {
     res.json(autxpub);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in AuthorsPapers', details: error.message });
+    res.status(500).json({ error: 'Error in AuthorsPapersAndArticles', details: error.message });
   } finally {
     session.close();
   }
@@ -555,7 +555,7 @@ router.post('/connectedComponentsBYvenue', async (req, res) => {
   }
 });
 
-// Query to find the authors' degree by year
+// Query to find the Conferencew by proceeding
 router.post('/ConferencebyProceeding', async (req, res) => {
   const venueAndJournalNames = req.body.venue;
   const listOfyears = req.body.titulosSeleccionados;

@@ -3,6 +3,7 @@ import { ApiService } from '../services/api.service';
 import { HomeService } from '../services/home.service';
 import { AppNetworkInitService } from '../services/network.init.service';
 import { Router } from '@angular/router';
+import { AuthorsService } from '../services/authors.service';
 
 @Component({
   selector: 'app-authors',
@@ -14,55 +15,27 @@ export class AuthorsComponent {
 
   filtersBOX: string = '';
   completeAuthor: string[] = [];
-  authors: string[] = [];
   authorsQuery: string[] = [];
   publications: string[] = [];
   showPublications = false;
-  networkData: string[] = [];
   noResults = false;
   repeated = false;
-
 
   constructor(
     private apiService: ApiService,
     public homeService: HomeService,
+    public authorService: AuthorsService,
     private networkInitService: AppNetworkInitService,
     private router: Router,
   ) { }
 
+  // API CALL: Function to autocomplete the text box.
   autocompleteAuthor(term: string): void {
     term = this.replaceAuthor(term);
     this.apiService.autocompleteAuthors(term).subscribe({
       next: (response: string[]) => {
 
-        this.completeAuthor = response.map(author => {
-          // Reemplazar caracteres especiales
-          author = author.replace(/&aacute;/g, 'á')
-            .replace(/&eacute;/g, 'é')
-            .replace(/&iacute;/g, 'í')
-            .replace(/&oacute;/g, 'ó')
-            .replace(/&uacute;/g, 'ú')
-            .replace(/&ntilde;/g, 'ñ')
-            .replace(/&Aacute;/g, 'Á')
-            .replace(/&Eacute;/g, 'É')
-            .replace(/&Iacute;/g, 'Í')
-            .replace(/&Oacute;/g, 'Ó')
-            .replace(/&Uacute;/g, 'Ú')
-            .replace(/&Ntilde;/g, 'Ñ')
-            .replace(/&agrave;/g, 'à')
-            .replace(/&egrave;/g, 'è')
-            .replace(/&ograve;/g, 'ò')
-            .replace(/&Agrave;/g, 'À')
-            .replace(/&Egrave;/g, 'È')
-            .replace(/&Ograve;/g, 'Ò')
-            .replace(/&acirc;/g, 'â')
-            .replace(/&Acirc;/g, 'Â')
-            .replace(/&atilde;/g, 'ã')
-            .replace(/&Atilde;/g, 'Ã')
-            .replace(/&ouml;/g, 'ö')
-            .replace(/&Ouml;/g, 'Ö');
-          return author;
-        });
+        this.completeAuthor = this.includeAccentMarks(response)
         this.normalized()
       },
       error: (error: any) => {
@@ -71,7 +44,7 @@ export class AuthorsComponent {
     });
   }
 
-
+  // Function to delete author errors in the database
   normalized() {
     const uniqueAuthors: string[] = [];
     const processedAuthors: string[] = [];
@@ -86,82 +59,17 @@ export class AuthorsComponent {
         uniqueAuthors.push(normalizedAuthor);
         const index = uniqueAuthors.findIndex(a => a.normalize("NFD").replace(/[\u0300-\u036f]/g, "") === normalizedAuthor);
         if (index !== -1) {
-          uniqueAuthors.splice(index, 1); // Eliminar el autor que no está normalizado de uniqueAuthors
+          uniqueAuthors.splice(index, 1); 
         }
       }
-
     }
-
-
-    // Actualizar la lista completa de autores
     this.completeAuthor = uniqueAuthors;
   }
 
-  replaceQuery() {
-    this.authorsQuery = this.authors.map(author => {
-      // Reemplazar caracteres especiales
-      author = author.replace(/á/g, '&aacute;')
-        .replace(/é/g, '&eacute;')
-        .replace(/í/g, '&iacute;')
-        .replace(/ó/g, '&oacute;')
-        .replace(/ú/g, '&uacute;')
-        .replace(/ñ/g, '&ntilde;')
-        .replace(/Á/g, '&Aacute;')
-        .replace(/É/g, '&Eacute;')
-        .replace(/Í/g, '&Iacute;')
-        .replace(/Ó/g, '&Oacute;')
-        .replace(/Ú/g, '&Uacute;')
-        .replace(/Ñ/g, '&Ntilde;')
-        .replace(/à/g, '&agrave;')
-        .replace(/è/g, '&egrave;')
-        .replace(/ò/g, '&ograve;')
-        .replace(/À/g, '&Agrave;')
-        .replace(/È/g, '&Egrave;')
-        .replace(/Ò/g, '&Ograve;')
-        .replace(/â/g, '&acirc;')
-        .replace(/Â/g, '&Acirc;')
-        .replace(/ã/g, '&atilde;')
-        .replace(/Ã/g, '&Atilde;')
-        .replace(/ö/g, '&ouml;')
-        .replace(/Ö/g, '&Ouml;');
-      return author;
-    });
-
-  }
-
-  replaceAuthor(author: string) {
-      // Reemplazar caracteres especiales
-      author = author.replace(/á/g, '&aacute;')
-        .replace(/é/g, '&eacute;')
-        .replace(/í/g, '&iacute;')
-        .replace(/ó/g, '&oacute;')
-        .replace(/ú/g, '&uacute;')
-        .replace(/ñ/g, '&ntilde;')
-        .replace(/Á/g, '&Aacute;')
-        .replace(/É/g, '&Eacute;')
-        .replace(/Í/g, '&Iacute;')
-        .replace(/Ó/g, '&Oacute;')
-        .replace(/Ú/g, '&Uacute;')
-        .replace(/Ñ/g, '&Ntilde;')
-        .replace(/à/g, '&agrave;')
-        .replace(/è/g, '&egrave;')
-        .replace(/ò/g, '&ograve;')
-        .replace(/À/g, '&Agrave;')
-        .replace(/È/g, '&Egrave;')
-        .replace(/Ò/g, '&Ograve;')
-        .replace(/â/g, '&acirc;')
-        .replace(/Â/g, '&Acirc;')
-        .replace(/ã/g, '&atilde;')
-        .replace(/Ã/g, '&Atilde;')
-        .replace(/ö/g, '&ouml;')
-        .replace(/Ö/g, '&Ouml;');
-      return author;
-  }
-
+  // API CALL: Function to find the authors' publications.
   getAuthorsPublications(): void {
     this.publications = []
-    this.replaceQuery();
-    console.log(this.authorsQuery)
+    this.authorsQuery = this.replaceAccentMarks(this.authorService.Authors);
     this.apiService.getAuthorsPublications(this.authorsQuery).subscribe({
       next: (response: string[]) => {
         this.publications = response;
@@ -172,23 +80,11 @@ export class AuthorsComponent {
         console.error('Error in getAuthorsPublications', error);
       }
     });
-
   }
 
-  activateLink() {
-    this.homeService.setActiveLinkNetwork(true);
-  }
-
-  async waitNetworks() {
-    while (!this.networkInitService.nameAuthors || this.networkInitService.nameAuthors.length === 0) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    this.activateLink();
-    this.router.navigateByUrl('/network');
-  }
-
+  // API CALL: Function to find authors with common publications
   getNetworksAuthor(): void {
-    this.replaceQuery();
+    this.authorsQuery = this.replaceAccentMarks(this.authorService.Authors);
     this.networkInitService.nameAuthors = [];
     this.apiService.getNetworksAuthor(this.authorsQuery).subscribe({
       next: (response: string[]) => {
@@ -197,28 +93,23 @@ export class AuthorsComponent {
       error: (error: any) => {
         console.error('Error in getNetworksAuthor', error);
       }
-
     });
-
     this.waitNetworks();
-
   }
 
+  // Function to check that the chosen Author exists and is not duplicated
   completeSuggestion(suggestion: string) {
 
     if (suggestion.trim() !== '') {
-
       const author: string = suggestion.trim()
 
-      if (this.authors.includes(suggestion.trim())) {
+      if (this.authorService.Authors.includes(suggestion.trim())) {
         this.repeated = true;
       } else {
         this.repeated = false;
       }
 
       const authorQuery:string[] = [this.replaceAuthor(author)]
-
-      console.log(authorQuery)
 
       this.apiService.getAuthorsPublications(authorQuery).subscribe({
         next: (response: string[]) => {
@@ -229,8 +120,8 @@ export class AuthorsComponent {
             this.noResults = false;
 
             if (this.repeated == false) {
-              this.authors.push(suggestion.trim());
-              this.networkInitService.selectedAuthors = this.authors;
+              this.authorService.Authors.push(suggestion.trim());
+              this.networkInitService.selectedAuthors = this.authorService.Authors;
             }
           }
         },
@@ -239,25 +130,23 @@ export class AuthorsComponent {
         }
       });
     }
-
-
-
   }
 
+  // Function for select author
   selectSuggestion(suggestion: string) {
     this.filtersBOX = suggestion;
   }
 
-
+  // Function for delete author
   deleteFilter(filter: string) {
 
-    const i = this.authors.indexOf(filter);
+    const i = this.authorService.Authors.indexOf(filter);
     if (i !== -1) {
-      this.authors.splice(i, 1);
+      this.authorService.Authors.splice(i, 1);
     }
   }
 
-
+  // Function for generate table publications
   generateTablePublications(publications: any[]) {
     const table = document.querySelector('#tablePublications tbody');
 
@@ -286,6 +175,114 @@ export class AuthorsComponent {
       });
     }
   }
+
+  // Function for activate Link Authors in NavBar
+  activateLink() {
+    this.homeService.setActiveLinkNetwork(true);
+  }
+
+  // Function for wait data
+  async waitNetworks() {
+    while (!this.networkInitService.nameAuthors || this.networkInitService.nameAuthors.length === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    this.activateLink();
+    this.router.navigateByUrl('/network');
+  }
+
+  // Function replace Accent Marks
+  replaceAccentMarks( str: string[]) {
+    str = str.map(author => {
+      author = author.replace(/á/g, '&aacute;')
+        .replace(/é/g, '&eacute;')
+        .replace(/í/g, '&iacute;')
+        .replace(/ó/g, '&oacute;')
+        .replace(/ú/g, '&uacute;')
+        .replace(/ñ/g, '&ntilde;')
+        .replace(/Á/g, '&Aacute;')
+        .replace(/É/g, '&Eacute;')
+        .replace(/Í/g, '&Iacute;')
+        .replace(/Ó/g, '&Oacute;')
+        .replace(/Ú/g, '&Uacute;')
+        .replace(/Ñ/g, '&Ntilde;')
+        .replace(/à/g, '&agrave;')
+        .replace(/è/g, '&egrave;')
+        .replace(/ò/g, '&ograve;')
+        .replace(/À/g, '&Agrave;')
+        .replace(/È/g, '&Egrave;')
+        .replace(/Ò/g, '&Ograve;')
+        .replace(/â/g, '&acirc;')
+        .replace(/Â/g, '&Acirc;')
+        .replace(/ã/g, '&atilde;')
+        .replace(/Ã/g, '&Atilde;')
+        .replace(/ö/g, '&ouml;')
+        .replace(/Ö/g, '&Ouml;');
+      return author;
+    });
+    return str
+  }
+
+  // Function include Accent Marks
+  includeAccentMarks( str: string[]) {
+    str = str.map(author => {
+      author = author.replace(/&aacute;/g, 'á')
+        .replace(/&eacute;/g, 'é')
+        .replace(/&iacute;/g, 'í')
+        .replace(/&oacute;/g, 'ó')
+        .replace(/&uacute;/g, 'ú')
+        .replace(/&ntilde;/g, 'ñ')
+        .replace(/&Aacute;/g, 'Á')
+        .replace(/&Eacute;/g, 'É')
+        .replace(/&Iacute;/g, 'Í')
+        .replace(/&Oacute;/g, 'Ó')
+        .replace(/&Uacute;/g, 'Ú')
+        .replace(/&Ntilde;/g, 'Ñ')
+        .replace(/&agrave;/g, 'à')
+        .replace(/&egrave;/g, 'è')
+        .replace(/&ograve;/g, 'ò')
+        .replace(/&Agrave;/g, 'À')
+        .replace(/&Egrave;/g, 'È')
+        .replace(/&Ograve;/g, 'Ò')
+        .replace(/&acirc;/g, 'â')
+        .replace(/&Acirc;/g, 'Â')
+        .replace(/&atilde;/g, 'ã')
+        .replace(/&Atilde;/g, 'Ã')
+        .replace(/&ouml;/g, 'ö')
+        .replace(/&Ouml;/g, 'Ö');
+      return author;
+    });
+    return str
+  }
+
+  // Function replace AuthorName
+  replaceAuthor(author: string) {
+      author = author.replace(/á/g, '&aacute;')
+        .replace(/é/g, '&eacute;')
+        .replace(/í/g, '&iacute;')
+        .replace(/ó/g, '&oacute;')
+        .replace(/ú/g, '&uacute;')
+        .replace(/ñ/g, '&ntilde;')
+        .replace(/Á/g, '&Aacute;')
+        .replace(/É/g, '&Eacute;')
+        .replace(/Í/g, '&Iacute;')
+        .replace(/Ó/g, '&Oacute;')
+        .replace(/Ú/g, '&Uacute;')
+        .replace(/Ñ/g, '&Ntilde;')
+        .replace(/à/g, '&agrave;')
+        .replace(/è/g, '&egrave;')
+        .replace(/ò/g, '&ograve;')
+        .replace(/À/g, '&Agrave;')
+        .replace(/È/g, '&Egrave;')
+        .replace(/Ò/g, '&Ograve;')
+        .replace(/â/g, '&acirc;')
+        .replace(/Â/g, '&Acirc;')
+        .replace(/ã/g, '&atilde;')
+        .replace(/Ã/g, '&Atilde;')
+        .replace(/ö/g, '&ouml;')
+        .replace(/Ö/g, '&Ouml;');
+      return author;
+  }
+
 
 }
 

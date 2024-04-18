@@ -11,6 +11,18 @@
     box-shadow: 0 2px 5px  rgb(0, 22, 68);  
 }
 
+.title-container {
+    position: relative;
+    text-align: center;
+}
+  
+input[type="text"] {
+    padding: 8px;
+    width: 70%;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+}
+
 .filters-list ul li {
     margin-bottom: 2px; 
 }
@@ -28,20 +40,48 @@
     font-size: 35px;
     margin-top: -90px;
     margin-bottom: 40px;
-  }
+}
   
+h3 {
+    text-align: center;
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
 
 .box-conference{
     margin-bottom: 10px;
 }
 
-
-input[type="text"] {
-    padding: 8px;
-    width: 70%;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
+.flex-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+    margin-left: 20px;
+    margin-bottom: 50px;
 }
+
+
+.container-table {
+    justify-content: center; 
+    display: flex;
+    margin-right: 100px;
+}
+
+.table th {
+    text-align: left; 
+}
+
+table{
+    border-spacing: 0px 10px;
+}
+
+td, th {
+    font-size: 20px;
+    padding-bottom: 15px;
+}
+
   
 button {
     padding: 8px 16px;
@@ -51,42 +91,17 @@ button {
     border-radius: 4px;
 }
 
-.title-select{
-    margin-bottom: 2px;
-}
-
-select {
-    padding: 8px;
-    width: 85%;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-    margin-bottom: 10px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-input[type="checkbox"] {
-    margin-right: 8px;
-}
-
-hr {
-    border: 0.5;
-    border-color: black;
-    height: 1px;
-    background-color: black; /* Adjust the color as needed */
-    margin: 0;
-    margin-bottom: 10px;
-}
-
 .button-add{
     margin-left: 8px;
     margin-bottom: 5px;
     font-weight: bold; 
 }
 
+.button-add:hover {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+  
 button:disabled {
     background-color: #cccccc; 
     cursor: not-allowed;
@@ -101,6 +116,22 @@ button:disabled {
     margin-left: 5px;
     margin: 2px;
     font-weight: bold; 
+}
+
+.button-publications:hover
+{
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.button-publications
+{
+    margin-right: 5px;
+}
+
+.buttons {
+    display: flex;
+    margin-bottom: 20px;
 }
 
 .click-element {
@@ -118,64 +149,6 @@ p{
     font-weight: bold; 
     margin: 0;
     margin-top: 10px;
-}
-
-hr {
-    border: 0.5;
-    border-color: black;
-    height: 1px;
-    background-color: black; 
-    margin: 0;
-    margin-bottom: 10px;
-}
-
-.button-publications:hover
-{
-  transform: scale(1.1);
-  transition: transform 0.3s ease;
-}
-
-
-.button-publications
-{
-    margin-right: 5px;
-}
-
-.buttons {
-    display: flex;
-    margin-bottom: 20px;
-}
-
-.flex-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: auto;
-    margin-left: 20px;
-    margin-bottom: 50px;
-}
-
-
-.container-table2 {
-    justify-content: center; 
-    display: flex;
-    margin-right: 100px;
-}
-
-
-.table th {
-    text-align: left; 
-  }
-
-h3 {
-    text-align: center;
-    font-size: 25px;
-    margin-bottom: 20px;
-}
-
-td, th {
-    font-size: 20px;
-    padding-bottom: 15px;
 }
 
 .color-square {
@@ -214,8 +187,13 @@ td, th {
     margin-left: 50px;
 }
 
-table{
-    border-spacing: 0px 10px;
+hr {
+    border: 0.5;
+    border-color: black;
+    height: 1px;
+    background-color: black; 
+    margin: 0;
+    margin-bottom: 10px;
 }
 
 .line{
@@ -230,16 +208,6 @@ table{
     margin-left: 10px;
     font-size: 15px;
     margin-bottom: 8px;
-  }
+}
 
 
-  .button-add:hover {
-    transform: scale(1.1);
-    transition: transform 0.3s ease;
-  }
-
-  .title-container {
-    position: relative;
-    text-align: center;
-  }
-  

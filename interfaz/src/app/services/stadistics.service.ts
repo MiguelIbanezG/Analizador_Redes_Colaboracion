@@ -6,10 +6,9 @@ import { Injectable } from '@angular/core';
 export class StadisticsService {
 
   public selectedTitles: any[] = [];
-  public conferenceOption = "";
-  public venueName: string[] = [];
-  public venueNameConfirm: string[] = [];
-  public conferencesNames: string[] = [];
+  public ConferenceOrJournalName: string[] = [];
+  public ConferenceOrJournalConfirm: string[] = [];
+  public ConferenceOrJournalNames: string[] = [];
   public years: string[] = [];
   public inprocedings: number[] = [];
 
@@ -24,21 +23,13 @@ export class StadisticsService {
   getSelectedTitles() {
     return this.selectedTitles;
   }
-
-  markOptionConference(option: string) {
-    this.conferenceOption = option;
+  
+  flagConferenceOrJournalName(venue: string[]) {
+    this.ConferenceOrJournalName = venue;
   }
   
-  getConferenceOption() {
-    return this.conferenceOption;
-  }
-
-  flagNameVenue(venue: string[]) {
-    this.venueName = venue;
-  }
-  
-  getVenueName() {
-    return this.venueName;
+  getConferenceOrJournalName() {
+    return this.ConferenceOrJournalName;
   }
 
 

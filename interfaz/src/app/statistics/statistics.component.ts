@@ -2,26 +2,17 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { StadisticsService } from '../services/stadistics.service';
 import { Chart, registerables } from 'chart.js';
-Chart.register(...registerables);
 import { HttpClient } from '@angular/common/http';
 import { CloudData, CloudOptions } from 'angular-tag-cloud-module';
 import { singular } from 'pluralize';
-import { ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
+import { ChartConfiguration } from 'chart.js';
 import { SpinnerService } from '../services/spinner.service';
+import { Author } from '../models/statistics.model';
+import { DecadeStats } from '../models/statistics.model';
 
-interface Author {
-  ipNames: string[];
-  numPublications: number;
-  researcher: string;
-  year: string;
-}
+Chart.register(...registerables);
 
-interface DecadeStats {
-  label: string;
-  startYear: number;
-  endYear: number;
-  authors: Author[];
-}
+
 
 @Component({
   selector: 'statistics',
@@ -33,36 +24,26 @@ export class StatisticsComponent implements OnInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
 
   selectedYears: any[] = [];
-  papers: any[] = [];
+  PapersAndArticles: any[] = [];
   collaborations: any[] = [];
-  connectedComponents: any[] = [];
   singleAuthor: any[] = [];
   statistics: any[] = [];
   statsAuthors: any[] = []
-  statsPaper: any[] = []
-  journalsCount: number = 0;
-  ConferencesCount: number = 0;
-  ConferencesAuthors: number = 0;
+  statsPaperAndArticle: any[] = []
+  ConferencesAndJournalCount: number = 0;
+  ConferencesAndJournalAuthors: number = 0;
   lineChart!: Chart;
-  lineChart2!: Chart;
-  lineChart3!: Chart;
-  lineChart4!: Chart;
-  lineChart5!: Chart;
-  lineChart7!: Chart;
-  lineChart6!: Chart;
-  lineChart8!: Chart;
+  barChart!: Chart;
   totalAuthorsByYear: any[] = []
   PapersAndArticlesByYear: any[] = []
   totalArticlesByYear: any[] = []
   totalPapersByYear: any[] = []
-  singlePapers: any[] = []
-  barChart!: Chart;
+  singlePapersAndArticle: any[] = []
   decadeStats: any[] = [];
   researchers: any[] = [];
-  papersWithAuthors: any[] = [];
+  papersAndarticlesWithAuthors: any[] = [];
   loadingTable1 = true;
   loadingTable2 = true;
-  conferenceName: string[] = [];
   commonNames: { [key: string]: { frec_paises: { [key: string]: number }, genero: string } } = {};
 
   options: CloudOptions = {
@@ -83,24 +64,21 @@ export class StatisticsComponent implements OnInit {
     private spinnerService: SpinnerService,
   ) {}
 
-
   ngOnInit() {
     this.loadCommonNames();
     this.main();
   }
 
-  getResearchersConference() {
-    this.apiService.getResearchersConference(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
+  // API CALL: Function to search for authors of conferences and journals
+  getResearchersConferenceAndJournals() {
+    this.apiService.getResearchersConferenceAndJournals(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName).subscribe({
       next: (response: any) => {
         this.researchers = [];
         this.researchers = response;
         this.statsResearchers();
         this.statsTotalAuthorsByYear();
         if(this.researchers.length > 1){
-          if (this.lineChart) {
-            this.lineChart.destroy();
-          }
-          this.generateChart('lineChart1', 'Number of authors', this.statsAuthors);
+          this.generateChartPapersAndArticles('lineChart1', this.statsAuthors);
           this.generateTotalAuthorsChart('lineChart6', 'Total Authors by Year', this.totalAuthorsByYear);
         }
       },
@@ -110,15 +88,15 @@ export class StatisticsComponent implements OnInit {
     });
   }
   
+  // API CALL: Function to search for papers and articles of conferences and journals
   getPapersAndArticles() {
-    this.apiService.getPapersAndArticles(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
+    this.apiService.getPapersAndArticles(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName).subscribe({
       next: (response: any) => {
-        this.papers = response;
-        this.statsPapers();
-        this.statsTotalPapersByYear();
-        if(this.papers.length > 0){
-          this.generateChart('lineChart2', 'Number of papers', this.statsPaper);
-          this.generateTotalAuthorsChart('lineChart7', 'Total Papers by Year', this.PapersAndArticlesByYear);
+        this.PapersAndArticles = response;
+        if(this.PapersAndArticles.length > 0){
+          this.statsPapersAndArticles();
+          this.statsTotalPapersAndArticlesByYear();
+     
         }
       },
       error: (error: any) => {
@@ -127,12 +105,13 @@ export class StatisticsComponent implements OnInit {
     });
   }
 
+  // API CALL: Function to find collaborations of journals and conferences
   getCollaborations() {
-    this.apiService.getCollaborations(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
+    this.apiService.getCollaborations(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName).subscribe({
       next: (response: any) => {
         this.collaborations = response;
         this.statsColaboraciones();
-        this.generateChart3('lineChart3', 'Density', this.statistics[3].years, this.statistics[3].densidades);
+        this.generateChartDensity('lineChart3', 'Density', this.statistics[3].years, this.statistics[3].densidades);
       },
       error: (error: any) => {
         console.error('Error in getCollaborations:', error);
@@ -140,50 +119,22 @@ export class StatisticsComponent implements OnInit {
     });
   }
 
-  getConnectedComponents(){
-    this.apiService.getConnectedComponents(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
-      next: (response: any) => {
-        this.connectedComponents = response;
-        this.statsConnectedComponents();
-        this.generateChart3('lineChart11', 'Number of Connected Components', this.statistics[5].years, this.statistics[5].connectedComponents);
-      },
-      error: (error: any) => {
-        console.error('Error in getConnectedComponents:', error);
-      }
-    });
-  }
-
-  getConnectedComponentsByvenue(){
-    this.apiService.getConnectedComponentsByvenue(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
-      next: (response: any) => {
-        this.connectedComponents = response;
-        this.statsConnectedComponentsByvenue();
-        this.generateChart4('lineChart12', 'Number of Connected Components', this.statistics[6]);
-        this.generateChart4('lineChart13', 'Number of Connected Components', this.statistics[7]);
-        
-      },
-      error: (error: any) => {
-        console.error('Error in getConnectedComponents:', error);
-      }
-    });
-  }
-
+  // API CALL: Function to find the conference by proceeding
   getConferencebyProceeding(){
-    console.log(this.stadisticsService.selectedTitles)
-    this.apiService.getConferencebyProceeding(this.stadisticsService.selectedTitles, this.stadisticsService.venueName).subscribe({
+    this.apiService.getConferencebyProceeding(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName).subscribe({
       next: (response: any) => {
-        this.stadisticsService.conferencesNames = [];
+        this.stadisticsService.ConferenceOrJournalNames = [];
         this.stadisticsService.years = [];
         this.stadisticsService.inprocedings = [];
       
         response.forEach(({ title, year, numberOfInProceedings }: { title: string, year: string, numberOfInProceedings: number}) => {
-          this.stadisticsService.conferencesNames.push(title);
+          this.stadisticsService.ConferenceOrJournalNames.push(title);
           this.stadisticsService.years.push(year);
           this.stadisticsService.inprocedings.push(numberOfInProceedings);
         });
         this.loadingTable1 = false;
       
-        this.generateTablesProceeding(this.stadisticsService.conferencesNames, this.stadisticsService.years, this.stadisticsService.inprocedings);
+        this.generateTablesProceeding(this.stadisticsService.ConferenceOrJournalNames, this.stadisticsService.years, this.stadisticsService.inprocedings);
      
       },
       error: (error: any) => {
@@ -192,9 +143,9 @@ export class StatisticsComponent implements OnInit {
     });
   }
 
-  getAuthorsPapers() {
-    console.log(this.stadisticsService.selectedTitles)
-    this.apiService.getAuthorsPapers(this.stadisticsService.selectedTitles, this.stadisticsService.conferenceOption, this.stadisticsService.venueName)
+  // API CALL: Function to find the authors of papers and articles
+  getAuthorsPapersAndArticles() {
+    this.apiService.getAuthorsPapersAndArticles(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName)
       .subscribe({
         next: async (response: any) => {
           this.singleAuthor = response;
@@ -205,8 +156,9 @@ export class StatisticsComponent implements OnInit {
           console.error('Error in getAuthorsPapers:', error);
         }
       });
-}
+  }
 
+  // Function to save the total number of authors per year
   statsTotalAuthorsByYear() {
     const years = this.stadisticsService.selectedTitles;
     years.sort((a, b) => parseInt(a) - parseInt(b));
@@ -224,13 +176,14 @@ export class StatisticsComponent implements OnInit {
     });
   }
 
-  statsTotalPapersByYear() {
-    let years = this.papers.map(paper => paper.year);
-    years = years.filter((value, index, self) => self.indexOf(value) === index); // Eliminar años duplicados
-    years.sort((a, b) => parseInt(a) - parseInt(b)); // Ordenar años
+  // Function to save the total number of papers and articles per year
+  statsTotalPapersAndArticlesByYear() {
+    let years = this.PapersAndArticles.map(item => item.year);
+    years = years.filter((value, index, self) => self.indexOf(value) === index); 
+    years.sort((a, b) => parseInt(a) - parseInt(b)); 
     
-    const papersByYear = this.papers.filter(paper => paper.type === "Paper");
-    const articlesByYear = this.papers.filter(paper => paper.type === "Article");
+    const papersByYear = this.PapersAndArticles.filter(item => item.type === "Paper");
+    const articlesByYear = this.PapersAndArticles.filter(item => item.type === "Article");
 
     this.PapersAndArticlesByYear = years.map(year => {
       const papersOfYear = papersByYear.filter(paper => paper.year === year);
@@ -254,13 +207,14 @@ export class StatisticsComponent implements OnInit {
     this.generateTotalAuthorsChart('lineChart7', 'Total Papers and Articles by Year', this.PapersAndArticlesByYear);
   }
 
-  
+  // Function to generate the table of conferences, including specific exceptions
   generateTablesProceeding(venueTitles: string[], years: string[], numberOfInProceedings: number[]) {
     const table = document.querySelector('#tableProceeding tbody');
     if (table instanceof HTMLElement) {
       table.innerHTML = ''; 
   
       venueTitles.forEach((venueTitle, index) => {
+
         const parts = venueTitle.split(',');
 
         if( parts.length== 6){
@@ -298,6 +252,7 @@ export class StatisticsComponent implements OnInit {
               const row = document.createElement('tr');
               row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
               table.appendChild(row);
+
             }else{
 
               const rowData = {
@@ -339,7 +294,8 @@ export class StatisticsComponent implements OnInit {
           const row = document.createElement('tr');
           row.innerHTML = `<td>${rowData.name}</td><td>${rowData.location}</td><td>${rowData.date}</td><td>${years[index]}</td><td>${numberOfInProceedings[index]}</td>`;
           table.appendChild(row);
-          }else{
+
+          } else {
 
             const isValidFormat = /^[a-zA-Z]+\s+\d{1,2}(-\d{1,2}|\d{1,2}[a-zA-Z]+\s+\d{1,2})$/.test(date[0].trim());
 
@@ -387,30 +343,25 @@ export class StatisticsComponent implements OnInit {
     }
   }
 
-  /**Function to obtain the distributions of both authors by papers and papers by authors*/
+  // Function to obtain the distributions of both authors by papers and papers by authors
   getDistributions(){
     const labels: string[] = ['1', '2', '3', '4', '5 o más'];
 
-    // This represents the number of authors that each paper has.
     const authorsByPaper: number[] = [1, 2, 3, 4].map((numAuthors) =>
-    this.papersWithAuthors.filter((paper) => paper.numAuthors === numAuthors).length
+    this.papersAndarticlesWithAuthors.filter((item) => item.numAuthors === numAuthors).length
     );
-    authorsByPaper[4] = this.papersWithAuthors.filter((paper) => paper.numAuthors >= 5).length;
-    let allPapers = this.papers.reduce((all, paper) => all + paper.numPapersAndArticles.low, 0);
+    authorsByPaper[4] = this.papersAndarticlesWithAuthors.filter((item) => item.numAuthors >= 5).length;
+    let allPapers = this.PapersAndArticles.reduce((all, item) => all + item.numPapersAndArticles.low, 0);
 
-    // This represents the number of published papers that each author has.
     const papersByAuthor: number[] = [1, 2, 3, 4].map((numPubs) =>
     this.singleAuthor.filter((paper) => paper.numPublications === numPubs).length
     );
     papersByAuthor[4] = this.singleAuthor.filter((paper) => paper.numPublications >= 5).length
     const allAuthors = this.singleAuthor.length;
 
-    // We create the two tables that are linked with the ids of the html
     const authorsTable = document.querySelector('#authorsTable tbody');
     const papersTable = document.querySelector('#papersTable tbody');
 
-    
-    
     if (authorsTable !== null) {
       authorsByPaper.forEach((amount, index) => {
         const row = document.createElement('tr');
@@ -432,6 +383,8 @@ export class StatisticsComponent implements OnInit {
     }
   }
 
+
+  // Function to save demographic data
   getDemographicData(){
       const datasets = this.researchers.map(researcher => {
         let name = researcher.researcher.properties.name.split(' ')[0];
@@ -459,6 +412,7 @@ export class StatisticsComponent implements OnInit {
       this.statsGeography(datasets);
   }
 
+  // Function to generate n-grams
   generateNGrams(titles: string[], n: number): string[] {
     const ngrams: string[] = [];
     titles.forEach((title) => {
@@ -470,6 +424,7 @@ export class StatisticsComponent implements OnInit {
     return ngrams;
   }
   
+  // Function to count frequencies
   countFrequencies(ngrams: string[]): Map<string, number> {
     const frequencies = new Map<string, number>();
     ngrams.forEach((ngram) => {
@@ -479,6 +434,7 @@ export class StatisticsComponent implements OnInit {
     return frequencies;
   }
 
+  // Function to clean the title
   clearTitle(title: string, stopwords: string[]) {
 
     const words = title.toLowerCase().split(" ").map(word => word.replace(/[^\w\s]/g, ""));
@@ -490,23 +446,25 @@ export class StatisticsComponent implements OnInit {
     return newTitle;
   }
 
+  // Function that returns an array with the highest frequencies
   getTopN(frequencies: Map<string, number>, n: number): [string, number][] {
     const sortedFrequencies = [...frequencies.entries()].sort((a, b) => b[1] - a[1]);
     return sortedFrequencies.slice(0, n);
   }
 
+  // Function to generate the table of bigrams and trigrams
   getTopicAnalysis(){
 
       const stopwords = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', 'should', 'now', '.', ','];
 
-      const cleanTitles = this.papersWithAuthors.map(paper => {
-        const ipName = this.clearTitle(paper.ipName, stopwords);
-        const year = parseInt(paper.year);
+      const cleanTitles = this.papersAndarticlesWithAuthors.map(item => {
+        const ipName = this.clearTitle(item.ipName, stopwords);
+        const year = parseInt(item.year);
         return { ipName, year };
       });
 
-      const bigrams = this.generateNGrams(cleanTitles.map((paper) => paper.ipName), 2);
-      const trigrams = this.generateNGrams(cleanTitles.map((paper) => paper.ipName), 3);
+      const bigrams = this.generateNGrams(cleanTitles.map((item) => item.ipName), 2);
+      const trigrams = this.generateNGrams(cleanTitles.map((item) => item.ipName), 3);
 
       const bigramFrequencies = this.countFrequencies(bigrams);
       const trigramFrequencies = this.countFrequencies(trigrams);
@@ -564,22 +522,24 @@ export class StatisticsComponent implements OnInit {
       const wordCloudData = combinedData.map((item, index) => ({
         text: item.ngram,
         weight: this.calculateWeight(item.count, maxFrecuencia, minWeight, maxWeight),
-        color: this.randomColor()
+        color: this.getRandomColor(index)
       }));
 
       this.cloudData = wordCloudData;
      
   }
-  
+
+  // Function to calculate the weight
   calculateWeight(frec: number, maxFrec: number, minWeight: number, maxWeight: number): number {
     const weight = frec / maxFrec;
     const normWeight = weight * (maxWeight - minWeight) + minWeight;
     return Math.round(normWeight);
   }
 
+  // Function to save author statistics
   statsResearchers() {
     const names = new Set(this.researchers.map(researcher => researcher.name));
-    this.ConferencesAuthors = names.size;
+    this.ConferencesAndJournalAuthors = names.size;
     this.statsAuthors = [];
     this.statsAuthors = Array.from(names).map(name => {
       const years = this.stadisticsService.selectedTitles;
@@ -601,17 +561,19 @@ export class StatisticsComponent implements OnInit {
     });
   }
   
-  statsPapers() {
-    const names = new Set(this.papers.map(paper => paper.name));
-    this.ConferencesCount = names.size;
-    this.statsPaper = Array.from(names).map(name => {
-      let years = this.papers.map(paper => paper.year);
-      years = years.filter((value, index, self) => self.indexOf(value) === index); // Eliminar años duplicados
-      years.sort((a, b) => parseInt(a) - parseInt(b)); // Ordenar años
+  // Function to save author statistics
+  statsPapersAndArticles() {
+    const names = new Set(this.PapersAndArticles.map(item => item.name));
+    this.ConferencesAndJournalCount = names.size;
+    this.statsPaperAndArticle = Array.from(names).map(name => {
+
+      let years = this.PapersAndArticles.map(item => item.year);
+      years = years.filter((value, index, self) => self.indexOf(value) === index);
+      years.sort((a, b) => parseInt(a) - parseInt(b)); 
       const numPapersAndArticlesPorAnio = years.map(year =>
-        this.papers.reduce((total, paper) => {
-          const numPapersAndArticles = paper.numPapersAndArticles.low;
-          if (paper.name === name && paper.year === year) {
+        this.PapersAndArticles.reduce((total, item) => {
+          const numPapersAndArticles = item.numPapersAndArticles.low;
+          if (item.name === name && item.year === year) {
             return total + numPapersAndArticles;
           }
           return total;
@@ -623,16 +585,20 @@ export class StatisticsComponent implements OnInit {
         numResearchers: numPapersAndArticlesPorAnio
       };
     });
+
+    this.generateChartPapersAndArticles('lineChart2', this.statsPaperAndArticle);
+
   }
 
+  // Function to generate and save collaboration statistics
   statsColaboraciones() {
     let colabsXtotal: { year: number; numColabs: number; numPapersAndArticles: number }[] = [];
 
-    const colabsPapers = this.papers.map(paper => {
-        const colab = this.collaborations.find(c => c.year === paper.year);
-        const integer = paper.numPapersAndArticles.low;
+    const colabsPapers = this.PapersAndArticles.map(item => {
+        const colab = this.collaborations.find(c => c.year === item.year);
+        const integer = item.numPapersAndArticles.low;
         return {
-            year: paper.year,
+            year: item.year,
             numColabs: colab ? colab.numColabs : 0,
             numPapersAndArticles: integer
         };
@@ -659,71 +625,7 @@ export class StatisticsComponent implements OnInit {
     };
 }
 
-  statsConnectedComponents() {
-    const copiedData = [...this.connectedComponents];
-
-    copiedData.sort((a, b) => a.year - b.year);
-
-    const years = copiedData.map(item => item.year);
-    const connectedComponents = copiedData.map(item => item.connectedComponents);
-  
-    this.statistics[5] = {
-        years: years,
-        connectedComponents: connectedComponents
-    };
-}
-
-  statsConnectedComponentsByvenue() {
-    const venueDataMap: Map<string, { years: any[], connectedComponents: any[], venueName: string} | undefined> = new Map();
-    const venueDataMapRelative: Map<string, { years: any[], connectedComponents: any[], venueName: string, index?: number } | undefined> = new Map();
-
-    this.connectedComponents.forEach((item) => {
-      const venueName = item.venueName;
-
-      if (!venueDataMap.has(venueName)) {
-        venueDataMap.set(venueName, {
-          years: [],
-          connectedComponents: [],
-          venueName: venueName,
-        });
-
-      }
-
-      const venueData = venueDataMap.get(venueName);
-      if (venueData) {
-        venueData.years.push(item.year);
-        venueData.connectedComponents.push(item.connectedComponents);
-      }
-    });
-
-    this.connectedComponents.forEach((item) => {
-      const venueName = item.venueName;
-
-      if (!venueDataMapRelative.has(venueName)) {
-        venueDataMapRelative.set(venueName, {
-          years: [],
-          connectedComponents: [],
-          venueName: venueName,
-        });
-      }
-
-      const venueData = venueDataMapRelative.get(venueName);
-      if (venueData) {
-        venueData.years.push(item.year);
-        let adjustedComponents = item.connectedComponents;
-        while (adjustedComponents > 1) {
-          adjustedComponents /= 10;
-        }
-  
-        venueData.connectedComponents.push(adjustedComponents);
-      }
-    });
-
-    this.statistics[6] = Array.from(venueDataMap.values());
-    this.statistics[7] = Array.from(venueDataMapRelative.values());
-  }
-  
-
+  // Function to generate and save statistics of Single authors
   statsSingleAuthor() {
     
     const papersWithAuthors: { ipName: string, numAuthors: number, authorNames: string[], year: string }[] = [];
@@ -745,14 +647,14 @@ export class StatisticsComponent implements OnInit {
         });
     });
 
-    this.papersWithAuthors = papersWithAuthors;
+    this.papersAndarticlesWithAuthors = papersWithAuthors;
 
-    const papersWithOneAuthor = papersWithAuthors.filter(paper => paper.numAuthors === 1);
+    const papersAndarticlesWithOneAuthor = papersWithAuthors.filter(item => item.numAuthors === 1);
 
-    const porcentajeByYear = this.papers.map(paper => {
-      const year = paper.year;
-      const numPapersAndArticles = paper.numPapersAndArticles.low;
-      const numPapersAndArticlesWithSingleAuthor = papersWithOneAuthor.filter(paper => paper.year === year).length;
+    const porcentajeByYear = this.PapersAndArticles.map(item => {
+      const year = item.year;
+      const numPapersAndArticles = item.numPapersAndArticles.low;
+      const numPapersAndArticlesWithSingleAuthor = papersAndarticlesWithOneAuthor.filter(item => item.year === year).length;
       const percentage = (numPapersAndArticlesWithSingleAuthor / numPapersAndArticles) * 100;
     
       return { year, percentage };
@@ -760,46 +662,47 @@ export class StatisticsComponent implements OnInit {
 
     this.statistics[4] = {
       years: porcentajeByYear.map(dato => dato.year),
-      porcentajes: porcentajeByYear.map(dato => dato.percentage)
+      percentages: porcentajeByYear.map(dato => dato.percentage)
     };
     
     let years = this.statistics[4].years;
-    let porcentajes = this.statistics[4].porcentajes;
+    let percentages = this.statistics[4].percentages;
     
-    let datosPorAño:any = {};
+    let dataByYear:any = {};
     
     for (let i = 0; i < years.length; i++) {
         let year = years[i];
-        let porcentaje = porcentajes[i];
+        let percentage = percentages[i];
     
-        if (!datosPorAño[year]) {
-            datosPorAño[year] = [porcentaje];
+        if (!dataByYear[year]) {
+          dataByYear[year] = [percentage];
         } else {
-            datosPorAño[year].push(porcentaje);
+          dataByYear[year].push(percentage);
         }
     }
     
-    let añosUnicos = [];
-    let porcentajesMedios = [];
+    let singleYear = [];
+    let AveragePercentages = [];
     
-    for (let año in datosPorAño) {
-        let porcentajesAño = datosPorAño[año];
-        let media = porcentajesAño.reduce((acc: any, curr: any) => acc + curr, 0) / porcentajesAño.length;
+    for (let año in dataByYear) {
+        let percentageYear = dataByYear[año];
+        let average = percentageYear.reduce((acc: any, curr: any) => acc + curr, 0) / percentageYear.length;
         
-        añosUnicos.push(año);
-        porcentajesMedios.push(media);
+        singleYear.push(año);
+        AveragePercentages.push(average);
     }
 
     this.statistics[4] = [];
     
-    this.statistics[4].years = añosUnicos;
-    this.statistics[4].porcentajes = porcentajesMedios;
+    this.statistics[4].years = singleYear;
+    this.statistics[4].percentages = AveragePercentages;
 
-    this.singlePapers = this.statistics[4];
-    this.generateBarChart('barChart1', 'Single Author Papers and Single Author Journals', this.statistics[4].years, this.statistics[4].porcentajes);          
+    this.singlePapersAndArticle = this.statistics[4];
+    this.generateBarChart('barChart1', 'Single Author Papers and Single Author Journals', this.statistics[4].years, this.statistics[4].percentages);          
     
   }  
 
+  // Function to generate and save geographical statistics
   statsGeography(datasets: any[]){
     const mappingDate: {[date: string]: {[country: string]: number}} = {};
     const datasetFiltered = datasets.filter((object: any) => Object.keys(object.frecuencias).length > 0);
@@ -846,10 +749,11 @@ export class StatisticsComponent implements OnInit {
       years.map((year) => mappingDate[year][country])
     );
 
-    this.generateMultipleGraph('lineChart5', years, datasetsLabels, datasetsData);
+    this.generateMultipleChart('lineChart5', years, datasetsLabels, datasetsData);
     
   }
 
+  // Function to filter authors by decades
   filterAuthorsByDecade(authors: Author[], startYear: number, endYear: number): Author[] {
     const filteredAuthors: Author[] = [];
   
@@ -878,16 +782,15 @@ export class StatisticsComponent implements OnInit {
     return filteredAuthors;
   }
 
+  // Function to find the most prolific authors of each decade
   statsProlificAuthors(selectedYears: number[]): DecadeStats[] {
-    // Get the range of years selected by the user
+
     const startYear = Math.min(...selectedYears);
     const endYear = Math.max(...selectedYears);
   
-    // Calculate the decades corresponding to the selected range of years
     const startDecade = Math.floor(startYear / 10) * 10;
     const endDecade = Math.floor(endYear / 10) * 10;
   
-    // Generate the decades within the selected year range
     const decades: DecadeStats[] = [];
     for (let decade = startDecade; decade <= endDecade; decade += 10) {
       const decadeLabel = `${decade}s`;
@@ -902,7 +805,7 @@ export class StatisticsComponent implements OnInit {
         authors: decadeAuthors
       });
     }  
-    // Sort authors by number of publications in each decade
+
     decades.forEach((decade) => {
       decade.authors.sort((a, b) => b.numPublications - a.numPublications);
       if (decade.authors.length > 20){
@@ -910,11 +813,11 @@ export class StatisticsComponent implements OnInit {
       } 
     });
   
-    // Return the decades with the authors ordered
     return decades;
   }
 
-  statsProlificAuthors2(selectedYears: number[]) {
+  // Function to generate the Degree table and save the degree of authors
+  statsDegreeAuthors(selectedYears: number[]) {
     const startYear = Math.min(...selectedYears);
     const endYear = Math.max(...selectedYears);
   
@@ -948,320 +851,7 @@ export class StatisticsComponent implements OnInit {
 
   }
 
-  generateTablesDecades2(decadeStats: any[]){
-    const tables: { [key: string]: HTMLElement | null } = {
-      '1990s': document.querySelector('#table90 tbody'),
-      '2000s': document.querySelector('#table00 tbody'),
-      '2010s': document.querySelector('#table10 tbody'),
-      '2020s': document.querySelector('#table20 tbody'),
-    };
-    for (const decade of decadeStats) {
-      const table = tables[decade.label];
-  
-      if (table instanceof HTMLElement) {
-        decade.authors.slice(0, 20).forEach((autor: { researcher: any; numPublications: any; year: any; }) => {
-          const row = document.createElement('tr');
-          row.innerHTML = `<td>${autor.researcher}</td><td>${autor.numPublications}</td>`;
-  
-          table.appendChild(row);
-        });
-      }
-    }
-  }
-
-  generateTotalPapersAndArticles(idChart: string, label: string, data: any[], data2: any[]){
-    const years = data.map(entry => entry.year);
-    if (idChart == "lineChart7") {
-      this.lineChart7 = new Chart(idChart, {
-          type: 'line',
-          data: {
-              labels: years,
-              datasets: [
-                  {
-                      label: 'Papers',
-                      data: this.totalPapersByYear,
-                      fill: false,
-                      borderColor: 'rgb(0, 22, 68)',
-                      borderWidth: 1
-                  },
-                  {
-                      label: 'Articles',
-                      data: this.totalArticlesByYear,
-                      fill: false,
-                      borderColor: 'rgb(68, 0, 22)', // Choose a different color for Articles
-                      borderWidth: 1
-                  }
-              ]
-          },
-          options: {
-              plugins: {
-                  legend: {
-                      labels: {
-                          color: 'black',
-                          font: {
-                              size: 18,
-                              family: 'Roboto',
-                          }
-                      }
-                  }
-              },
-              scales: {
-                  y: {
-                      type: 'linear',
-                      display: true
-                  }
-              },
-          }
-      });
-    }
-  }
-
-  generateTotalAuthorsChart(idChart: string, label: string, data: any[]) {
-    const years = data.map(entry => entry.year);
-    const totalAuthors = data.map(entry => entry.totalAuthors);
-    const totalPapers = data.map(entry => entry.totalPapers);
-    const totalArticles = data.map(entry => entry.totalArticles);
-
-
-    if(idChart == "lineChart6"){
-      this.lineChart6 = new Chart(idChart, {
-        type: 'line',
-        data: {
-          labels: years,
-          datasets: [
-            {
-              label: label,
-              data: totalAuthors,
-              fill: false,
-              borderColor: 'rgb(0, 22, 68)',
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: {
-                color: 'black',
-                font: {
-                  size: 18,
-                  family: 'Roboto',
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              type: 'linear',
-              display: true
-            }
-          },
-        }
-      });
-    }
-    
-    if (idChart == "lineChart7") {
-      this.lineChart7 = new Chart(idChart, {
-          type: 'line',
-          data: {
-              labels: years,
-              datasets: [
-                  {
-                      label: 'Papers',
-                      data: totalPapers,
-                      fill: false,
-                      borderColor: "rgba(51, 153, 255)",
-                      borderWidth: 1
-                  },
-                  {
-                      label: 'Articles',
-                      data: totalArticles,
-                      fill: false,
-                      borderColor: "rgba(255, 0, 0, 1)", // Choose a different color for Articles
-                      borderWidth: 1
-                  }
-              ]
-          },
-          options: {
-              plugins: {
-                  legend: {
-                      labels: {
-                          color: 'black',
-                          font: {
-                              size: 18,
-                              family: 'Roboto',
-                          }
-                      }
-                  }
-              },
-              scales: {
-                  y: {
-                      type: 'linear',
-                      display: true
-                  }
-              },
-          }
-      });
-    }
-  
-  }
-
-  generateChart(idChart: string, label: string, data: any[]) {
-    const datasets = data.map((entry, index) => ({
-      label: entry.name,
-      data: entry.numResearchers,
-      fill: false,
-      borderColor: this.getRandomColor(index),
-      borderWidth: 1
-    }));
-
-    if(idChart == "lineChart2"){
-      this.lineChart2 = new Chart(idChart, {
-        type: 'line',
-        data: {
-          labels: data[0].years,
-          datasets: datasets
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: {
-                color: 'black',
-                font: {
-                  size: 18, 
-                  family: 'Roboto',
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              type: 'linear',
-              display: true
-            }
-          },
-        }
-      });
-  
-    }
-
-    if(idChart == "lineChart1"){
-      this.lineChart = new Chart(idChart, {
-        type: 'line',
-        data: {
-          labels: data[0].years,
-          datasets: datasets
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: {
-                color: 'black',
-                font: {
-                  size: 18, 
-                  family: 'Roboto',
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              type: 'linear',
-              display: true
-            }
-          },
-        }
-      });
-  
-    }
-  }
-
-  generateChart3(idChart: string, label: string, labels: any[], data: any[]) {
-    if(idChart=="lineChart11" || idChart=="lineChart3"){
-      this.lineChart3 = new Chart(idChart, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: label,
-              data: data,
-              fill: false,
-              borderColor: 'rgb(0, 22, 68)',
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: {
-                color: 'black',
-                font: {
-                  size: 18, 
-                  family: 'Roboto',
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              type: 'linear',
-              display: true
-            }
-          },
-        }
-      });
-    }
-    
-   
-  }
-
-  generateChart4(idChart: string, label: string, data: any) {
- 
-    const datasets = data.map((venue: any, index: any) => {
-      return {
-        label: venue.venueName,
-        data: venue.connectedComponents,
-        years: venue.years,
-        fill: false,
-        borderColor: this.getRandomColor(index),
-        borderWidth: 1
-      };
-    });
-  
-    const allYears = Array.from(new Set([].concat(...datasets.map((dataset: any) => dataset.years))));
-    allYears.sort();
-  
-    this.lineChart = new Chart(idChart, {
-      type: 'line',
-      data: {
-        labels: allYears,
-        datasets: datasets
-      },
-      options: {
-        plugins: {
-          legend: {
-            labels: {
-              color: 'black',
-              font: {
-                size: 18,
-                family: 'Roboto',
-              }
-            }
-          }
-        },
-        scales: {
-          y: {
-            type: 'linear',
-            display: true
-          }
-        },
-      }
-    });
-  }
-  
-
+  // Function to generate and save gender statistics
   statsGender(datasets: any[]){
     const datasetsByGenre: { [genero: string]: { year: string; count: number }[] } = {};
 
@@ -1325,10 +915,230 @@ export class StatisticsComponent implements OnInit {
 
       
       this.generateCircularChart('lineChart4', organizedYears, ['Hombres', 'Mujeres'], [countMen, countWoman]);
-      this.generateMultipleGraph('lineChart8', organizedYears, ['Hombres', 'Mujeres'], [countMen, countWoman]);
+      this.generateMultipleChart('lineChart8', organizedYears, ['Hombres', 'Mujeres'], [countMen, countWoman]);
   }
 
-  generateMultipleGraph(chartId: string, labels: string[], datasetsLabels: string[], datasetsData: number[][]) {
+
+  // Function to generate the Decades table
+  generateTablesDecades(decadeStats: any[]){
+    const tables: { [key: string]: HTMLElement | null } = {
+      '1990s': document.querySelector('#table90 tbody'),
+      '2000s': document.querySelector('#table00 tbody'),
+      '2010s': document.querySelector('#table10 tbody'),
+      '2020s': document.querySelector('#table20 tbody'),
+    };
+    for (const decade of decadeStats) {
+      const table = tables[decade.label];
+  
+      if (table instanceof HTMLElement) {
+        decade.authors.slice(0, 20).forEach((autor: { researcher: any; numPublications: any; year: any; }) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `<td>${autor.researcher}</td><td>${autor.numPublications}</td>`;
+  
+          table.appendChild(row);
+        });
+      }
+    }
+  }
+
+  // Function to generate charts of authors
+  generateTotalAuthorsChart(idChart: string, label: string, data: any[]) {
+    const years = data.map(entry => entry.year);
+    const totalAuthors = data.map(entry => entry.totalAuthors);
+    const totalPapers = data.map(entry => entry.totalPapers);
+    const totalArticles = data.map(entry => entry.totalArticles);
+
+    if(idChart == "lineChart6"){
+      this.lineChart = new Chart(idChart, {
+        type: 'line',
+        data: {
+          labels: years,
+          datasets: [
+            {
+              label: label,
+              data: totalAuthors,
+              fill: false,
+              borderColor: 'rgb(0, 22, 68)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: 'black',
+                font: {
+                  size: 18,
+                  family: 'Roboto',
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true
+            }
+          },
+        }
+      });
+    }
+    
+    if (idChart == "lineChart7") {
+      this.lineChart = new Chart(idChart, {
+          type: 'line',
+          data: {
+              labels: years,
+              datasets: [
+                  {
+                      label: 'Papers',
+                      data: totalPapers,
+                      fill: false,
+                      borderColor: "rgba(51, 153, 255)",
+                      borderWidth: 1
+                  },
+                  {
+                      label: 'Articles',
+                      data: totalArticles,
+                      fill: false,
+                      borderColor: "rgba(255, 0, 0, 1)",
+                      borderWidth: 1
+                  }
+              ]
+          },
+          options: {
+              plugins: {
+                  legend: {
+                      labels: {
+                          color: 'black',
+                          font: {
+                              size: 18,
+                              family: 'Roboto',
+                          }
+                      }
+                  }
+              },
+              scales: {
+                  y: {
+                      type: 'linear',
+                      display: true
+                  }
+              },
+          }
+      });
+    }
+  }
+
+  // Function to generate charts of articles and papers
+  generateChartPapersAndArticles(idChart: string, data: any[]) {
+    const datasets = data.map((entry, index) => ({
+      label: entry.name,
+      data: entry.numResearchers,
+      fill: false,
+      borderColor: this.getRandomColor(index),
+      borderWidth: 1
+    }));
+
+    if(idChart == "lineChart2"){
+      this.lineChart = new Chart(idChart, {
+        type: 'line',
+        data: {
+          labels: data[0].years,
+          datasets: datasets
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: 'black',
+                font: {
+                  size: 18, 
+                  family: 'Roboto',
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true
+            }
+          },
+        }
+      });
+    }
+
+    if(idChart == "lineChart1"){
+      this.lineChart = new Chart(idChart, {
+        type: 'line',
+        data: {
+          labels: data[0].years,
+          datasets: datasets
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: 'black',
+                font: {
+                  size: 18, 
+                  family: 'Roboto',
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true
+            }
+          },
+        }
+      });
+    }
+  }
+
+  // Function to generate the density chart
+  generateChartDensity(idChart: string, label: string, labels: any[], data: any[]) {
+    this.lineChart = new Chart(idChart, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: label,
+            data: data,
+            fill: false,
+            borderColor: 'rgb(0, 22, 68)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        plugins: {
+          legend: {
+            labels: {
+              color: 'black',
+              font: {
+                size: 18, 
+                family: 'Roboto',
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            type: 'linear',
+            display: true
+          }
+        },
+      }
+    });
+  }
+
+  //Function to generate a Multiple Chart of Gender
+  generateMultipleChart(chartId: string, labels: string[], datasetsLabels: string[], datasetsData: number[][]) {
     const datasets = datasetsLabels.map((label, index) => ({
       label: label,
       data: datasetsData[index],
@@ -1368,6 +1178,7 @@ export class StatisticsComponent implements OnInit {
     new Chart(ctx, chartConfig);
   }
 
+  //Function to generate a Circular Chart of Gender
   generateCircularChart(chartId: string, labels: string[], datasetsLabels: string[], datasetsData: number[][]) {
     const colors = ['#FF5733', '#3399FF'];
 
@@ -1403,52 +1214,52 @@ export class StatisticsComponent implements OnInit {
     new Chart(ctx, chartConfig);
   }
 
+  //Function to generate a Chart of SingleAuthors
   generateBarChart(idChart: string, label: string, labels: any[], data: any[]) {
-    if(idChart = "barChart1"){
-      this.barChart = new Chart(idChart, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: label,
-              data: data,
-              backgroundColor: 'rgb(0, 22, 68)',
-              borderColor: 'rgb(0, 22, 68)',
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          plugins: {
-            legend: {
-              labels: {
-                color: 'black',
-                font: {
-                  size: 18, 
-                  family: 'Roboto',
-                }
+    this.barChart = new Chart(idChart, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: label,
+            data: data,
+            backgroundColor: 'rgb(0, 22, 68)',
+            borderColor: 'rgb(0, 22, 68)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        plugins: {
+          legend: {
+            labels: {
+              color: 'black',
+              font: {
+                size: 18, 
+                family: 'Roboto',
               }
             }
-          },
-          scales: {
-            y: {
-              beginAtZero: true
-            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
           }
         }
-      });
-    }
+      }
+    });
   }  
 
 
-  randomColor(){
-    const r = Math.floor(Math.random() * 256);
-    const g = Math.floor(Math.random() * 256);
-    const b = Math.floor(Math.random() * 256);
-    return `rgba(${r}, ${g}, ${b}, 1)`;
-  }
+  // randomColor(){
+  //   const r = Math.floor(Math.random() * 256);
+  //   const g = Math.floor(Math.random() * 256);
+  //   const b = Math.floor(Math.random() * 256);
+  //   return `rgba(${r}, ${g}, ${b}, 1)`;
+  // }
 
+  // Function to generate a random color
   getRandomColor(index: number) {
     let colors: Record<number, string> = {
       0: "rgba(51, 153, 255)",
@@ -1456,12 +1267,18 @@ export class StatisticsComponent implements OnInit {
       2: "rgba(98, 192, 75, 1)", 
       3: "rbga(192, 141, 75, 1)",
       4: "rgba(226, 232, 107, 1)",
-      5: "rgba(176, 75, 192, 1)"
+      5: "rgba(176, 75, 192, 1)",
+      6: "rgba(255, 153, 51, 1)", // Naranja brillante
+      7: "rgba(102, 204, 204, 1)", // Verde azulado
+      8: "rgba(255, 102, 204, 1)", // Rosa brillante
+      9: "rgba(153, 102, 204, 1)", // Morado azulado
+      10: "rgba(255, 204, 102, 1)" // Amarillo suave
     };
 
     return colors[index];
   }
 
+  // Function to load the file with the list of names 
   loadCommonNames() {
     this.http.get('assets/common_names.txt', { responseType: 'text' }).subscribe(
       (data: string) => {
@@ -1473,6 +1290,7 @@ export class StatisticsComponent implements OnInit {
     );
   }
 
+  // Function to analyze common names
   parseCommonNames(data: string) {
 
     const lines = data.split('\n');
@@ -1500,20 +1318,22 @@ export class StatisticsComponent implements OnInit {
     return dict;
   }
 
+  // Async functions to wait for data
+
   async waitResearcherNoEmpty() {
     while (!this.researchers || this.researchers.length === 0) {
       await new Promise(resolve => setTimeout(resolve, 100)); 
     }
   }
 
-  async waitPapersNoEmpty() {
-    while (!this.papers || this.papers.length === 0) {
+  async waitPapersAndArticlesNoEmpty() {
+    while (!this.PapersAndArticles || this.PapersAndArticles.length === 0) {
       await new Promise(resolve => setTimeout(resolve, 100)); 
     }
   }
-  
-  async waitAuthorsWithPapersNoEmpty(){
-    while (!this.papersWithAuthors || this.papersWithAuthors.length === 0) {
+
+  async waitAuthorsWithPapersAndArticlesNoEmpty(){
+    while (!this.papersAndarticlesWithAuthors || this.papersAndarticlesWithAuthors.length === 0) {
       await new Promise(resolve => setTimeout(resolve, 100)); 
     }
   }
@@ -1527,12 +1347,12 @@ export class StatisticsComponent implements OnInit {
   async main(){
     try {
 
-      if(this.stadisticsService.venueNameConfirm != this.stadisticsService.getVenueName()){
+      if(this.stadisticsService.ConferenceOrJournalConfirm != this.stadisticsService.getConferenceOrJournalName()){
         this.getConferencebyProceeding();
       }else{
-        this.generateTablesProceeding(this.stadisticsService.conferencesNames, this.stadisticsService.years, this.stadisticsService.inprocedings);
+        this.generateTablesProceeding(this.stadisticsService.ConferenceOrJournalNames, this.stadisticsService.years, this.stadisticsService.inprocedings);
       }
-      this.getResearchersConference();
+      this.getResearchersConferenceAndJournals();
       this.getPapersAndArticles();
       this.getConferencebyProceeding();
   
@@ -1543,13 +1363,13 @@ export class StatisticsComponent implements OnInit {
         this.getDemographicData();
       }
 
-      if(this.papers.length == 0){
-        await this.waitPapersNoEmpty();
+      if(this.PapersAndArticles.length == 0){
+        await this.waitPapersAndArticlesNoEmpty();
         this.getCollaborations();
-        this.getAuthorsPapers();
+        this.getAuthorsPapersAndArticles();
       }else{
          this.getCollaborations();;
-         this.getAuthorsPapers();
+         this.getAuthorsPapersAndArticles();
       }
 
       while(this.collaborations.length < 1){
@@ -1559,8 +1379,8 @@ export class StatisticsComponent implements OnInit {
       }
       this.loadingTable2 = false;
 
-      if(this.papersWithAuthors.length == 0){
-        await this.waitAuthorsWithPapersNoEmpty();
+      if(this.papersAndarticlesWithAuthors.length == 0){
+        await this.waitAuthorsWithPapersAndArticlesNoEmpty();
         this.getTopicAnalysis();
         this.getDistributions();
       }else{
@@ -1573,23 +1393,20 @@ export class StatisticsComponent implements OnInit {
       if(this.singleAuthor.length == 0){
         await this.waitSingleAuthorsNoEmpty();
         this.decadeStats = this.statsProlificAuthors(this.selectedYears);
-        this.generateTablesDecades2(this.decadeStats)
+        this.generateTablesDecades(this.decadeStats)
       }else{
         this.decadeStats = this.statsProlificAuthors(this.selectedYears);
-        this.generateTablesDecades2(this.decadeStats)
+        this.generateTablesDecades(this.decadeStats)
       }
-      this.statsProlificAuthors2(this.selectedYears);
+      this.statsDegreeAuthors(this.selectedYears);
  
-      this.getConnectedComponents();
-      this.getConnectedComponentsByvenue();
-
-      while(this.stadisticsService.conferencesNames.length <1){
+      while(this.stadisticsService.ConferenceOrJournalNames.length <1){
         this.loadingTable1 = true;
         await new Promise(resolve => setTimeout(resolve, 100));
         this.spinnerService.show()
       }
       this.loadingTable1 = false;
-      this.stadisticsService.venueNameConfirm = this.stadisticsService.getVenueName();
+      this.stadisticsService.ConferenceOrJournalConfirm = this.stadisticsService.getConferenceOrJournalName();
 
      
   } catch (error) {

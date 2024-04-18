@@ -1,15 +1,19 @@
 <div class="container">
 
-   <!-- Title -->
-   <h2>{{nameAuthor}} Collaboration Network</h2>
+  <!-- Title -->
+  <h2>{{nameAuthor}} Collaboration Network</h2>
 
-   <hr>
+  <hr>
 
-   <div class="fila">
-    
-    <div class="tree" #treeContainer></div>
+  <!-- Container Network -->
+  <div class="container-network">
+
+    <!-- Network -->
+    <div class="network" #treeContainer></div>
   
-    <div class="espacio" style="flex:1">
+    <div class="select" style="flex:1">
+
+      <!-- Selected node -->
       <div *ngIf="selectNode">
         <h1>Selected node {{ selectNode.nodes }}</h1> 
         <div *ngFor="let edge of selectNode.edges">
@@ -22,6 +26,8 @@
           </ul>
         </div>
       </div>
+
+      <!-- Selected edge -->
       <div *ngIf="selectEdge && selectEdge.type === 'edge'">
         <h1> Selected edge {{ selectEdge.edge.from }} from {{ selectEdge.edge.to }}</h1> 
         <div> Common publications of  {{ selectEdge.edge.from }} and {{ selectEdge.edge.to }}:</div>
@@ -29,7 +35,9 @@
           <li *ngFor="let publication of publications">{{ publication }}</li>
         </ul>
       </div>
+      
     </div>   
   </div>
+
 </div>  
  

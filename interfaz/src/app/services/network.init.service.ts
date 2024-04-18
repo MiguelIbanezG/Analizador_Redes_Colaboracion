@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Network, DataSet, Options, Data, IdType, Edge } from 'vis';
+import { DataSet, Edge } from 'vis';
 import { Node } from '../models/network.model';
-import { auth } from 'neo4j-driver';
 @Injectable()
 export class AppNetworkInitService {
 
   public nameAuthors:any = [];
   public selectedAuthors:any = [];
 
+  // Function to create Nodes
   getNodes(): DataSet<Node> {
-    
     this.nameAuthors = this.nameAuthors.map((author: any) => {
       let researcher = author.researcher; 
   
@@ -41,15 +40,15 @@ export class AppNetworkInitService {
       author.researcher = researcher;
   
       return author;
-  });
+    });
 
-      const authorWithMostPublications = this.nameAuthors.reduce((prevAuthor: any, currentAuthor: any) => {
-        if (currentAuthor.researcher !== this.selectedAuthors[0]) {
-            if (!prevAuthor || currentAuthor.publications.length > prevAuthor.publications.length) {
-                return currentAuthor;
-            }
-        }
-        return prevAuthor;
+    const authorWithMostPublications = this.nameAuthors.reduce((prevAuthor: any, currentAuthor: any) => {
+      if (currentAuthor.researcher !== this.selectedAuthors[0]) {
+          if (!prevAuthor || currentAuthor.publications.length > prevAuthor.publications.length) {
+              return currentAuthor;
+          }
+      }
+      return prevAuthor;
     }, null);
 
     const authorWithLeastPublications = this.nameAuthors.reduce((prevAuthor: { publications: string | any[]; }, currentAuthor: { publications: string | any[]; }) => {
@@ -59,16 +58,18 @@ export class AppNetworkInitService {
     const maxPublications = authorWithMostPublications.publications.length;
     const minPublications = authorWithLeastPublications.publications.length;
 
-    const distances: { [key: string]: number } = {};
+    let distances: { [key: string]: number } = {};
     this.nameAuthors.forEach((author: any) => {
-        if (author.researcher !== this.selectedAuthors[0]) {
-            const proportion = (maxPublications - author.publications.length) / (maxPublications - minPublications);
-            const distance = Math.pow(proportion, 4) * (500 - 220) + 220; // Distancia proporcional entre 20 y 300
-            distances[author.researcher] = distance;
+        if (author.researcher != this.selectedAuthors[0]) {
+            if(maxPublications == minPublications){ 
+              distances[author.researcher] = 250;
+            } else{
+              const proportion = (maxPublications - author.publications.length) / (maxPublications - minPublications);
+              const distance = Math.pow(proportion, 4) * (500 - 220) + 220; 
+              distances[author.researcher] = distance;
+            }
         }
     });
-
-    console.log(distances)
 
     const sortedAuthors = this.nameAuthors.slice().sort((a: any, b: any) => {
       return a.publications.length - b.publications.length;
@@ -79,7 +80,10 @@ export class AppNetworkInitService {
     let currentAngle = 0;
 
     const nodesData: Node[] = sortedAuthors.map((author: any) => {
+
       let nodeSize = Math.floor(author.publications.length * 4) + 60;
+   
+
       if (author.researcher === this.selectedAuthors[0]) {
           nodeSize = nodeSize + 50; 
       }
@@ -91,14 +95,15 @@ export class AppNetworkInitService {
 
       if(this.selectedAuthors[0] != author.researcher){
         var distanceFromCenter = distances[author.researcher] * 5
-      }
-      
-      const angle = Math.random() * Math.PI * 2;  
+      } 
     
       const x = Math.cos(currentAngle) * distanceFromCenter;
       const y = Math.sin(currentAngle) * distanceFromCenter;
+      console.log(author.researcher)
+      console.log(x)
+      console.log(y)
       currentAngle += angleStep;
-
+      console.log(currentAngle)
       return {
         id: author.researcher,
         label: author.researcher,
@@ -115,7 +120,7 @@ export class AppNetworkInitService {
     return nodes;
   }
 
-
+  // Function to create Edges
   getEdges(): DataSet<Edge> {
 
     const edgesData: Edge[] = this.nameAuthors

@@ -8,17 +8,17 @@ import { Component, OnInit,  } from '@angular/core';
 })
 export class FooterComponent {
   
-  fechaHoraActual = "";
+  date = "";
 
   constructor(
   ) {
-    this.obtenerFechaHoraActual();
+    this.getDate();
   }
 
-
-  obtenerFechaHoraActual() {
+  // Function to get Date
+  getDate() {
     const fechaHora = new Date();
-    this.fechaHoraActual = fechaHora.toLocaleString(); // Formatear la fecha y la hora
+    this.date = fechaHora.toLocaleString(); 
   }
 
 }
