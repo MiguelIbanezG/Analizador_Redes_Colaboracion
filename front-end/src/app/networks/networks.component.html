@@ -1,21 +1,37 @@
 <div class="container">
 
   <!-- Title -->
-  <h2>{{nameAuthor}} Collaboration Network</h2>
+  <h1>{{nameAuthor}} Collaboration Network</h1>
 
   <hr>
 
   <!-- Container Network -->
   <div class="container-network">
 
-    <!-- Network -->
-    <div class="network" #treeContainer></div>
-  
-    <div class="select" style="flex:1">
+    <div class="clusterNetwork">
 
+      <!-- Cluster settings -->
+      <form class="cluster" fxLayoutGap="10px">
+        <label for="minCluster">Min Cluster:</label>
+        <input class="minCluster" type="number" id="minCluster" name="minCluster" [(ngModel)]="appNetworkInitService.cluster.min">
+        
+        <label for="maxCluster">Max Cluster:</label>
+        <input class="maxCluster" type="number" id="maxCluster" name="maxCluster" [(ngModel)]="appNetworkInitService.cluster.max">
+        
+        <button class="update" type="button" (click)="updateCluster()">Update Network</button>
+      </form>
+
+      <!-- Network -->
+      <div class="network" #treeContainer></div>
+
+    </div>
+
+    <div class="select">
+      <h1>Selections</h1> 
+      <hr>
       <!-- Selected node -->
       <div *ngIf="selectNode">
-        <h1>Selected node {{ selectNode.nodes }}</h1> 
+        <h2>Selected node {{ selectNode.nodes }}</h2> 
         <div *ngFor="let edge of selectNode.edges">
           <div>Common publications of {{ selectNode.nodes }} and {{ edge }}:</div>
           <ul>
@@ -29,7 +45,7 @@
 
       <!-- Selected edge -->
       <div *ngIf="selectEdge && selectEdge.type === 'edge'">
-        <h1> Selected edge {{ selectEdge.edge.from }} from {{ selectEdge.edge.to }}</h1> 
+        <h2> Selected edge {{ selectEdge.edge.from }} from {{ selectEdge.edge.to }}</h2> 
         <div> Common publications of  {{ selectEdge.edge.from }} and {{ selectEdge.edge.to }}:</div>
         <ul>
           <li *ngFor="let publication of publications">{{ publication }}</li>

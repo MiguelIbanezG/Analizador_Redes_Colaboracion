@@ -12,6 +12,7 @@
       <li class="click-element" >Total of Publications: {{allPublications}}</li>
       <li class="click-element">Total of Authors: {{allAuthors}}</li>
       <li class="click-element">Total of Conferences: {{allConferences}}</li>
+      <li class="click-element">Total of Journals: {{allJournals}}</li>
     </ul>
     
     <!-- Total of Institutions -->
@@ -44,7 +45,7 @@
           <div class="overlay" *ngIf="loadingGraph1">
             <app-spinner></app-spinner>
           </div>
-          <canvas id="barChart3"></canvas>
+          <canvas id="barChart"></canvas>
         </div>
       <div>
     </div>
@@ -63,6 +64,21 @@
       </div>   
     </div>
 
+    <!-- Chart: Number of Journals by Year -->
+    <div class="flex-container" >
+      <div class="flex-item">
+          <h3>Number of Journals by Year</h3>
+    
+          <div class="canvas-container">
+            <div class="overlay" *ngIf="loadingGraph5">
+              <app-spinner></app-spinner>
+            </div>
+            <canvas id="barChart3"></canvas>
+          </div>
+      </div>   
+    </div>
+    
+
     <!-- Chart: Number of Conferences and Papers, Journal Articles and Thesis by Year -->
     <div class="flex-container" >
       <div class="flex-item">
@@ -75,11 +91,6 @@
           </div>
       </div>
     </div>
-
-
-
-
-    
 
   </div>
 </div>

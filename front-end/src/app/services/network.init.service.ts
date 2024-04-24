@@ -5,10 +5,18 @@ import { Node } from '../models/network.model';
 export class AppNetworkInitService {
 
   public nameAuthors:any = [];
+  public completeAuthors:any = [];
   public selectedAuthors:any = [];
+  public cluster: { min: number, max: number} =  { min: 1, max: 100}
 
   // Function to create Nodes
   getNodes(): DataSet<Node> {
+
+    console.log(this.cluster)
+
+    this.nameAuthors = this.completeAuthors;
+
+
     this.nameAuthors = this.nameAuthors.map((author: any) => {
       let researcher = author.researcher; 
   
@@ -41,6 +49,39 @@ export class AppNetworkInitService {
   
       return author;
     });
+    
+    // Group authors by the number of publications less than cluster.min
+    const groupedAuthors: { [key: string]: string[] } = {};
+    this.nameAuthors.forEach((author: { publications: string | any[]; researcher: string; }) => {
+        if ((author.publications.length < this.cluster.min || author.publications.length > this.cluster.max) && author.researcher != this.selectedAuthors[0]) {
+            const publicationCount = author.publications.length.toString();
+            if (!groupedAuthors[publicationCount]) {
+                groupedAuthors[publicationCount] = [];
+            }
+            groupedAuthors[publicationCount].push(author.researcher);
+        }
+    });
+    console.log(Object.values(groupedAuthors));
+    console.log(Object.keys(groupedAuthors));
+
+
+    this.nameAuthors = this.nameAuthors.filter((author: { publications: string[]; researcher: boolean; }) => 
+      (author.publications.length >= this.cluster.min && author.publications.length <= this.cluster.max) || 
+      author.researcher == this.selectedAuthors[0]
+    );
+    
+
+    // Create new authors for each group
+    Object.keys(groupedAuthors).forEach(publicationCount => {
+        const authors = groupedAuthors[publicationCount];
+        const newAuthor = { researcher: publicationCount, publications: authors };
+        console.log(newAuthor)
+        this.nameAuthors.push(newAuthor);
+    });
+
+
+    console.log(this.nameAuthors)
+        
 
     const authorWithMostPublications = this.nameAuthors.reduce((prevAuthor: any, currentAuthor: any) => {
       if (currentAuthor.researcher !== this.selectedAuthors[0]) {
@@ -65,7 +106,7 @@ export class AppNetworkInitService {
               distances[author.researcher] = 250;
             } else{
               const proportion = (maxPublications - author.publications.length) / (maxPublications - minPublications);
-              const distance = Math.pow(proportion, 4) * (500 - 220) + 220; 
+              const distance = (Math.pow(proportion, 4) * 300 + 400) * 4; 
               distances[author.researcher] = distance;
             }
         }
@@ -82,38 +123,54 @@ export class AppNetworkInitService {
     const nodesData: Node[] = sortedAuthors.map((author: any) => {
 
       let nodeSize = Math.floor(author.publications.length * 4) + 60;
-   
 
       if (author.researcher === this.selectedAuthors[0]) {
-          nodeSize = nodeSize + 50; 
+        nodeSize = nodeSize + 50; 
       }
       if(nodeSize > 200){
         nodeSize = 200
       }
 
+
       var distanceFromCenter = 0;
 
       if(this.selectedAuthors[0] != author.researcher){
-        var distanceFromCenter = distances[author.researcher] * 5
-      } 
-    
-      const x = Math.cos(currentAngle) * distanceFromCenter;
-      const y = Math.sin(currentAngle) * distanceFromCenter;
-      console.log(author.researcher)
-      console.log(x)
-      console.log(y)
-      currentAngle += angleStep;
-      console.log(currentAngle)
-      return {
-        id: author.researcher,
-        label: author.researcher,
-        font: {
-          size: nodeSize,
-          color: "#ffffff"
-        },
-        x: x,
-        y: y
-      };
+
+        var distanceFromCenter = distances[author.researcher];
+
+        var x = Math.cos(currentAngle) * distanceFromCenter ;
+        var y = Math.sin(currentAngle) * distanceFromCenter ;
+
+        currentAngle += angleStep;
+  
+        return {
+          id: author.researcher,
+          label: author.researcher,
+          font: {
+            size: nodeSize,
+            color: "#ffffff"
+          },
+          x: x,
+          y: y
+        };
+
+
+      } else{
+
+        console.log(author.researcher)
+
+        return {
+          id: author.researcher,
+          label: author.researcher,
+          font: {
+            size: nodeSize,
+            color: "#ffffff"
+          },
+          x: 0,
+          y: 0
+        };
+      }
+ 
     });
 
     const nodes: DataSet<Node> = new DataSet(nodesData);
@@ -132,7 +189,23 @@ export class AppNetworkInitService {
 
     const edges: DataSet<Edge> = new DataSet(edgesData);
     return edges;
-}
+  }
+
+  getClusterMin(): number {
+    return this.cluster.min;
+  }
+
+  setClusterMin(value: number): void {
+    this.cluster.min = value;
+  }
+
+  getClusterMax(): number {
+    return this.cluster.max;
+  }
+
+  setClusterMax(value: number): void {
+    this.cluster.max = value;
+  }
   
 
 }

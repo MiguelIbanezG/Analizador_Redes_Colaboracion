@@ -49,7 +49,6 @@
   <div class="box-conference">
 
     <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Conference or Journal" (keyup.enter)="completeSuggestion(filtersBOX)" (input)="autocompleteTextBox(filtersBOX)">
-    <button class="button-add"  type="button" (click)="completeSuggestion(filtersBOX)">Add</button>
     
      <!-- Not found result -->
     <div class="noResults" *ngIf="noResultsFoundConference && noResultsFoundJournal">
@@ -66,6 +65,7 @@
       <ul>
         <li class="click-element " *ngFor="let suggestion of completeTextBox" (click)="selectSuggestion(suggestion)">
           {{ suggestion }}
+          <button class="button-add"  type="button" (click)="completeSuggestion(suggestion)">Add</button>
         </li>
       </ul>
     </div>

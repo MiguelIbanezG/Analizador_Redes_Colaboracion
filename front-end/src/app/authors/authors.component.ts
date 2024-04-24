@@ -86,9 +86,11 @@ export class AuthorsComponent {
   getNetworksAuthor(): void {
     this.authorsQuery = this.replaceAccentMarks(this.authorService.Authors);
     this.networkInitService.nameAuthors = [];
+    this.networkInitService.completeAuthors = [];
     this.apiService.getNetworksAuthor(this.authorsQuery).subscribe({
       next: (response: string[]) => {
         this.networkInitService.nameAuthors = response;
+        this.networkInitService.completeAuthors = response;
       },
       error: (error: any) => {
         console.error('Error in getNetworksAuthor', error);

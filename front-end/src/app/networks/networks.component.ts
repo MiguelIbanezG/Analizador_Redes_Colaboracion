@@ -25,6 +25,8 @@ export class NetworksComponent implements OnInit, OnDestroy {
   treeContainer!: ElementRef;
   nameAuthor: any;
 
+  minCluster = 0;
+  maxCluster = 0;
   menuStatus: boolean = true;
   selectNode: any;
   selectEdge: any;
@@ -41,7 +43,7 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
   constructor(
     private appNetworkService: AppNetworkService,
-    private appNetworkInitService: AppNetworkInitService,
+    public appNetworkInitService: AppNetworkInitService,
   ) {
     this.selectedData = new Subject<Data>();
   }
@@ -49,9 +51,11 @@ export class NetworksComponent implements OnInit, OnDestroy {
   public ngOnInit(): void {
 
     this.nameAuthor = this.appNetworkInitService.selectedAuthors;
+    
 
     const networkOptions = this.appNetworkService.getNetworkOptions();
     networkOptions.height = '800px'; 
+
 
     this.nodes = this.appNetworkInitService.getNodes();
     this.edges = this.appNetworkInitService.getEdges();
@@ -72,6 +76,39 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
   public ngOnDestroy(): void {
     if (this.network != null) this.network.destroy();
+  }
+
+  updateCluster(): void {
+
+    const networkOptions = this.appNetworkService.getNetworkOptions();
+    networkOptions.height = '800px'; 
+
+    this.nodes = this.appNetworkInitService.getNodes();
+    this.edges = this.appNetworkInitService.getEdges();
+    this.data = {
+      nodes: this.nodes,
+      edges: this.edges,
+    };
+
+    this.network = new Network(
+      this.treeContainer.nativeElement,
+      this.data,
+      networkOptions
+    );
+
+
+    this.network.on('select', (params) => this.onSelect(params));
+    this.network.on('click', (params) => this.onClick(params));
+
+    // Obtener la posición del contenedor de red
+    const treeContainerPos = this.treeContainer.nativeElement.offsetTop;
+
+    // Hacer que la ventana del navegador se desplace hacia la posición del contenedor de red
+    window.scrollTo({
+      top: treeContainerPos,
+      behavior: 'auto' // Desplazamiento suave
+    });
+
   }
 
   // Function to differentiate the selection of edges and nodes

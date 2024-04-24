@@ -13,15 +13,17 @@ router.get('/autocompleteConferenceAndJournals/:term', async (req, res) => {
   try {
     const query = `
       MATCH (v:Venue)
-      WHERE v.name STARTS WITH $searchTerm
+      WHERE toLower(v.name) STARTS WITH toLower($searchTerm)
       RETURN DISTINCT v.name as venueAndJournalNames
+      ORDER BY size(v.name)
       LIMIT 3
       
       UNION
       
       MATCH (j:Journal)
-      WHERE j.name STARTS WITH $searchTerm
+      WHERE toLower(j.name) STARTS WITH toLower($searchTerm)
       RETURN DISTINCT j.name as venueAndJournalNames
+      ORDER BY size(j.name)
       LIMIT 3
     `;
     const result = await session.run(query, { searchTerm });
@@ -311,7 +313,7 @@ router.post('/schools', async (req, res) => {
     MATCH (p)-[:AUTHORED_BY]->(r:Researcher)
     RETURN s.name as School, count(DISTINCT r) AS NumberOfAuthors
     ORDER BY NumberOfAuthors DESC
-    LIMIT 30
+    LIMIT 60
     `;
 
     const result = await session.run(query);
@@ -458,7 +460,7 @@ router.post('/searchConference', async (req, res) => {
     res.json(records);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener las publicaciones por año', details: error.message });
+    res.status(500).json({ error: 'Error al obtener las conferencias por', details: error.message });
   } finally {
     session.close();
   }
@@ -482,7 +484,57 @@ router.post('/allConferences', async (req, res) => {
     res.json(records);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener las publicaciones por año', details: error.message });
+    res.status(500).json({ error: 'Error al obtener el total de conferencias', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+router.post('/searchJournal', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
+    MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year) 
+    RETURN y.name AS yearName, COUNT(j) AS total_journals
+    `;
+
+    const result = await session.run(query);
+    const records = result.records.map(record => {
+      return {
+        yearName: record.get('yearName'),
+        allJournals: record.get('total_journals').toNumber(),
+      };
+    });
+
+    res.json(records);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener los journals por año', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+router.post('/allJournals', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+
+  try {
+    const query = `
+    MATCH (j:Journal) RETURN COUNT(j) AS all_journals
+    `;
+
+    const result = await session.run(query);
+    const records = result.records.map(record => {
+      return {
+        all_journals: record.get('all_journals').toNumber(),
+      };
+    });
+
+    res.json(records);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener el total de journals', details: error.message });
   } finally {
     session.close();
   }

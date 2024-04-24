@@ -61,12 +61,20 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/searchConference`, {});
   }
 
+  getJournalsbyYear(): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/searchJournal`, {});
+  }
+
   getPublications(): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/allPublications`, {});
   }
 
   getConferences(): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/allConferences`, {});
+  }
+
+  getJournals(): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/allJournals`, {});
   }
 
   getAuthors(): Observable<any> {
