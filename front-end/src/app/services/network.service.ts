@@ -1,10 +1,9 @@
 import { Injectable } from "@angular/core";
-import { Options, DataSet } from "vis";
+import { Options, DataSet, Edge } from "vis";
 
 @Injectable()
 export class AppNetworkService {
-
-
+  
   public getNetworkOptions(): Options {
     return {
       autoResize: true,
@@ -31,7 +30,10 @@ export class AppNetworkService {
         smooth: {
           enabled: true,
           type: 'dynamic',
-          roundness: 0.5
+          roundness: 0.5,
+        },
+        chosen: {
+          label: true,
         },
       },
       nodes: {

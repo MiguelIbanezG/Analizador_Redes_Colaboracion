@@ -31,7 +31,8 @@ export class NetworksComponent implements OnInit, OnDestroy {
   selectNode: any;
   selectEdge: any;
   prevSelectNode: any;
-  publications: any[] = [];
+  number = false;
+  publicationsEdge: { [key: string]: string[] } = {};
   publicationsNode: { [key: string]: string[] } = {};
   objectKeys = Object.keys;
 
@@ -128,7 +129,7 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
     const edge = this.edges.get(edgeId);
 
-    this.publications = [];
+    this.publicationsEdge = {};
 
     this.selectEdge = {
       edge: edge,
@@ -138,8 +139,38 @@ export class NetworksComponent implements OnInit, OnDestroy {
     const researcherName = this.selectEdge.edge.to;
 
     this.appNetworkInitService.nameAuthors = this.appNetworkInitService.nameAuthors.map((author: any) => {
+      
+      var uniquePublicationsSet = new Set();
+
+      if(isNaN(Number(author.researcher))){
+        this.number = false;
+      } else{
+        this.number = true;
+      }
+
       if (author.researcher === researcherName) {
-        this.publications = this.publications.concat(author.publications);
+
+        author.publications.forEach((publication: any) => {
+          uniquePublicationsSet.add(publication);
+        });
+
+        if(isNaN(Number(author.researcher))){
+          this.number = false;
+        } 
+        else{
+          this.number = true;
+        }
+
+        if(isNaN(Number(author.researcher))){
+          this.number = false;
+        } else{
+          this.number = true;
+        }
+
+        var uniquePublications: any = Array.from(uniquePublicationsSet);
+
+        this.publicationsEdge[author.researcher] = uniquePublications;
+        console.log(this.publicationsEdge[author.researcher])
       }
       return author;
     });
@@ -158,6 +189,8 @@ export class NetworksComponent implements OnInit, OnDestroy {
       const connectedNodes: any[] = [];
       this.publicationsNode = {};
 
+   
+
       connectedEdges.forEach(edgeId => {
         const edge = this.edges.get(edgeId);
         if (edge) {
@@ -170,11 +203,18 @@ export class NetworksComponent implements OnInit, OnDestroy {
           this.appNetworkInitService.nameAuthors = this.appNetworkInitService.nameAuthors.map((author: any) => {
             var uniquePublicationsSet = new Set();
 
+            console.log(this.number)
             if (author.researcher === edge.to) {
               var uniquePublications: any = []
               author.publications.forEach((publication: any) => {
                  uniquePublicationsSet.add(publication);
               });
+
+              if(isNaN(Number(author.researcher))){
+                this.number = false;
+              } else{
+                this.number = true;
+              }
 
               var uniquePublications: any = Array.from(uniquePublicationsSet);
 
@@ -200,6 +240,11 @@ export class NetworksComponent implements OnInit, OnDestroy {
       this.selectNode = result;
       this.selectEdge = null;
     }
+  }
+
+   esStringNumero(str: any): boolean {
+    // Verificar si es un string y si el contenido es un número
+    return !isNaN(Number(str));
   }
 }
 

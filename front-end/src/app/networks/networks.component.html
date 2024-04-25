@@ -33,10 +33,8 @@
       <div *ngIf="selectNode">
         <h2>Selected node {{ selectNode.nodes }}</h2> 
         <div *ngFor="let edge of selectNode.edges">
-          <div>Common publications of {{ selectNode.nodes }} and {{ edge }}:</div>
-          <ul>
-            <li *ngFor="let publication of publicationsNode[edge]">{{ publication }}</li>
-          </ul>
+          <div *ngIf="!number">Common publications of {{ selectNode.nodes }} and {{ edge }}:</div>
+          <div *ngIf="number" >These authors have {{ selectNode.nodes }} publications in common with {{ edge }}:</div>
           <ul>
             <li *ngFor="let publication of publicationsNode[selectNode.nodes]">{{ publication }}</li>
           </ul>
@@ -46,9 +44,10 @@
       <!-- Selected edge -->
       <div *ngIf="selectEdge && selectEdge.type === 'edge'">
         <h2> Selected edge {{ selectEdge.edge.from }} from {{ selectEdge.edge.to }}</h2> 
-        <div> Common publications of  {{ selectEdge.edge.from }} and {{ selectEdge.edge.to }}:</div>
+        <div *ngIf="!number" > Common publications of  {{ selectEdge.edge.from }} and {{ selectEdge.edge.to }}:</div>
+        <div *ngIf="number" >These authors have {{ selectEdge.edge.to }} publications in common with {{  selectEdge.edge.from }}:</div>
         <ul>
-          <li *ngFor="let publication of publications">{{ publication }}</li>
+          <li *ngFor="let publication of  publicationsEdge[selectEdge.edge.to]">{{ publication }}</li>
         </ul>
       </div>
       
