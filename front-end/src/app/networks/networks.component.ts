@@ -6,9 +6,9 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Network, DataSet, Data, Edge } from 'vis';
-import { AppNetworkService } from '../services/network.service';
+import { NetworkService } from '../services/network.service';
 import { Subject } from 'rxjs';
-import { AppNetworkInitService } from '../services/network.init.service';
+import { NetworkInitService } from '../services/network.init.service';
 import { Node } from '../models/network.model'
 
 @Component({
@@ -27,6 +27,7 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
   minCluster = 0;
   maxCluster = 0;
+  showCluster = true;
   menuStatus: boolean = true;
   selectNode: any;
   selectEdge: any;
@@ -43,23 +44,24 @@ export class NetworksComponent implements OnInit, OnDestroy {
   private network!: Network;
 
   constructor(
-    private appNetworkService: AppNetworkService,
-    public appNetworkInitService: AppNetworkInitService,
+    private NetworkService: NetworkService,
+    public NetworkInitService: NetworkInitService,
   ) {
     this.selectedData = new Subject<Data>();
   }
 
   public ngOnInit(): void {
 
-    this.nameAuthor = this.appNetworkInitService.selectedAuthors;
+    this.nameAuthor = this.NetworkInitService.selectedAuthors;
     
 
-    const networkOptions = this.appNetworkService.getNetworkOptions();
+    const networkOptions = this.NetworkService.getNetworkOptions();
     networkOptions.height = '800px'; 
 
 
-    this.nodes = this.appNetworkInitService.getNodes();
-    this.edges = this.appNetworkInitService.getEdges();
+    this.nodes = this.NetworkInitService.getNodes();
+    this.edges = this.NetworkInitService.getEdges();
+
     this.data = {
       nodes: this.nodes,
       edges: this.edges,
@@ -81,11 +83,12 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
   updateCluster(): void {
 
-    const networkOptions = this.appNetworkService.getNetworkOptions();
+    const networkOptions = this.NetworkService.getNetworkOptions();
     networkOptions.height = '800px'; 
 
-    this.nodes = this.appNetworkInitService.getNodes();
-    this.edges = this.appNetworkInitService.getEdges();
+    this.nodes = this.NetworkInitService.getNodes();
+    this.edges = this.NetworkInitService.getEdges();
+    this.data = {};
     this.data = {
       nodes: this.nodes,
       edges: this.edges,
@@ -101,15 +104,12 @@ export class NetworksComponent implements OnInit, OnDestroy {
     this.network.on('select', (params) => this.onSelect(params));
     this.network.on('click', (params) => this.onClick(params));
 
-    // Obtener la posición del contenedor de red
     const treeContainerPos = this.treeContainer.nativeElement.offsetTop;
 
-    // Hacer que la ventana del navegador se desplace hacia la posición del contenedor de red
-    window.scrollTo({
-      top: treeContainerPos,
-      behavior: 'auto' // Desplazamiento suave
-    });
-
+    // window.scrollTo({
+    //   top: treeContainerPos,
+    //   behavior: 'auto' 
+    // });
   }
 
   // Function to differentiate the selection of edges and nodes
@@ -138,61 +138,47 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
     const researcherName = this.selectEdge.edge.to;
 
-    this.appNetworkInitService.nameAuthors = this.appNetworkInitService.nameAuthors.map((author: any) => {
-      
-      var uniquePublicationsSet = new Set();
+    this.NetworkInitService.nameAuthors = this.NetworkInitService.nameAuthors.map((author: any) => {
 
-      if(isNaN(Number(author.researcher))){
-        this.number = false;
-      } else{
-        this.number = true;
-      }
+      if (author.researcher == researcherName) {
 
-      if (author.researcher === researcherName) {
+        if (isNaN(Number(author.researcher))) {
+          this.number = false;      
+        } else {
+          this.number = true;  
+        }
 
+        var uniquePublicationsSet = new Set();
+        var uniquePublications: any = []
+        
         author.publications.forEach((publication: any) => {
-          uniquePublicationsSet.add(publication);
-        });
+            uniquePublicationsSet.add(publication);
+        });   
 
-        if(isNaN(Number(author.researcher))){
-          this.number = false;
-        } 
-        else{
-          this.number = true;
-        }
-
-        if(isNaN(Number(author.researcher))){
-          this.number = false;
-        } else{
-          this.number = true;
-        }
-
-        var uniquePublications: any = Array.from(uniquePublicationsSet);
-
+        uniquePublications = Array.from(uniquePublicationsSet);
         this.publicationsEdge[author.researcher] = uniquePublications;
-        console.log(this.publicationsEdge[author.researcher])
+        
       }
       return author;
+
     });
     
-
     this.selectNode = null;
- 
   }
 
   // Function so that common publications appear when clicking on an node
   private onSelect(params: any): void {
 
     if (params.nodes.length == 1) {
+
       const selectedNodeId = params.nodes[0];
       const connectedEdges = this.network.getConnectedEdges(selectedNodeId);
       const connectedNodes: any[] = [];
       this.publicationsNode = {};
 
-   
-
       connectedEdges.forEach(edgeId => {
         const edge = this.edges.get(edgeId);
+
         if (edge) {
           if (edge.to == params.nodes) {
             connectedNodes.push(edge.from);
@@ -200,43 +186,42 @@ export class NetworksComponent implements OnInit, OnDestroy {
             connectedNodes.push(edge.to);
           }
 
-          this.appNetworkInitService.nameAuthors = this.appNetworkInitService.nameAuthors.map((author: any) => {
-            var uniquePublicationsSet = new Set();
+          this.NetworkInitService.nameAuthors = this.NetworkInitService.nameAuthors.map((author: any) => {
 
-            console.log(this.number)
-            if (author.researcher === edge.to) {
-              var uniquePublications: any = []
-              author.publications.forEach((publication: any) => {
-                 uniquePublicationsSet.add(publication);
-              });
+            if (author.researcher == edge.to) {
 
-              if(isNaN(Number(author.researcher))){
+              if(isNaN(Number(author.researcher)) || (selectedNodeId == this.NetworkInitService.selectedAuthors[0])){
                 this.number = false;
               } else{
                 this.number = true;
               }
 
-              var uniquePublications: any = Array.from(uniquePublicationsSet);
+              var uniquePublicationsSet = new Set();
+              var uniquePublications: any = []
+              
+              author.publications.forEach((publication: any) => {
+                  uniquePublicationsSet.add(publication);
+              });   
 
+              uniquePublications = Array.from(uniquePublicationsSet);
               this.publicationsNode[author.researcher] = uniquePublications;
+     
             }
             return author;
-
           });
-
         }
-
       });
 
       const result = {
         edges: connectedNodes,
         nodes: params.nodes,
         pointer: params.pointer,
+        select: this.number
       };
-
       if (this.selectNode) {
         this.prevSelectNode = this.selectNode;
       }
+
       this.selectNode = result;
       this.selectEdge = null;
     }

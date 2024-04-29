@@ -1,4 +1,4 @@
-<div class="container">
+<div>
 
   <!-- Title -->
   <h1>{{nameAuthor}} Collaboration Network</h1>
@@ -8,15 +8,18 @@
   <!-- Container Network -->
   <div class="container-network">
 
-    <div class="clusterNetwork">
+    <div class="cluster-network">
 
       <!-- Cluster settings -->
       <form class="cluster" fxLayoutGap="10px">
         <label for="minCluster">Min Cluster:</label>
-        <input class="minCluster" type="number" id="minCluster" name="minCluster" [(ngModel)]="appNetworkInitService.cluster.min">
+        <input class="minCluster" type="number" id="minCluster" name="minCluster" [(ngModel)]="NetworkInitService.cluster.min">
         
         <label for="maxCluster">Max Cluster:</label>
-        <input class="maxCluster" type="number" id="maxCluster" name="maxCluster" [(ngModel)]="appNetworkInitService.cluster.max">
+        <input class="maxCluster" type="number" id="maxCluster" name="maxCluster" [(ngModel)]="NetworkInitService.cluster.max">
+        
+        <label for="showCluster">Show Cluster:</label>
+        <input type="checkbox" id="showCluster" name="showCluster" [(ngModel)]="NetworkInitService.showCluster">
         
         <button class="update" type="button" (click)="updateCluster()">Update Network</button>
       </form>
@@ -32,11 +35,15 @@
       <!-- Selected node -->
       <div *ngIf="selectNode">
         <h2>Selected node {{ selectNode.nodes }}</h2> 
-        <div *ngFor="let edge of selectNode.edges">
-          <div *ngIf="!number">Common publications of {{ selectNode.nodes }} and {{ edge }}:</div>
-          <div *ngIf="number" >These authors have {{ selectNode.nodes }} publications in common with {{ edge }}:</div>
-          <ul>
+        <div *ngFor="let node of selectNode.edges">
+          <div *ngIf="!number && selectNode.nodes != NetworkInitService.selectedAuthors[0]">Common publications of {{ selectNode.nodes }} and {{ node }}:</div>
+          <div *ngIf="number && selectNode.nodes != NetworkInitService.selectedAuthors[0]" >These authors have {{ selectNode.nodes }} publications in common with {{ node }}:</div>
+          <div *ngIf="selectNode.nodes == NetworkInitService.selectedAuthors[0]" >{{ selectNode.nodes }} - {{ node }}:</div>
+          <ul *ngIf="selectNode.nodes != NetworkInitService.selectedAuthors[0]">
             <li *ngFor="let publication of publicationsNode[selectNode.nodes]">{{ publication }}</li>
+          </ul>
+          <ul *ngIf="selectNode.nodes == NetworkInitService.selectedAuthors[0]">
+            <li *ngFor="let publication of publicationsNode[node]">{{ publication }}</li>
           </ul>
         </div>
       </div>

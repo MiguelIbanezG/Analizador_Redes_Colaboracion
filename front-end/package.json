@@ -43,6 +43,7 @@
     "@types/chart.js": "^2.9.41",
     "@types/jasmine": "~5.1.4",
     "@types/pluralize": "^0.0.33",
+    "@types/uuid": "^9.0.8",
     "@types/vis": "^4.21.27",
     "jasmine-core": "~5.1.1",
     "karma": "~6.4.2",

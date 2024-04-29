@@ -23,9 +23,8 @@ import { AuthorsComponent } from './authors/authors.component';
 import { CommonModule } from '@angular/common';
 import { NetworksComponent } from './networks/networks.component';
 import { SpinnerService } from './services/spinner.service';
-import { SelectedNodesDirective } from './services/selected-nodes.directive';
-import { AppNetworkInitService } from './services/network.init.service';
-import { AppNetworkService } from './services/network.service';
+import { NetworkInitService } from './services/network.init.service';
+import { NetworkService } from './services/network.service';
 import { FooterComponent } from './footer/footer.component';
 
 
@@ -37,7 +36,6 @@ import { FooterComponent } from './footer/footer.component';
     InfoComponent,
     AuthorsComponent,
     NetworksComponent,
-    SelectedNodesDirective,
     FooterComponent
   ],
   imports: [
@@ -61,8 +59,8 @@ import { FooterComponent } from './footer/footer.component';
     StadisticsService,
     InfoService,
     SpinnerService,
-    AppNetworkService,
-    AppNetworkInitService
+    NetworkService,
+    NetworkInitService
   ],
   bootstrap: [AppComponent]
 })

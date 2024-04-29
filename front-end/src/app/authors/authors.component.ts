@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { HomeService } from '../services/home.service';
-import { AppNetworkInitService } from '../services/network.init.service';
+import { NetworkInitService } from '../services/network.init.service';
 import { Router } from '@angular/router';
 import { AuthorsService } from '../services/authors.service';
 
@@ -25,7 +25,7 @@ export class AuthorsComponent {
     private apiService: ApiService,
     public homeService: HomeService,
     public authorService: AuthorsService,
-    private networkInitService: AppNetworkInitService,
+    private networkInitService: NetworkInitService,
     private router: Router,
   ) { }
 

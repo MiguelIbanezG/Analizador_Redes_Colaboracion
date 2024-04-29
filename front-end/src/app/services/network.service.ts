@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Options, DataSet, Edge } from "vis";
 
 @Injectable()
-export class AppNetworkService {
+export class NetworkService {
   
   public getNetworkOptions(): Options {
     return {
@@ -31,9 +31,6 @@ export class AppNetworkService {
           enabled: true,
           type: 'dynamic',
           roundness: 0.5,
-        },
-        chosen: {
-          label: true,
         },
       },
       nodes: {

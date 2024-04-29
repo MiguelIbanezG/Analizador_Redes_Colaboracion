@@ -14,7 +14,7 @@ router.get('/autocompleteConferenceAndJournals/:term', async (req, res) => {
     const query = `
       MATCH (v:Venue)
       WHERE toLower(v.name) STARTS WITH toLower($searchTerm)
-      RETURN DISTINCT v.name as venueAndJournalNames
+      RETURN v.name as venueAndJournalNames
       ORDER BY size(v.name)
       LIMIT 3
       
@@ -22,7 +22,7 @@ router.get('/autocompleteConferenceAndJournals/:term', async (req, res) => {
       
       MATCH (j:Journal)
       WHERE toLower(j.name) STARTS WITH toLower($searchTerm)
-      RETURN DISTINCT j.name as venueAndJournalNames
+      RETURN j.name as venueAndJournalNames
       ORDER BY size(j.name)
       LIMIT 3
     `;
@@ -47,7 +47,7 @@ router.get('/autocompleteAuthor/:term', async (req, res) => {
     const query = `
     MATCH (r:Researcher) 
     WHERE r.name STARTS WITH $searchTerm 
-    RETURN DISTINCT r.name as authorName 
+    RETURN r.name as authorName 
     LIMIT 6
     `;
     const result = await session.run(query, { searchTerm });
