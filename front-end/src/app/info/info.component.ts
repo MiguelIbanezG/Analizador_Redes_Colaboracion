@@ -11,10 +11,6 @@ import { SpinnerService } from '../services/spinner.service';
 })
 export class InfoComponent implements OnInit {
 
-  allPublications = 0;
-  allAuthors = 0;
-  allConferences = 0;
-  allJournals = 0;
   loadingGraph1 = true;
   loadingGraph2 = true;
   loadingGraph3 = true;
@@ -24,7 +20,7 @@ export class InfoComponent implements OnInit {
   barChart!: Chart;
 
   constructor(
-    private infoService: InfoService,
+    public infoService: InfoService,
     private apiService: ApiService,
     private spinnerService: SpinnerService
   ) { }
@@ -98,17 +94,18 @@ export class InfoComponent implements OnInit {
   getPublications() {
     this.apiService.getPublications().subscribe({
       next: (response: any[]) => {
-
         if (response.length > 0) {
-          this.infoService.AllPublications = response[0].all_publications;
-        } else {
-          this.infoService.AllPublications = 0;
-        }
+          this.infoService.allPublications = this.formatNumber(response[0].all_publications);
+        } 
       },
       error: (error: any) => {
         console.error('Error al obtener las publicaciones en getPublications:', error);
       }
     });
+  }
+
+   formatNumber(number: number): string {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
   // API CALL: Function to get All Conferences
@@ -117,10 +114,9 @@ export class InfoComponent implements OnInit {
       next: (response: any[]) => {
 
         if (response.length > 0) {
-          this.infoService.AllConferences = response[0].all_conferences;
-        } else {
-          this.infoService.AllConferences = 0;
-        }
+          this.infoService.allConferences = this.formatNumber(response[0].all_conferences);
+        } 
+
       },
       error: (error: any) => {
         console.error('Error al obtener las conferencias en getConferences:', error);
@@ -134,10 +130,8 @@ export class InfoComponent implements OnInit {
       next: (response: any[]) => {
 
         if (response.length > 0) {
-          this.infoService.AllJournals = response[0].all_journals;
-        } else {
-          this.infoService.AllJournals = 0;
-        }
+          this.infoService.allJournals = this.formatNumber(response[0].all_journals);
+        } 
       },
       error: (error: any) => {
         console.error('Error al obtener las conferencias en getConferences:', error);
@@ -151,10 +145,8 @@ export class InfoComponent implements OnInit {
       next: (response: any[]) => {
 
         if (response.length > 0) {
-          this.infoService.AllAuthors = response[0].all_authors;
-        } else {
-          this.infoService.AllAuthors = 0;
-        }
+          this.infoService.allAuthors = this.formatNumber(response[0].all_authors);
+        } 
       },
       error: (error: any) => {
         console.error('Error al obtener las publicaciones en getBooks:', error);
@@ -239,7 +231,7 @@ export class InfoComponent implements OnInit {
         labels: labels,
         datasets: [
           {
-            label: 'Conferences and Papers',
+            label: 'Conferences and Workshop Papers',
             data: ConferencesAndPapers,
             backgroundColor: 'rgba(255, 99, 132, 0.5)',
             borderColor: 'rgba(255, 99, 132, 0.5)',
@@ -253,7 +245,7 @@ export class InfoComponent implements OnInit {
             borderWidth: 1
           },
           {
-            label: 'Thesis',
+            label: 'Book and Thesis',
             data: Thesis,
             backgroundColor: 'rgba(255, 206, 86, 2)',
             borderColor: 'rgba(255, 206, 86, 2)',
@@ -306,17 +298,11 @@ export class InfoComponent implements OnInit {
         this.generateTablesSchools(this.infoService.instituions);
       }
 
-      while (this.infoService.AllPublications < 1 || this.infoService.AllConferences < 1
-        || this.infoService.AllAuthors < 1) {
+      while (this.infoService.allPublications == "0" || this.infoService.allConferences == "0"
+        || this.infoService.allAuthors == "0") {
         await new Promise(resolve => setTimeout(resolve, 500));
         this.spinnerService.show()
       }
-
-      this.allAuthors = this.infoService.AllAuthors
-      this.allPublications = this.infoService.AllPublications
-      this.allConferences = this.infoService.AllConferences
-      this.allJournals = this.infoService.AllJournals
-
 
       if (this.infoService.PublicationsByYear.length < 1) {
         this.getPublicationsbyYear();

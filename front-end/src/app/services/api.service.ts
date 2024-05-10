@@ -84,15 +84,7 @@ export class ApiService {
   getSchools(): Observable<any[]> {
     return this.http.post<any[]>(`${this.baseUrl}/schools`, {});
   }
-
-  getConnectedComponents(titulosSeleccionados: any[], venue: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/connectedComponents`, { titulosSeleccionados, venue });
-  }
-
-  getConnectedComponentsByvenue(titulosSeleccionados: any[], venue: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/connectedComponentsBYvenue`, { titulosSeleccionados, venue });
-  }
-
+  
   getConferencebyProceeding(titulosSeleccionados: any[], venue: string[]): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/ConferencebyProceeding`, { titulosSeleccionados, venue });
   }

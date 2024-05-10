@@ -174,6 +174,7 @@ export class NetworksComponent implements OnInit, OnDestroy {
       const selectedNodeId = params.nodes[0];
       const connectedEdges = this.network.getConnectedEdges(selectedNodeId);
       const connectedNodes: any[] = [];
+      const label: any[] = [];
       this.publicationsNode = {};
 
       connectedEdges.forEach(edgeId => {
@@ -182,8 +183,10 @@ export class NetworksComponent implements OnInit, OnDestroy {
         if (edge) {
           if (edge.to == params.nodes) {
             connectedNodes.push(edge.from);
+            label.push(edge.label);
           } else {
             connectedNodes.push(edge.to);
+            label.push(edge.label);
           }
 
           this.NetworkInitService.nameAuthors = this.NetworkInitService.nameAuthors.map((author: any) => {
@@ -214,6 +217,7 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
       const result = {
         edges: connectedNodes,
+        label: label,
         nodes: params.nodes,
         pointer: params.pointer,
         select: this.number
@@ -228,7 +232,6 @@ export class NetworksComponent implements OnInit, OnDestroy {
   }
 
    esStringNumero(str: any): boolean {
-    // Verificar si es un string y si el contenido es un número
     return !isNaN(Number(str));
   }
 }

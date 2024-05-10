@@ -171,7 +171,7 @@ router.post('/PapersAndArticles', async (req, res) => {
       RETURN toInteger(count(p)) AS numPapersAndArticles, y.name AS yearName, j.name AS name, "Article" AS type
       `;
     const result = await session.run(query, { listOfyears, venueAndJournalNames });
-    const papers = result.records.map(record => {
+    const papersAndarticles = result.records.map(record => {
       return {
         numPapersAndArticles: record.get('numPapersAndArticles'),
         year: record.get('yearName'),
@@ -180,7 +180,7 @@ router.post('/PapersAndArticles', async (req, res) => {
       };
     });
 
-    res.json(papers);
+    res.json(papersAndarticles);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener las Publicaciones', details: error.message });
@@ -535,73 +535,6 @@ router.post('/allJournals', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener el total de journals', details: error.message });
-  } finally {
-    session.close();
-  }
-});
-
-
-router.post('/connectedComponents', async (req, res) => {
-  const venueAndJournalNames = req.body.venue;
-  const listOfyears = req.body.titulosSeleccionados;
-  const session = driver.session({ database: 'neo4j' });
-
-  try {
-    const query = `
-      MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)
-      WHERE v.name IN $venueAndJournalNames AND y.name IN $listOfyears
-      WITH y
-      MATCH p = (y)-[:HAS_PROCEEDING]->(proceeding)-[:HAS_IN_PROCEEDING]->(inproceeding)-[:AUTHORED_BY]->(r:Researcher)
-      RETURN y.name AS year, count(DISTINCT ID(r)) AS connectedComponents
-    `;
-    
-    const result = await session.run(query, { listOfyears, venueAndJournalNames });
-    const connectedComponents = result.records.map(record => {
-      return {
-        year: record.get('year'),
-        connectedComponents: record.get('connectedComponents').low,
-      };
-    });
-  
-  
-    res.json(connectedComponents);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error in connectedComponents', details: error.message });
-  } finally {
-    session.close();
-  }
-});
-
-
-router.post('/connectedComponentsBYvenue', async (req, res) => {
-  const venueAndJournalNames = req.body.venue;
-  const listOfyears = req.body.titulosSeleccionados;
-  const session = driver.session({ database: 'neo4j' });
-
-  try {
-    const query = `
-      MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)
-      WHERE v.name IN $venueAndJournalNames AND y.name IN $listOfyears
-      WITH y, v.name AS venueAndJournalNames
-      MATCH p = (y)-[:HAS_PROCEEDING]->(proceeding)-[:HAS_IN_PROCEEDING]->(inproceeding)-[:AUTHORED_BY]->(r:Researcher)
-      RETURN y.name AS year, venueAndJournalNames, count(DISTINCT ID(r)) AS connectedComponents
-    `;
-    const result = await session.run(query, { listOfyears, venueAndJournalNames });
-    const connectedComponents = result.records.map(record => {
-      return {
-        year: record.get('year'),
-        venueAndJournalNames: record.get('venueAndJournalNames'),
-        connectedComponents: record.get('connectedComponents').low,
-      };
-    });
-  
-
-  
-    res.json(connectedComponents);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error in connectedComponents', details: error.message });
   } finally {
     session.close();
   }

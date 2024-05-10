@@ -9,10 +9,10 @@
 
     <!-- Total of Publications -->
     <ul>
-      <li class="click-element" >Total of Publications: {{allPublications}}</li>
-      <li class="click-element">Total of Authors: {{allAuthors}}</li>
-      <li class="click-element">Total of Conferences: {{allConferences}}</li>
-      <li class="click-element">Total of Journals: {{allJournals}}</li>
+      <li class="click-element" >Total of Publications: {{infoService.allPublications}}</li>
+      <li class="click-element">Total of Authors: {{infoService.allAuthors}}</li>
+      <li class="click-element">Total of Conferences: {{infoService.allConferences}}</li>
+      <li class="click-element">Total of Journals: {{infoService.allJournals}}</li>
     </ul>
     
     <!-- Total of Institutions -->
@@ -82,7 +82,7 @@
     <!-- Chart: Number of Conferences and Papers, Journal Articles and Thesis by Year -->
     <div class="flex-container" >
       <div class="flex-item">
-          <h3>Number of Conferences and Papers, Journal Articles and Thesis by Year</h3>
+          <h3>Number of Conferences and Workshop Papers, Journal Articles and Book and Thesis by Year</h3>
           <div class="canvas-container">
             <div class="overlay">
               <app-spinner></app-spinner>

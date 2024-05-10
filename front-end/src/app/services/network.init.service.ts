@@ -11,7 +11,6 @@ export class NetworkInitService {
   public showCluster = true;
   public completeAuthors:any = [];
   public selectedAuthors:any = [];
-  public forggetAuthors:any = [];
   public groupedAuthors:{ [key: string]: string[] } = {};
   public cluster: { min: number, max: number} =  { min: 1, max: 100}
   private distances: { [key: string]: number } = {};
@@ -54,8 +53,6 @@ export class NetworkInitService {
   
       return author;
     });
-    
-    // Group authors by the number of publications less than cluster.min
 
     this.nameAuthors.forEach((author: { publications: string | any[]; researcher: string; }) => {
         if ((author.publications.length < this.cluster.min || author.publications.length > this.cluster.max) && author.researcher != this.selectedAuthors[0]) {
@@ -74,7 +71,6 @@ export class NetworkInitService {
 
     if( this.showCluster == true){
 
-      // Create new authors for each group
       Object.keys(this.groupedAuthors).forEach(publicationCount => {
         const authors = this.groupedAuthors[publicationCount];
         const count = parseInt(publicationCount);
@@ -84,11 +80,11 @@ export class NetworkInitService {
         }
         const newAuthor = { researcher: authors.length.toString(), publications: publications };
 
-        let duplicateAuthor = this.nameAuthors.find((author: { researcher: string; }) => author.researcher === newAuthor.researcher);
-
-        if (duplicateAuthor) {
-          newAuthor.researcher += '.';
-        }
+        this.nameAuthors.forEach((author: { researcher: string; }) => {
+          if (author.researcher === newAuthor.researcher) {
+              newAuthor.researcher += ' ';
+          }
+        });
 
         
         this.nameAuthors.push(newAuthor);
@@ -130,9 +126,7 @@ export class NetworkInitService {
               }
           }
       });
-
     }
-
 
     const sortedAuthors = this.nameAuthors.slice().sort((a: any, b: any) => {
       return a.publications.length - b.publications.length;
@@ -201,9 +195,6 @@ export class NetworkInitService {
   // Function to create Edges
   getEdges(): DataSet<Edge> {
 
-    console.log(this.nameAuthors)
-    console.log(this.completeAuthors)
-
     const edgesData: Edge[] = this.nameAuthors
     .filter((author: { researcher: any; }) => author.researcher !== this.selectedAuthors[0])
     .map((author: { publications: string | any[]; researcher: any; }) => {
@@ -219,12 +210,17 @@ export class NetworkInitService {
 
       Object.keys(this.groupedAuthors).forEach(publicationCount => {
         const authors = this.groupedAuthors[publicationCount];
-        const newAuthor = { researcher: authors.length.toString(), publications: authors };    
+        const newAuthor = { researcher: authors.length.toString(), publications: authors };   
+
+        this.nameAuthors.forEach((author: { researcher: string; }) => {
+          if (author.researcher === newAuthor.researcher) {
+              newAuthor.researcher += ' ';
+          }
+        });
+
         this.nameAuthors.push(newAuthor);
       });
-
     }
-
 
     const edges: DataSet<Edge> = new DataSet(edgesData);
     return edges;
@@ -232,21 +228,7 @@ export class NetworkInitService {
 
   }
 
-  getClusterMin(): number {
-    return this.cluster.min;
-  }
 
-  setClusterMin(value: number): void {
-    this.cluster.min = value;
-  }
-
-  getClusterMax(): number {
-    return this.cluster.max;
-  }
-
-  setClusterMax(value: number): void {
-    this.cluster.max = value;
-  }
   
 
 }

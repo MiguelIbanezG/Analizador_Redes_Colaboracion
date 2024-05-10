@@ -1251,14 +1251,6 @@ export class StatisticsComponent implements OnInit {
     });
   }  
 
-
-  // randomColor(){
-  //   const r = Math.floor(Math.random() * 256);
-  //   const g = Math.floor(Math.random() * 256);
-  //   const b = Math.floor(Math.random() * 256);
-  //   return `rgba(${r}, ${g}, ${b}, 1)`;
-  // }
-
   // Function to generate a random color
   getRandomColor(index: number) {
     let colors: Record<number, string> = {

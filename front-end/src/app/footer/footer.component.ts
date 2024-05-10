@@ -19,6 +19,10 @@ export class FooterComponent {
   getDate() {
     const fechaHora = new Date();
     this.date = fechaHora.toLocaleString(); 
+    setInterval(()=>{
+      const fechaHora = new Date();
+      this.date = fechaHora.toLocaleString(); 
+    },1000)
   }
 
 }
