@@ -53,10 +53,10 @@ export class NetworksComponent implements OnInit, OnDestroy {
   public ngOnInit(): void {
 
     this.nameAuthor = this.NetworkInitService.selectedAuthors;
-    
+
 
     const networkOptions = this.NetworkService.getNetworkOptions();
-    networkOptions.height = '800px'; 
+    networkOptions.height = '800px';
 
 
     this.nodes = this.NetworkInitService.getNodes();
@@ -84,7 +84,7 @@ export class NetworksComponent implements OnInit, OnDestroy {
   updateCluster(): void {
 
     const networkOptions = this.NetworkService.getNetworkOptions();
-    networkOptions.height = '800px'; 
+    networkOptions.height = '800px';
 
     this.nodes = this.NetworkInitService.getNodes();
     this.edges = this.NetworkInitService.getEdges();
@@ -143,26 +143,26 @@ export class NetworksComponent implements OnInit, OnDestroy {
       if (author.researcher == researcherName) {
 
         if (isNaN(Number(author.researcher))) {
-          this.number = false;      
+          this.number = false;
         } else {
-          this.number = true;  
+          this.number = true;
         }
 
         var uniquePublicationsSet = new Set();
         var uniquePublications: any = []
-        
+
         author.publications.forEach((publication: any) => {
-            uniquePublicationsSet.add(publication);
-        });   
+          uniquePublicationsSet.add(publication);
+        });
 
         uniquePublications = Array.from(uniquePublicationsSet);
         this.publicationsEdge[author.researcher] = uniquePublications;
-        
+
       }
       return author;
 
     });
-    
+
     this.selectNode = null;
   }
 
@@ -193,22 +193,22 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
             if (author.researcher == edge.to) {
 
-              if(isNaN(Number(author.researcher)) || (selectedNodeId == this.NetworkInitService.selectedAuthors[0])){
+              if (isNaN(Number(author.researcher)) || (selectedNodeId == this.NetworkInitService.selectedAuthors[0])) {
                 this.number = false;
-              } else{
+              } else {
                 this.number = true;
               }
 
               var uniquePublicationsSet = new Set();
               var uniquePublications: any = []
-              
+
               author.publications.forEach((publication: any) => {
-                  uniquePublicationsSet.add(publication);
-              });   
+                uniquePublicationsSet.add(publication);
+              });
 
               uniquePublications = Array.from(uniquePublicationsSet);
               this.publicationsNode[author.researcher] = uniquePublications;
-     
+
             }
             return author;
           });
@@ -231,7 +231,7 @@ export class NetworksComponent implements OnInit, OnDestroy {
     }
   }
 
-   esStringNumero(str: any): boolean {
+  esStringNumero(str: any): boolean {
     return !isNaN(Number(str));
   }
 }

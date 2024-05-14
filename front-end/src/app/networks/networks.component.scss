@@ -1,23 +1,22 @@
-
 .container-network {
-    display: flex; 
+    display: flex;
     flex-direction: row;
-    margin-bottom: 50px ;
+    margin-bottom: 50px;
 }
 
 
-.cluster-network{
+.cluster-network {
     width: 80%;
 }
 
 .select {
     width: 20%;
     margin-top: 80px;
-    margin-left: 20px; 
-    margin-right: 10px; 
-    margin-bottom: 50px; 
+    margin-left: 20px;
+    margin-right: 10px;
+    margin-bottom: 50px;
     border: 2px solid rgb(0, 22, 68);
-    border-radius: 10px; 
+    border-radius: 10px;
     background-color: #f9f9f9;
     padding-left: 20px;
     padding-right: 20px;
@@ -28,40 +27,38 @@
 
     border: 2px solid rgb(0, 22, 68);
     border-radius: 10px;
-    background-color: #e0e0e0; 
+    background-color: #e0e0e0;
     box-sizing: border-box;
     margin-top: 10px;
     margin-bottom: 50px;
-    box-shadow: 0px 0px 5px 2px rgba(0, 22, 68, 0.3); 
+    box-shadow: 0px 0px 5px 2px rgba(0, 22, 68, 0.3);
 }
 
 
-h1{
+h1 {
     text-align: center;
     font-size: 35px;
     margin-bottom: 0;
 }
 
-.minCluster{
+.minCluster {
     margin-right: 10px;
     width: 50px;
     margin-left: 5px;
 }
 
-.maxCluster{
+.maxCluster {
     margin-right: 10px;
     width: 50px;
     margin-left: 5px;
 }
 
-.cluster{
+.cluster {
     margin-top: 50px;
 }
 
-hr{
+hr {
     width: 50%;
-    border-width: 1px; 
+    border-width: 1px;
     border-color: black;
 }
-
-

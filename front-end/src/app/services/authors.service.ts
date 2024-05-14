@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class AuthorsService {
 
@@ -10,9 +10,9 @@ export class AuthorsService {
     get Authors() {
         return this.authors;
     }
-    
-    set Authors( authors: string[] ) {
+
+    set Authors(authors: string[]) {
         this.authors = authors;
     }
-    
+
 }
