@@ -174,7 +174,6 @@ export class InfoComponent implements OnInit {
       researchers.forEach(({ School, NumberOfAuthors }) => {
         const row = document.createElement('tr');
         row.innerHTML = `<td >${School}</td><td>${NumberOfAuthors}</td>`;
-        // Aplicar alineación de celdas
         const firstCell = row.querySelector('td:first-child') as HTMLElement;
         const lastCell = row.querySelector('td:last-child') as HTMLElement;
         if (firstCell && lastCell) {
@@ -320,6 +319,13 @@ export class InfoComponent implements OnInit {
         this.getJournalsbyYear();
       }
 
+      while (this.infoService.instituions.length < 1) {
+        this.loadingGraph4 = true;
+        await new Promise(resolve => setTimeout(resolve, 100));
+        this.spinnerService.show()
+      }
+      this.loadingGraph4 = false;
+
       while (this.infoService.ConferencesByYear.length < 1) {
         this.loadingGraph1 = true;
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -361,12 +367,7 @@ export class InfoComponent implements OnInit {
       }
       this.loadingGraph3 = false;
 
-      while (this.infoService.instituions.length < 1) {
-        this.loadingGraph4 = true;
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        this.spinnerService.show()
-      }
-      this.loadingGraph4 = false;
+
 
       //Publications by Year
       this.generateBarChartTriple(

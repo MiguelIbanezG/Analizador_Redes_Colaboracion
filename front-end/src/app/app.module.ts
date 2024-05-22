@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { AppRoutingModule } from './app-routing.module';
@@ -26,6 +26,13 @@ import { SpinnerService } from './services/spinner.service';
 import { NetworkInitService } from './services/network.init.service';
 import { NetworkService } from './services/network.service';
 import { FooterComponent } from './footer/footer.component';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+
+
+export function createTranslateLoader(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
 
 
 @NgModule({
@@ -36,9 +43,16 @@ import { FooterComponent } from './footer/footer.component';
     InfoComponent,
     AuthorsComponent,
     NetworksComponent,
-    FooterComponent
+    FooterComponent,
   ],
   imports: [
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (createTranslateLoader),
+        deps: [HttpClient]
+      }
+    }),
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,

@@ -4,12 +4,28 @@
     
     <div class="nav">
       <nav>
-        <a routerLink="/" routerLinkActive="active">Home</a>
-        <a routerLink="/statistics" routerLinkActive="active" *ngIf="activeLinkStatistics" >Statistics</a>
-        <a routerLink="/info" routerLinkActive="active">Info</a>
-        <a routerLink="/authors" routerLinkActive="active">Authors</a>
-        <a routerLink="/network" routerLinkActive="active"  *ngIf="activeLinkNetwork">Network</a>
+        <a class="element" routerLink="/" routerLinkActive="active">{{ "Home" | translate }}</a>
+        <a class="element"  routerLink="/statistics" routerLinkActive="active" *ngIf="activeLinkStatistics" >{{ "Statistics" | translate }}</a>
+        <a class="element"  routerLink="/info" routerLinkActive="active">{{ "Info" | translate }}</a>
+        <a class="element"  routerLink="/authors" routerLinkActive="active">{{ "Authors" | translate }}</a>
+        <a class="element"  routerLink="/network" routerLinkActive="active"  *ngIf="activeLinkNetwork">{{ "Network" | translate }}</a>
       </nav>
+
+      <div class="right">
+    
+          <img class="logo" src="assets/logo.png" width="44" height="32" alt="Miguel Ibáñez" />
+       
+
+        <div class="vertical-bar"></div> 
+
+        <a  class="es has-tooltip-bottom has-tooltip-gray" (click)="selectLanguage('es')" data-tooltip="Español / Spanish">
+          <img class="language" src="assets/languages/es.svg" alt="Idioma Español - Spanish language" />
+        </a>
+        <a class="has-tooltip-bottom has-tooltip-gray" (click)="selectLanguage('en')" data-tooltip="Inglés / English">
+          <img class="language" src="assets/languages/en.svg" alt="Idioma Inglés - English language" />
+        </a>
+      </div>
+
     </div>
 
     <div class="container">

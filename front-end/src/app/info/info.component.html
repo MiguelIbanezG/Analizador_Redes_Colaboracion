@@ -1,22 +1,21 @@
-
- <!-- Title -->
+<!-- Title -->
 <h2>Information</h2>
+<hr class="line_title">
 
 <div class="container">
 
   <!-- Left Container -->
-  <div class="leftContainer">
-
+  <div class="left-container">
     <!-- Total of Publications -->
     <ul>
-      <li class="click-element" >Total of Publications: {{infoService.allPublications}}</li>
+      <li class="click-element">Total of Publications: {{infoService.allPublications}}</li>
       <li class="click-element">Total of Authors: {{infoService.allAuthors}}</li>
       <li class="click-element">Total of Conferences: {{infoService.allConferences}}</li>
       <li class="click-element">Total of Journals: {{infoService.allJournals}}</li>
     </ul>
     
     <!-- Total of Institutions -->
-    <div class="table">
+    <div class="table-container">
       <table id="tableInstitution">
         <thead>
           <tr>
@@ -25,7 +24,7 @@
           </tr>
         </thead>
         <tbody>
-          <div class="centerSpinner" *ngIf="loadingGraph1">
+          <div class="overlay2" *ngIf="loadingGraph4">
             <app-spinner></app-spinner>
           </div>
         </tbody>
@@ -33,72 +32,58 @@
     </div>
   </div>
 
+  <div class="divider"></div>
+
   <!-- Right Container -->
-  <div class="rightContainer">
-
-     <!-- Chart: Number of Conferences by Year -->
-    <div class="flex-container" >
-      <div class="flex-item">
-        <h3>Number of Conferences by Year</h3>
-  
-        <div class="canvas-container">
-          <div class="overlay" *ngIf="loadingGraph1">
-            <app-spinner></app-spinner>
-          </div>
-          <canvas id="barChart"></canvas>
+  <div class="right-container">
+    <!-- Chart: Number of Conferences by Year -->
+    <div class="chart-container">
+      <h3>Number of Conferences by Year</h3>
+      <div class="canvas-container">
+        <div class="overlay" *ngIf="loadingGraph1">
+          <app-spinner></app-spinner>
         </div>
-      <div>
-    </div>
-
-    <!-- Chart: Number of Authors by Year -->
-    <div class="flex-container" >
-      <div class="flex-item">
-          <h3>Number of Authors by Year</h3>
-    
-          <div class="canvas-container">
-            <div class="overlay" *ngIf="loadingGraph2">
-              <app-spinner></app-spinner>
-            </div>
-            <canvas id="barChart2"></canvas>
-          </div>
-      </div>   
-    </div>
-
-    <!-- Chart: Number of Journals by Year -->
-    <div class="flex-container" >
-      <div class="flex-item">
-          <h3>Number of Journals by Year</h3>
-    
-          <div class="canvas-container">
-            <div class="overlay" *ngIf="loadingGraph5">
-              <app-spinner></app-spinner>
-            </div>
-            <canvas id="barChart3"></canvas>
-          </div>
-      </div>   
-    </div>
-    
-
-    <!-- Chart: Number of Conferences and Papers, Journal Articles and Thesis by Year -->
-    <div class="flex-container" >
-      <div class="flex-item">
-          <h3>Number of Conferences and Workshop Papers, Journal Articles and Book and Thesis by Year</h3>
-          <div class="canvas-container">
-            <div class="overlay">
-              <app-spinner></app-spinner>
-            </div>
-            <canvas id="tripleBarChart"></canvas>
-          </div>
+        <canvas id="barChart"></canvas>
       </div>
     </div>
 
+    <hr class="line">
+
+    <!-- Chart: Number of Authors by Year -->
+    <div class="chart-container">
+      <h3>Number of Authors by Year</h3>
+      <div class="canvas-container">
+        <div class="overlay" *ngIf="loadingGraph2">
+          <app-spinner></app-spinner>
+        </div>
+        <canvas id="barChart2"></canvas>
+      </div>
+    </div>
+
+    <hr class="line">
+
+    <!-- Chart: Number of Journals by Year -->
+    <div class="chart-container">
+      <h3>Number of Journals by Year</h3>
+      <div class="canvas-container">
+        <div class="overlay" *ngIf="loadingGraph5">
+          <app-spinner></app-spinner>
+        </div>
+        <canvas id="barChart3"></canvas>
+      </div>
+    </div>
+
+    <hr class="line">
+
+    <!-- Chart: Number of Conferences and Papers, Journal Articles and Thesis by Year -->
+    <div class="chart-container">
+      <h3>Number of Conferences and Workshop Papers, Journal Articles and Book and Thesis by Year</h3>
+      <div class="canvas-container">
+        <div class="overlay" *ngIf="loadingGraph3">
+          <app-spinner></app-spinner>
+        </div>
+        <canvas id="tripleBarChart"></canvas>
+      </div>
+    </div>
   </div>
 </div>
-
-
-
-
-
-
-
-

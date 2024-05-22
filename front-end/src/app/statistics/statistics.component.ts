@@ -1379,8 +1379,6 @@ export class StatisticsComponent implements OnInit {
         this.getTopicAnalysis();
         this.getDistributions();
       }
-
-
       
       if(this.singleAuthor.length == 0){
         await this.waitSingleAuthorsNoEmpty();
@@ -1392,7 +1390,7 @@ export class StatisticsComponent implements OnInit {
       }
       this.statsDegreeAuthors(this.selectedYears);
  
-      while(this.stadisticsService.ConferenceOrJournalNames.length <1){
+      while(this.stadisticsService.ConferenceOrJournalNames.length < 10){
         this.loadingTable1 = true;
         await new Promise(resolve => setTimeout(resolve, 100));
         this.spinnerService.show()

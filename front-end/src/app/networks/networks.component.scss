@@ -4,7 +4,6 @@
     margin-bottom: 50px;
 }
 
-
 .cluster-network {
     width: 80%;
 }
@@ -24,7 +23,6 @@
 }
 
 .network {
-
     border: 2px solid rgb(0, 22, 68);
     border-radius: 10px;
     background-color: #e0e0e0;
@@ -62,3 +60,42 @@ hr {
     border-width: 1px;
     border-color: black;
 }
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 25px;
+
+    }
+    hr {
+        width: 70%;
+    }
+    .container-network {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 50px;
+        justify-content: center;
+        align-items: center;
+    }
+    .cluster-network {
+        width: 100%;
+    }
+    .select {
+        width: 92%;
+        font-size: 15px;
+        margin-left: 0px;
+        margin-right: 0px;
+        margin-top: 0px;
+        justify-content: center;
+    }
+    .network {
+        border: 2px solid rgb(0, 22, 68);
+        border-radius: 10px;
+        background-color: #e0e0e0;
+        box-sizing: border-box;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        box-shadow: 0px 0px 5px 2px rgba(0, 22, 68, 0.3);
+    }
+    
+    
+  }

@@ -18,7 +18,7 @@
   
 input[type="text"] {
     padding: 8px;
-    width: 70%;
+    width: 80%;
     border: 1px solid #cccccc;
     border-radius: 4px;
 }
@@ -209,5 +209,72 @@ hr {
     font-size: 15px;
     margin-bottom: 8px;
 }
+
+@media (max-width: 768px) {
+    .hide-on-small {
+        display: none;
+    }
+  
+    h1 {
+      text-align: center;
+      font-size: 25px;
+      margin-top: 10px;
+      margin-bottom: 30px;
+    }
+  
+    button {
+      padding: 6px 10px;
+      background-color: rgb(0, 22, 68);
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+    }
+    input[type="text"] {
+        width: 70%;
+    }
+    .legend-item {
+        margin: 2px;
+        white-space: nowrap; /* Evitar el salto de línea */
+    }
+    
+    .legend-text {
+        display: inline-block;
+        font-size: 15px;
+    }
+    .color-square {
+        width: 15px;
+        height: 15px;
+        display: inline-block;
+        margin-right: 5px;
+        border: 1px solid black;
+        margin-bottom: -5px;
+    }
+
+    .legend{
+        margin-bottom: 10px;
+        display: inline-flex;
+        margin-top: 50px;
+        margin-left: 20px;
+    }
+
+    .flex-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: auto;
+        margin-left: 10px;
+        margin-bottom: 50px;
+    }
+
+    td, th {
+        font-size: 14px;
+    }
+    table{
+        border-spacing: 0px 10px;
+        font-size: 14px;
+    }
+    
+    
+  }
 
 

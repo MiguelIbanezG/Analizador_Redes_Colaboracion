@@ -72,6 +72,7 @@
 
 
   <hr class="line">
+
   <h3 class="special">Distributions of authors by paper and article and of papers and articles by author</h3>
   <div class="container-table">
     <div class="table">
@@ -159,7 +160,9 @@
           <tbody></tbody>
         </table>
     </div>
+
     <div class="line2"></div>
+    
     <div class="table">
         <table id="tableTrigramas">
           <thead>
@@ -176,6 +179,7 @@
   </div>
 
   <hr class="line">
+  
   <h3 class="special">Frequent terms from all titles of papers</h3>
   <div class="conceptual">
     <angular-tag-cloud [config]="options" [data]="cloudData"></angular-tag-cloud>
@@ -184,7 +188,7 @@
   <hr class="line">
 
   <h3 class="special">Most prolific authors according to their number of publications accumulated by decade</h3>
-  <div class="container-table2">
+  <div class="container-table">
     <div class="table">
         <table id="table90">
           <thead>
@@ -258,10 +262,10 @@
     </div>
   </div>
 
-  <hr class="line3">
+  <hr class="line">
 
   <h3>Authors with their first and most recent year of publication</h3>
-  <div class="container-table2">
+  <div class="container-table">
     <div class="table">
         <table id="degree">
           <thead>
@@ -277,10 +281,10 @@
     </div>
   </div>
 
-  <hr class="slim" [hidden]="PapersAndArticles.length < 1">
+  <hr class="line" [hidden]="PapersAndArticles.length < 1">
 
   <h3 [hidden]="PapersAndArticles.length < 1">Proceeding by Conference</h3>
-  <div class="container-table2">
+  <div class="container-table">
    
     <div class="table" [hidden]="PapersAndArticles.length < 1">
       <table id="tableProceeding">
