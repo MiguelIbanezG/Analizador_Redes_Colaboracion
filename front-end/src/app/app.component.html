@@ -1,41 +1,47 @@
 <!DOCTYPE html>
 <html>
-  <body>
-    
-    <div class="nav">
-      <nav>
-        <a class="element" routerLink="/" routerLinkActive="active">{{ "Home" | translate }}</a>
-        <a class="element"  routerLink="/statistics" routerLinkActive="active" *ngIf="activeLinkStatistics" >{{ "Statistics" | translate }}</a>
-        <a class="element"  routerLink="/info" routerLinkActive="active">{{ "Info" | translate }}</a>
-        <a class="element"  routerLink="/authors" routerLinkActive="active">{{ "Authors" | translate }}</a>
-        <a class="element"  routerLink="/network" routerLinkActive="active"  *ngIf="activeLinkNetwork">{{ "Network" | translate }}</a>
-      </nav>
 
-      <div class="right">
-    
-          <img class="logo" src="assets/logo.png" width="44" height="32" alt="Miguel Ibáñez" />
-       
+<body>
+  <!-- Navbar -->
+  <div class="nav">
+    <nav>
+      <a class="element" routerLink="/" routerLinkActive="active">{{
+        "Menu.Home" | translate
+        }}</a>
+      <a class="element" routerLink="/statistics" routerLinkActive="active" *ngIf="activeLinkStatistics">{{ "Menu.Statistics"
+        | translate }}</a>
+      <a class="element" routerLink="/info" routerLinkActive="active">{{
+        "Menu.Info" | translate
+        }}</a>
+      <a class="element" routerLink="/authors" routerLinkActive="active">{{
+        "Menu.Authors" | translate
+        }}</a>
+      <a class="element" routerLink="/network" routerLinkActive="active" *ngIf="activeLinkNetwork">{{ "Menu.Network" |
+        translate }}</a>
+    </nav>
 
-        <div class="vertical-bar"></div> 
+    <div class="right">
+      <img class="logo" src="assets/logo.png" width="44" height="32" alt="Miguel Ibáñez" />
 
-        <a  class="es has-tooltip-bottom has-tooltip-gray" (click)="selectLanguage('es')" data-tooltip="Español / Spanish">
-          <img class="language" src="assets/languages/es.svg" alt="Idioma Español - Spanish language" />
-        </a>
-        <a class="has-tooltip-bottom has-tooltip-gray" (click)="selectLanguage('en')" data-tooltip="Inglés / English">
-          <img class="language" src="assets/languages/en.svg" alt="Idioma Inglés - English language" />
-        </a>
-      </div>
+      <div class="vertical-bar"></div>
 
+      <a class="es has-tooltip-bottom has-tooltip-gray" (click)="selectLanguage('es')" data-tooltip="Español / Spanish">
+        <img class="language" src="assets/languages/es.svg" alt="Idioma Español - Spanish language" />
+      </a>
+      <a class="has-tooltip-bottom has-tooltip-gray" (click)="selectLanguage('en')" data-tooltip="Inglés / English">
+        <img class="language" src="assets/languages/en.svg" alt="Idioma Inglés - English language" />
+      </a>
     </div>
+  </div>
 
-    <div class="container">
+  <div class="container">
+    <router-outlet></router-outlet>
+  </div>
 
-      <router-outlet></router-outlet>
-    </div>
+  <!-- Footer -->
+  <footer id="v4-app-footer-container" fxFlex="40px" fxFlex.lt-sm="24px" fxLayout="row" fxLayoutAlign="center stretch">
+    <app-footer></app-footer>
+  </footer>
+</body>
 
-    <footer id="v4-app-footer-container" fxFlex="40px" fxFlex.lt-sm="24px" fxLayout="row" fxLayoutAlign="center stretch">
-      <app-footer></app-footer>
-    </footer>
-  
-  </body>
 </html>

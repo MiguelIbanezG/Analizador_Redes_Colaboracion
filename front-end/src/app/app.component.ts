@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { HomeService } from './services/home.service';
 import { TranslateService } from '@ngx-translate/core';
-import { lenguajes } from './Common/Lenguages'
+import { lenguajes } from './Common/Languages'
 
 
 @Component({

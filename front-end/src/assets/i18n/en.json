@@ -1,8 +1,38 @@
 {
-    "Home": "Home",
-    "Statistics": "Statistics",
-    "Info": "Info",
-    "Authors": "Authors",
-    "Network": "Network",
-    "Collaboration Networks": "Collaboration Networks"
+    "Menu":{
+        "Home": "Home",
+        "Statistics": "Statistics",
+        "Info": "Info",
+        "Authors": "Authors",
+        "Network": "Network"
+     
+    },
+    "Common":{
+        "Add":"Add",
+        "Create":"Crear",
+        "All":"All",
+        "Cancel":"Cancel",
+        "Help":"Help"
+    },
+    "Home":{
+        "Collaboration_Networks": "Collaboration Networks",
+        "NotFound":"Conferencia o Revista no encontrada",
+        "AlreadySelected":"This conference or journal is already selected",
+        "Communities":"Communities",
+        "CreateCommunity":"Create Community",
+        "CurrentSelections":"Current Conferences and Journls:",
+        "FilterYears":"Filter by years",
+        "FilterDecades":"Filter by decades",
+        "GenerateStats":"Generate Stats",
+        "HowGenerateStatistics":"How do I generate statistics for journals and conferences?",
+        "CreateFirstStep":"First step: Write the conference or journal you want to search, then press the add button that appears next to the conference or journal you want.",
+        "CreateSecondStep":"Second step: Click on the filter by years button or on the filter by decades button.",
+        "CreateThirdStep":"Third step: Select the years that interest you and click on generate statistics.",
+        "HowCreateCommunity":"How do I create a community?",
+        "CommunityFirstStep":"First step: Add to the list the conferences or journals that you want to add to the community, and click on create community.",
+        "CommunitySecondStep":"Second step: Write the name you want to give to the community and click on create community.",
+        "CommunityThirdStep":"Third step: To generate community statistics you must select the community and then click on filter by years or decades."
+    }
+   
+ 
 }

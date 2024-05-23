@@ -1,8 +1,37 @@
 {
-    "Home": "Inicio",
-    "Statistics": "Estadísticas",
-    "Info": "Info",
-    "Authors": "Autores",
-    "Network": "Grafo",
-    "Collaboration Networks": "Redes de Colaboración"
+    "Menu": {
+        "Home": "Inicio",
+        "Statistics": "Estadísticas",
+        "Info": "Info",
+        "Authors": "Autores",
+        "Network": "Grafo"
+    },
+    "Common":{
+        "Add":"Añadir",
+        "Create":"Crear",
+        "All":"Todos",
+        "Cancel":"Cancelar",
+        "Help":"Ayuda"
+    },
+    "Home":{
+        "Collaboration_Networks": "Redes de Colaboración",
+        "NotFound":"Conference or Journal not found",
+        "AlreadySelected":"Este conferencia o revista ya está seleccionada",
+        "Communities":"Comunidades",
+        "CreateCommunity":"Crear Comunidad",
+        "CurrentSelections":"Conferencias y revistas actuales:",
+        "FilterYears":"Filtrar por años",
+        "FilterDecades":"Filtrar por decadas",
+        "GenerateStats":"Generar Estadísticas",
+        "HowGenerateStatistics":"¿Cómo genero estadísticas de revistas y conferencias?",
+        "CreateFirstStep":"Primer paso: Escribe la conferencia o revista que deseas buscar, luego presione el botón agregar que aparece al lado de la conferencia o diario que quieras.",
+        "CreateSecondStep":"Segundo paso: Pulsa en el botón filtrar por años o en el botón filtrar por décadas.",
+        "CreateThirdStep":"Tercer paso: Selecciona los años que te interesan y haz clic en generar estadísticas.",
+        "HowCreateCommunity":"¿Cómo creo una comunidad?",
+        "CommunityFirstStep":"Primer paso: Agrega a la lista las conferencias o revistas que deseas agregar a la comunidad y haz clic en crear comunidad.",
+        "CommunitySecondStep":"Segundo paso: Escribe el nombre que quieres darle a la comunidad y haz clic en crear comunidad.",
+        "CommunityThirdStep":"Tercer paso: Para generar estadísticas de la comunidad debes seleccionar la comunidad y luego hacer clic en filtrar por años o décadas."
+    }
+
+
 }

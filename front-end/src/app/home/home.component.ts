@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { StadisticsService } from '../services/stadistics.service';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { HomeService } from '../services/home.service';
-import { frases } from '../Common/Lenguages';
+import { frases } from '../Common/Languages';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 
 
