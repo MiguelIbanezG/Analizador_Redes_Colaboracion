@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { HomeService } from './services/home.service';
 import { TranslateService } from '@ngx-translate/core';
 import { lenguajes } from './Common/Languages'
+import { LanguageService } from './services/language.service';
 
 
 @Component({
@@ -19,7 +20,8 @@ export class AppComponent {
   constructor(
     private http: HttpClient,
     private homeService: HomeService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private languageService: LanguageService
   ){
     this.obtenerFechaHoraActual();
     let lenguajeNavegador = window.navigator.language;
@@ -55,5 +57,6 @@ export class AppComponent {
 
   selectLanguage(selectLenguage: string) {
     this.translate.use(selectLenguage.valueOf());
+    this.languageService.emitLanguageChange(selectLenguage.valueOf());
   }
 }

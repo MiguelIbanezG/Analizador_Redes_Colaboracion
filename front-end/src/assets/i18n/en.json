@@ -5,14 +5,16 @@
         "Info": "Info",
         "Authors": "Authors",
         "Network": "Network"
-     
     },
     "Common":{
         "Add":"Add",
         "Create":"Crear",
         "All":"All",
         "Cancel":"Cancel",
-        "Help":"Help"
+        "Help":"Help",
+        "Date": "Date",
+        "and": "and",
+        "from":"from"
     },
     "Home":{
         "Collaboration_Networks": "Collaboration Networks",
@@ -32,7 +34,81 @@
         "CommunityFirstStep":"First step: Add to the list the conferences or journals that you want to add to the community, and click on create community.",
         "CommunitySecondStep":"Second step: Write the name you want to give to the community and click on create community.",
         "CommunityThirdStep":"Third step: To generate community statistics you must select the community and then click on filter by years or decades."
+    },
+    "Statistics":{
+        "Authors_Year": "Authors / Year",
+        "Authors_Conference_Journal_Year": "Authors by conference or Journal / Year",
+        "Conference_Papers_Journal_Articles_Year": "Conference Papers and Journal Articles / Year",
+        "Papers_Articles_Conference_Journal_Year": "Papers and articles by conference and Journal / Year",
+        "Density_Evolution_Years": "Density evolution over the years",
+        "Single_Author_Publications_Percentage_Year": "Percentage of Single-Author Publications / Year",
+        "Distributions_Authors_Paper_Article": "Distributions of authors by paper and article and of papers and articles by author",
+        "Author": "Author",
+        "Papers_Percentage": "Papers (%)",
+        "Papers": "Papers",
+        "Authors_Percentage": "Authors(%)",
+        "Men_Women_Publications_Percentage_Year": "Percentage of publications Men-Women / Year",
+        "Men": "Men",
+        "Women": "Women",
+        "Country_Publications_Percentage_Year": "Percentage of publications by Country / Year",
+        "Most_Frequent_Bigrams_Trigrams": "Most frequent Bigrams and Trigrams",
+        "Bigrams": "Bigrams",
+        "Appearances": "Appearances",
+        "First": "First",
+        "Recent": "Recent",
+        "Trigrams": "Trigrams",
+        "Year": "Year",
+        "Frequent_Terms_All_Titles": "Frequent terms from all titles of papers",
+        "Most_Prolific_Authors_Decade": "Most prolific authors according to their number of publications accumulated by decade",
+        "Authors_First_Recent_Year": "Authors with their first and most recent year of publication",
+        "Degree": "Degree",
+        "Name": "Name",
+        "Location": "Location",
+        "numberOfInProceedings": "Number of in proceedings",
+        "Proceeding_by_Conference": "Proceeding by Conference",
+        "Articles": "Articles",
+        "TotalAuthors": "Total Authors by Year",
+        "Density":"Density",
+        "Single":"Single Author Papers and Single Author Journals"
+    },
+    "Info": {
+        "Information":"Information",
+        "TotalPublications": "Total of Publications",
+        "TotalAuthors": "Total of Authors",
+        "TotalConferences": "Total of Conferences",
+        "TotalJournals": "Total of Journals",
+        "Institution": "Institution",
+        "NumberAuthors": "Number of Authors",
+        "NumberConferencesYear": "Number of Conferences by Year",
+        "NumberAuthorsYear": "Number of Authors by Year",
+        "NumberJournalsYear": "Number of Journals by Year",
+        "AllNumbers": "Number of Conferences and Workshop Papers, Journal Articles and Book and Thesis by Year",
+        "JournalArticle":"Journal Articles",
+        "Conferences":"Conferences and Workshop Papers",
+        "BookandThesis":"Book and Thesis",
+        "ConferencesYear":"Conferences by Year",
+        "JournalArticleYear":"Journals by Year",
+        "AuthorsYear":"Authors by Years"
+    },
+    "Author": {
+        "NotFound":"Author not found",
+        "AlreadySelected": "This Author is already selected",
+        "JournalArticle": "Journal Article",
+        "WorkshopPaper": "Workshop Paper",
+        "PartinBooks": "Part in Books or Collection",
+        "Publications": "Publications",
+        "AuthorsName": "Authors Name"
+    },
+    "Network": {
+        "CollaborationNetwork": "Collaboration Network",
+        "MinCluster": "Mín Cluster:", 
+        "MaxCluster": "Máx Clúster:",   
+        "ShowCluster": "Show Clúster:", 
+        "Selections": "Selections",
+        "Selected node": "Selected node",
+        "CommonPublications": "Common publications of",
+        "TheseAuthors": "These authors have",
+        "PublicationsInCommon": "publications in common with",
+        "SelectedEdge": "Selected edge"
     }
-   
- 
 }

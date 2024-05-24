@@ -9,10 +9,11 @@ import { ChartConfiguration } from 'chart.js';
 import { SpinnerService } from '../services/spinner.service';
 import { Author } from '../models/statistics.model';
 import { DecadeStats } from '../models/statistics.model';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
+import { LanguageService } from '../services/language.service';
+import { Subscription } from 'rxjs';
 
 Chart.register(...registerables);
-
-
 
 @Component({
   selector: 'statistics',
@@ -33,6 +34,9 @@ export class StatisticsComponent implements OnInit {
   ConferencesAndJournalCount: number = 0;
   ConferencesAndJournalAuthors: number = 0;
   lineChart!: Chart;
+  lineChart1!: Chart;
+  lineChart2!: Chart;
+  lineChart3!: Chart;
   barChart!: Chart;
   totalAuthorsByYear: any[] = []
   PapersAndArticlesByYear: any[] = []
@@ -45,6 +49,11 @@ export class StatisticsComponent implements OnInit {
   loadingTable1 = true;
   loadingTable2 = true;
   commonNames: { [key: string]: { frec_paises: { [key: string]: number }, genero: string } } = {};
+  languagePage: String = "es";
+  languageChangeSubscription: Subscription | undefined;
+  organizedYears: string[] = [];
+  countMen: number[] = [];
+  countWomen: number[] = [];
 
   options: CloudOptions = {
     width: 500,
@@ -62,11 +71,53 @@ export class StatisticsComponent implements OnInit {
     private stadisticsService: StadisticsService,
     private http: HttpClient,
     private spinnerService: SpinnerService,
-  ) {}
+    private translateService: TranslateService,
+    private languageService: LanguageService
+  ) {
+    this.translateService.onLangChange.subscribe((event: LangChangeEvent) => {
+      this.languagePage = event.lang
+    });
+  }
 
   ngOnInit() {
     this.loadCommonNames();
     this.main();
+    this.languagePage = this.translateService.currentLang;
+    this.languageChangeSubscription = this.languageService.languageChange$.subscribe(language => {
+      this.changeLanguage(language);
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.languageChangeSubscription) {
+      this.languageChangeSubscription.unsubscribe();
+    }
+  }
+
+  changeLanguage(language: string){
+    this.languagePage = language;
+    this.updateTranslations();
+  }
+
+  updateTranslations(){
+    this.lineChart3.destroy(); 
+    this.lineChart1.destroy();  
+    this.lineChart2.destroy();  
+    this.barChart.destroy();  
+    const existingChart = Chart.getChart('lineChart4');
+    if (existingChart) {
+        existingChart.destroy();
+    }
+    const existingChart2 = Chart.getChart('lineChart8');
+    if (existingChart2) {
+        existingChart2.destroy();
+    }
+    this.generateTotalAuthorsChart('lineChart6', this.translateService.instant('Statistics.TotalAuthors'), this.totalAuthorsByYear);
+    this.generateChartDensity('lineChart3', this.translateService.instant('Statistics.Density'), this.statistics[3].years, this.statistics[3].densidades);
+    this.generateBarChart('barChart1', this.translateService.instant("Statistics.Single"), this.statistics[4].years, this.statistics[4].percentages); 
+    this.generateCircularChart('lineChart4', this.organizedYears, [this.translateService.instant('Statistics.Men'), this.translateService.instant('Statistics.Men')], [this.countMen, this.countWomen]);
+    this.generateMultipleChart('lineChart8', this.organizedYears, [this.translateService.instant('Statistics.Men'), this.translateService.instant('Statistics.Women')], [this.countMen, this.countWomen]);
+    this.generateTotalAuthorsChart('lineChart7', 'Total Papers and Articles by Year', this.PapersAndArticlesByYear);
   }
 
   // API CALL: Function to search for authors of conferences and journals
@@ -79,7 +130,7 @@ export class StatisticsComponent implements OnInit {
         this.statsTotalAuthorsByYear();
         if(this.researchers.length > 1){
           this.generateChartPapersAndArticles('lineChart1', this.statsAuthors);
-          this.generateTotalAuthorsChart('lineChart6', 'Total Authors by Year', this.totalAuthorsByYear);
+          this.generateTotalAuthorsChart('lineChart6', this.translateService.instant('Statistics.TotalAuthors'), this.totalAuthorsByYear);
         }
       },
       error: (error: any) => {
@@ -111,7 +162,7 @@ export class StatisticsComponent implements OnInit {
       next: (response: any) => {
         this.collaborations = response;
         this.statsColaboraciones();
-        this.generateChartDensity('lineChart3', 'Density', this.statistics[3].years, this.statistics[3].densidades);
+        this.generateChartDensity('lineChart3', this.translateService.instant('Statistics.Density'), this.statistics[3].years, this.statistics[3].densidades);
       },
       error: (error: any) => {
         console.error('Error in getCollaborations:', error);
@@ -698,7 +749,7 @@ export class StatisticsComponent implements OnInit {
     this.statistics[4].percentages = AveragePercentages;
 
     this.singlePapersAndArticle = this.statistics[4];
-    this.generateBarChart('barChart1', 'Single Author Papers and Single Author Journals', this.statistics[4].years, this.statistics[4].percentages);          
+    this.generateBarChart('barChart1', this.translateService.instant("Statistics.Single"), this.statistics[4].years, this.statistics[4].percentages);          
     
   }  
 
@@ -907,15 +958,15 @@ export class StatisticsComponent implements OnInit {
         }
       });
 
-      const organizedYears = Object.keys(sortedData).sort();
+      this.organizedYears = Object.keys(sortedData).sort();
 
 
-      const countMen = organizedYears.map(anio => Number((sortedData[anio].hombres/(sortedData[anio].total)).toFixed(4)));
-      const countWoman = organizedYears.map(anio => Number((sortedData[anio].mujeres/(sortedData[anio].total)).toFixed(4)));
+      this.countMen = this.organizedYears.map(anio => Number((sortedData[anio].hombres/(sortedData[anio].total)).toFixed(4)));
+      this.countWomen = this.organizedYears.map(anio => Number((sortedData[anio].mujeres/(sortedData[anio].total)).toFixed(4)));
 
       
-      this.generateCircularChart('lineChart4', organizedYears, ['Hombres', 'Mujeres'], [countMen, countWoman]);
-      this.generateMultipleChart('lineChart8', organizedYears, ['Hombres', 'Mujeres'], [countMen, countWoman]);
+      this.generateCircularChart('lineChart4', this.organizedYears, [this.translateService.instant('Statistics.Men'), this.translateService.instant('Statistics.Women')], [ this.countMen,  this.countWomen]);
+      this.generateMultipleChart('lineChart8', this.organizedYears, [this.translateService.instant('Statistics.Men'), this.translateService.instant('Statistics.Women')], [ this.countMen,  this.countWomen]);
   }
 
 
@@ -943,13 +994,14 @@ export class StatisticsComponent implements OnInit {
 
   // Function to generate charts of authors
   generateTotalAuthorsChart(idChart: string, label: string, data: any[]) {
+
     const years = data.map(entry => entry.year);
     const totalAuthors = data.map(entry => entry.totalAuthors);
     const totalPapers = data.map(entry => entry.totalPapers);
     const totalArticles = data.map(entry => entry.totalArticles);
 
     if(idChart == "lineChart6"){
-      this.lineChart = new Chart(idChart, {
+      this.lineChart1 = new Chart(idChart, {
         type: 'line',
         data: {
           labels: years,
@@ -986,20 +1038,20 @@ export class StatisticsComponent implements OnInit {
     }
     
     if (idChart == "lineChart7") {
-      this.lineChart = new Chart(idChart, {
+      this.lineChart3 = new Chart(idChart, {
           type: 'line',
           data: {
               labels: years,
               datasets: [
                   {
-                      label: 'Papers',
+                      label: this.translateService.instant('Statistics.Papers'),
                       data: totalPapers,
                       fill: false,
                       borderColor: "rgba(51, 153, 255)",
                       borderWidth: 1
                   },
                   {
-                      label: 'Articles',
+                      label: this.translateService.instant('Statistics.Articles'),
                       data: totalArticles,
                       fill: false,
                       borderColor: "rgba(255, 0, 0, 1)",
@@ -1101,7 +1153,7 @@ export class StatisticsComponent implements OnInit {
 
   // Function to generate the density chart
   generateChartDensity(idChart: string, label: string, labels: any[], data: any[]) {
-    this.lineChart = new Chart(idChart, {
+    this.lineChart2 = new Chart(idChart, {
       type: 'line',
       data: {
         labels: labels,
@@ -1260,11 +1312,11 @@ export class StatisticsComponent implements OnInit {
       3: "rbga(192, 141, 75, 1)",
       4: "rgba(226, 232, 107, 1)",
       5: "rgba(176, 75, 192, 1)",
-      6: "rgba(255, 153, 51, 1)", // Naranja brillante
-      7: "rgba(102, 204, 204, 1)", // Verde azulado
-      8: "rgba(255, 102, 204, 1)", // Rosa brillante
-      9: "rgba(153, 102, 204, 1)", // Morado azulado
-      10: "rgba(255, 204, 102, 1)" // Amarillo suave
+      6: "rgba(255, 153, 51, 1)", 
+      7: "rgba(102, 204, 204, 1)", 
+      8: "rgba(255, 102, 204, 1)", 
+      9: "rgba(153, 102, 204, 1)", 
+      10: "rgba(255, 204, 102, 1)" 
     };
 
     return colors[index];

@@ -1,7 +1,8 @@
+
 <div>
 
   <!-- Title -->
-  <h1>{{nameAuthor}} Collaboration Network</h1>
+  <h1>{{nameAuthor}} {{ "Network.CollaborationNetwork" | translate }}</h1>
 
   <hr>
 
@@ -12,14 +13,14 @@
 
       <!-- Cluster settings -->
       <form class="cluster" fxLayoutGap="10px">
-        <label for="minCluster">Min Cluster:</label>
-        <input class="minCluster" type="number" id="minCluster" name="minCluster" [(ngModel)]="NetworkInitService.cluster.min" (change)="updateCluster()">
-        
-        <label for="maxCluster">Max Cluster:</label>
-        <input class="maxCluster" type="number" id="maxCluster" name="maxCluster" [(ngModel)]="NetworkInitService.cluster.max" (change)="updateCluster()">
-        
-        <label for="showCluster">Show Cluster:</label>
-        <input type="checkbox" id="showCluster" name="showCluster" [(ngModel)]="NetworkInitService.showCluster" (change)="updateCluster()">
+        <label for="minCluster">{{ "Network.MinCluster" | translate }}</label>
+      <input class="minCluster" type="number" id="minCluster" name="minCluster" [(ngModel)]="NetworkInitService.cluster.min" (change)="updateCluster()">
+      
+      <label for="maxCluster">{{ "Network.MaxCluster" | translate }}</label>
+      <input class="maxCluster" type="number" id="maxCluster" name="maxCluster" [(ngModel)]="NetworkInitService.cluster.max" (change)="updateCluster()">
+      
+      <label for="showCluster">{{ "Network.ShowCluster" | translate }}</label>
+      <input type="checkbox" id="showCluster" name="showCluster" [(ngModel)]="NetworkInitService.showCluster" (change)="updateCluster()">
         
       </form>
 
@@ -29,14 +30,14 @@
     </div>
 
     <div class="select">
-      <h1>Selections</h1> 
+      <h1>{{ "Network.Selections" | translate }}</h1> 
       <hr>
       <!-- Selected node -->
       <div *ngIf="selectNode">
-        <h2>Selected node {{ selectNode.nodes }}</h2> 
+        <h2>{{ "Network.Selectednode" | translate }} {{ selectNode.nodes }}</h2> 
         <div *ngFor="let node of selectNode.edges">
-          <div *ngIf="!number && selectNode.nodes != NetworkInitService.selectedAuthors[0]">Common publications of {{ selectNode.nodes }} and {{ node }}:</div>
-          <div *ngIf="number && selectNode.nodes != NetworkInitService.selectedAuthors[0]" >These authors have {{ selectNode.label }} publications in common with {{ node }}:</div>
+          <div *ngIf="!number && selectNode.nodes != NetworkInitService.selectedAuthors[0]">{{ "Network.CommonPublications" | translate }} {{ selectNode.nodes }} {{ "Common.and" | translate }} {{ selectNode.nodes }} {{ node }}:</div>
+          <div *ngIf="number && selectNode.nodes != NetworkInitService.selectedAuthors[0]" >{{ "Network.TheseAuthors" | translate }} {{ selectNode.label }} {{ "Network.PublicationsInCommon" | translate }} {{ node }}:</div>
           <div *ngIf="selectNode.nodes == NetworkInitService.selectedAuthors[0]" >{{ selectNode.nodes }} - {{ node }}:</div>
           <ul *ngIf="selectNode.nodes != NetworkInitService.selectedAuthors[0]">
             <li *ngFor="let publication of publicationsNode[selectNode.nodes]">{{ publication }}</li>
@@ -49,9 +50,9 @@
 
       <!-- Selected edge -->
       <div *ngIf="selectEdge && selectEdge.type === 'edge'">
-        <h2> Selected edge {{ selectEdge.edge.from }} from {{ selectEdge.edge.to }}</h2> 
-        <div *ngIf="!number" > Common publications of  {{ selectEdge.edge.from }} and {{ selectEdge.edge.to }}:</div>
-        <div *ngIf="number" >These authors have {{ selectEdge.edge.label }} publications in common with {{  selectEdge.edge.from }}:</div>
+        <h2> {{ "Network.SelectedEdge" | translate }} {{ selectEdge.edge.from }} from {{ selectEdge.edge.to }}</h2> 
+        <div *ngIf="!number" > {{ "Network.CommonPublications" | translate }} {{ selectEdge.edge.from }} {{ "Common.and" | translate }} {{ selectEdge.edge.to }}:</div>
+        <div *ngIf="number" >{{ "Network.TheseAuthors" | translate }} {{ selectEdge.edge.label }} {{ "Network.PublicationsInCommon" | translate }} {{  selectEdge.edge.from }}:</div>
         <ul>
           <li *ngFor="let publication of  publicationsEdge[selectEdge.edge.to]">{{ publication }}</li>
         </ul>

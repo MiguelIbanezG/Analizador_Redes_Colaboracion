@@ -3,15 +3,18 @@
         "Home": "Inicio",
         "Statistics": "Estadísticas",
         "Info": "Info",
-        "Authors": "Autores",
-        "Network": "Grafo"
+        "Network": "Grafo",
+        "Authors": "Autores"
     },
     "Common":{
         "Add":"Añadir",
         "Create":"Crear",
         "All":"Todos",
         "Cancel":"Cancelar",
-        "Help":"Ayuda"
+        "Help":"Ayuda",
+        "Date": "Fecha",
+        "and": "y",
+        "from":"from"
     },
     "Home":{
         "Collaboration_Networks": "Redes de Colaboración",
@@ -31,7 +34,81 @@
         "CommunityFirstStep":"Primer paso: Agrega a la lista las conferencias o revistas que deseas agregar a la comunidad y haz clic en crear comunidad.",
         "CommunitySecondStep":"Segundo paso: Escribe el nombre que quieres darle a la comunidad y haz clic en crear comunidad.",
         "CommunityThirdStep":"Tercer paso: Para generar estadísticas de la comunidad debes seleccionar la comunidad y luego hacer clic en filtrar por años o décadas."
+    },
+    "Statistics":{
+        "Authors_Year": "Autores / Año",
+        "Authors_Conference_Journal_Year": "Autores por conferencia o revista / año",
+        "Conference_Papers_Journal_Articles_Year": "Documentos de conferencias y Artículos de revistas / año",
+        "Papers_Articles_Conference_Journal_Year": "Documentos por conferencia y Artículos por revista / año",
+        "Density_Evolution_Years": "Evolución de la densidad a lo largo de los años",
+        "Single_Author_Publications_Percentage_Year": "Porcentaje de publicaciones de un solo autor / año",
+        "Distributions_Authors_Paper_Article": "Distribuciones de autores por artículo y de artículos por autor",
+        "Author": "Autor",
+        "Papers_Percentage": "Documentos de conferencias (%)",
+        "Papers": "Documentos",
+        "Authors_Percentage": "Autores (%)",
+        "Men_Women_Publications_Percentage_Year": "Porcentaje de publicaciones Hombres-Mujeres / Año",
+        "Men": "Hombres",
+        "Women": "Mujeres",
+        "Country_Publications_Percentage_Year": "Porcentaje de publicaciones por País / Año",
+        "Most_Frequent_Bigrams_Trigrams": "Bigramas y Trigramas más frecuentes",
+        "Bigrams": "Bigramas",
+        "Appearances": "Apariciones",
+        "First": "Primero",
+        "Recent": "Reciente",
+        "Trigrams": "Trigramas",
+        "Year": "Año",
+        "Frequent_Terms_All_Titles": "Términos frecuentes en los títulos de los artículos",
+        "Most_Prolific_Authors_Decade": "Autores más prolíficos según su número de publicaciones Acumuladas por Década",
+        "Authors_First_Recent_Year": "Autores con su primer y más reciente año de publicación",
+        "Degree": "Grado",
+        "Name": "Nombre",
+        "Location": "Ubicación",
+        "numberOfInProceedings": "Nº de artículos en conferencias",
+        "Proceeding_by_Conference": "Procedimientos por Conferencia",
+        "Articles": "Artículos",
+        "TotalAuthors": "Total de autores por año",
+        "Density":"Densidad",
+        "Single":"Artículos de un solo autor y revistas de un solo autor"
+    },
+    "Info":{
+        "Information":"Información",
+        "TotalPublications": "Total de Publicaciones",
+        "TotalAuthors": "Total de Autores",
+        "TotalConferences": "Total de Conferencias",
+        "TotalJournals": "Total de Revistas",
+        "Institution": "Institución",
+        "NumberAuthors": "Número de Autores",
+        "NumberConferencesYear": "Número de Conferencias por Año",
+        "NumberAuthorYear": "Número de Autores por Año",
+        "NumberJournalsYear": "Número de Revistas por Año",
+        "AllNumbers": "Número de Conferencias y Artículos de Taller, Artículos de Revista y Libros y Tesis por Año",
+        "JournalArticle":"Articulos de Revista",
+        "Conferences":"Conferencias y documentos",
+        "BookandThesis":"Libros y tesis",
+        "ConferencesYear":"Conferencias por año",
+        "JournalArticleYear":"Artículos de revista por año",
+        "AuthorsYear":"Autores por año"
+    },
+    "Author": {
+        "NotFound":"Author not found",
+        "AlreadySelected": "Este Autor ya está seleccionado",
+        "JournalArticle": "Artículo de Revista",
+        "WorkshopPaper": "Artículo de Taller",
+        "PartinBooks": "Parte en Libros o Colección",
+        "Publications": "Publicaciones",
+        "AuthorsName": "Nombre de los Autores"
+    },
+    "Network": {
+        "CollaborationNetwork": "Red de Colaboración",
+        "MinCluster": "Mín Cluster:", 
+        "MaxCluster": "Máx Clúster:",   
+        "ShowCluster": "Mostrar Clúster:", 
+        "Selections": "Selecciones",
+        "Selectednode": "Nodo seleccionado",
+        "CommonPublications": "Publicaciones comunes de",
+        "TheseAuthors": "Estos autores tienen",
+        "PublicationsInCommon": "publicaciones en común con",
+        "SelectedEdge": "Arista seleccionada"
     }
-
-
 }

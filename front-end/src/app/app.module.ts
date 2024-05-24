@@ -28,6 +28,7 @@ import { NetworkService } from './services/network.service';
 import { FooterComponent } from './footer/footer.component';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { LanguageService } from './services/language.service';
 
 
 export function createTranslateLoader(http: HttpClient) {
@@ -74,7 +75,8 @@ export function createTranslateLoader(http: HttpClient) {
     InfoService,
     SpinnerService,
     NetworkService,
-    NetworkInitService
+    NetworkInitService,
+    LanguageService
   ],
   bootstrap: [AppComponent]
 })

@@ -40,21 +40,21 @@
       <line x1="480" y1="30" x2="550" y2="130" style="stroke:rgb(0, 22, 68);stroke-width:2" />
     </svg>
     <!-- Title -->
-    <h1>Authors</h1>
+    <h1>{{ "Menu.Authors" | translate }}</h1>
   </div>
 
     <!-- Search Conference -->
     <div class="box-conference">
       <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Author" (input)="autocompleteAuthor(filtersBOX)">
-      <button class="button-add" (click)="completeSuggestion(filtersBOX)" type="button">Add</button>
+      <button class="button-add" (click)="completeSuggestion(filtersBOX)" type="button">{{ "Common.Add" | translate }}</button>
       
       <!-- Not found result -->
       <div class="noResults" *ngIf="noResults">
-        <p>Author not found. Please try another Author</p>
+        <p>{{ "Author.NotFound" | translate }}</p>
       </div>  
       <!-- Already selected-->
       <div class="noResults" *ngIf="repeated">
-        <p>This Author is already selected</p>
+        <p>{{ "Author.AlreadySelected" | translate }}</p>
       </div>
 
       <!-- Autocomplete options -->
@@ -70,7 +70,7 @@
     <!-- List of Authors -->
     <div *ngIf="this.authorService.Authors.length > 0" class="filters-list">
       <div>
-        <p>Authors:</p>
+        <p>{{ "Menu.Authors" | translate }}:</p>
         <hr>
         <ul>
           <li *ngFor="let filter of this.authorService.Authors">
@@ -99,15 +99,15 @@
   <div id="legend" class="legend">
     <div class="legend-item">
       <div class="color-square red"></div>
-      <div class="legend-text">Journal Article</div>
+      <div class="legend-text">{{ "Author.JournalArticle" | translate }}</div>
     </div>
     <div class="legend-item">
       <div class="color-square blue"></div>
-      <div class="legend-text">Workshop Paper</div>
+      <div class="legend-text">{{ "Author.WorkshopPaper" | translate }}</div>
     </div>
     <div class="legend-item">
       <div class="color-square yellow"></div>
-      <div class="legend-text">Part in Books or Collection</div>
+      <div class="legend-text">{{ "Author.PartinBooks" | translate }}</div>
     </div>
   </div>
 </div>
@@ -122,9 +122,9 @@
         <thead>
           <tr *ngIf="showPublications" >
             <th></th>
-            <th style=>Publications</th>
-            <th style=>Date</th>
-            <th>Authors Name</th>
+            <th style=>{{ "Author.Publications" | translate }}</th>
+            <th style=>{{ "Common.Date" | translate }}</th>
+            <th>{{ "Author.AuthorsName" | translate }}</th>
           </tr>
         </thead>
         <tbody></tbody>

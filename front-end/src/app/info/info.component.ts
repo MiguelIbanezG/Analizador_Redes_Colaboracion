@@ -3,6 +3,9 @@ import { ApiService } from "../services/api.service";
 import { Chart } from "chart.js";
 import { InfoService } from "../services/info.service";
 import { SpinnerService } from "../services/spinner.service";
+import { Subscription } from "rxjs";
+import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
+import { LanguageService } from "../services/language.service";
 
 @Component({
   selector: "info-config",
@@ -15,17 +18,79 @@ export class InfoComponent implements OnInit {
   loadingGraph3 = true;
   loadingGraph4 = true;
   loadingGraph5 = true;
-
   barChart!: Chart;
+  barChart1!: Chart;
+  barChart2!: Chart;
+  barChart3!: Chart;
+  languagePage: String = "es";
+  languageChangeSubscription: Subscription | undefined;
+  Conferencesyears: string[] = [];
+  Authorsyears: string[] = [];
+  JournalsYears: string[] = [];
 
   constructor(
     public infoService: InfoService,
     private apiService: ApiService,
-    private spinnerService: SpinnerService
-  ) {}
+    private spinnerService: SpinnerService,
+    private translateService: TranslateService,
+    private languageService: LanguageService
+  ) {
+    this.translateService.onLangChange.subscribe((event: LangChangeEvent) => {
+      this.languagePage = event.lang
+    });
+  }
 
   ngOnInit() {
     this.main();
+    this.languagePage = this.translateService.currentLang;
+    this.languageChangeSubscription = this.languageService.languageChange$.subscribe(language => {
+      this.changeLanguage(language);
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.languageChangeSubscription) {
+      this.languageChangeSubscription.unsubscribe();
+    }
+  }
+
+  changeLanguage(language: string){
+    this.languagePage = language;
+    this.updateTranslations();
+  }
+
+  updateTranslations(){
+    this.barChart.destroy();
+    this.barChart2.destroy();
+    this.barChart3.destroy();
+    this.barChart1.destroy();
+    this.generateBarChartTriple(
+      "tripleBarChart",
+      this.infoService.PublicationsByYear.map((item) => item.yearName),
+      this.infoService.PublicationsByYear.map(
+        (item) => item.ConferencesAndPapers
+      ),
+      this.infoService.PublicationsByYear.map((item) => item.JournalArticles),
+      this.infoService.PublicationsByYear.map((item) => item.Thesis)
+    );
+    this.generateBarChart(
+      "barChart",
+      this.translateService.instant("Info.ConferencesYear"),
+      this.Conferencesyears,
+      this.infoService.ConferencesByYear.map((item) => item.allConferences)
+    );
+    this.generateBarChart(
+      "barChart2",
+      this.translateService.instant("Info.AuthorsYear"),
+      this.Authorsyears,
+      this.infoService.AuthorsByYear.map((item) => item.allAuthors)
+    );
+    this.generateBarChart(
+      "barChart3",
+      this.translateService.instant("Info.JournalArticleYear"),
+      this.JournalsYears,
+      this.infoService.JournalsByYear.map((item) => item.allJournals)
+    );
   }
 
   // API CALL: Function to get Publications by Year
@@ -207,39 +272,112 @@ export class InfoComponent implements OnInit {
 
   // Function to generate BarChart
   generateBarChart(idChart: string, label: string, labels: any[], data: any[]) {
-    this.barChart = new Chart(idChart, {
-      type: "bar",
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: label,
-            data: data,
-            backgroundColor: "rgb(0, 22, 68)",
-            borderColor: "rgb(0, 22, 68)",
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        plugins: {
-          legend: {
-            labels: {
-              color: "black",
-              font: {
-                size: 18,
-                family: "Roboto",
+    if(idChart == "barChart"){
+      this.barChart = new Chart(idChart, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: label,
+              data: data,
+              backgroundColor: "rgb(0, 22, 68)",
+              borderColor: "rgb(0, 22, 68)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: "black",
+                font: {
+                  size: 18,
+                  family: "Roboto",
+                },
               },
             },
           },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
           },
         },
-      },
-    });
+      });
+    }
+    if(idChart == "barChart3"){
+      this.barChart1 = new Chart(idChart, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: label,
+              data: data,
+              backgroundColor: "rgb(0, 22, 68)",
+              borderColor: "rgb(0, 22, 68)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: "black",
+                font: {
+                  size: 18,
+                  family: "Roboto",
+                },
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    }
+    if(idChart == "barChart2"){
+      this.barChart2 = new Chart(idChart, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: label,
+              data: data,
+              backgroundColor: "rgb(0, 22, 68)",
+              borderColor: "rgb(0, 22, 68)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: "black",
+                font: {
+                  size: 18,
+                  family: "Roboto",
+                },
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    }
+    
   }
 
   // Function to generate Triple BarChart
@@ -250,27 +388,27 @@ export class InfoComponent implements OnInit {
     JournalArticles: any[],
     Thesis: any[]
   ) {
-    this.barChart = new Chart(idChart, {
+    this.barChart3 = new Chart(idChart, {
       type: "bar",
       data: {
         labels: labels,
         datasets: [
           {
-            label: "Conferences and Workshop Papers",
+            label: this.translateService.instant("Info.Conferences"),
             data: ConferencesAndPapers,
             backgroundColor: "rgba(255, 99, 132, 0.5)",
             borderColor: "rgba(255, 99, 132, 0.5)",
             borderWidth: 1,
           },
           {
-            label: "Journal Articles",
+            label: this.translateService.instant("Info.JournalArticle"),
             data: JournalArticles,
             backgroundColor: "rgba(54, 162, 235, 1)",
             borderColor: "rgba(54, 162, 235, 1)",
             borderWidth: 1,
           },
           {
-            label: "Book and Thesis",
+            label: this.translateService.instant("Info.BookandThesis"),
             data: Thesis,
             backgroundColor: "rgba(255, 206, 86, 2)",
             borderColor: "rgba(255, 206, 86, 2)",
@@ -366,13 +504,13 @@ export class InfoComponent implements OnInit {
       this.loadingGraph1 = false;
 
       //Conferences by Year
-      const Conferencesyears = this.infoService.ConferencesByYear.map(
+      this.Conferencesyears = this.infoService.ConferencesByYear.map(
         (item) => item.yearName
       );
       this.generateBarChart(
         "barChart",
-        "Conferences by Year",
-        Conferencesyears,
+        this.translateService.instant("Info.ConferencesYear"),
+        this.Conferencesyears,
         this.infoService.ConferencesByYear.map((item) => item.allConferences)
       );
 
@@ -384,13 +522,13 @@ export class InfoComponent implements OnInit {
       this.loadingGraph2 = false;
 
       //Authors by Year
-      const Authorsyears = this.infoService.AuthorsByYear.map(
+      this.Authorsyears = this.infoService.AuthorsByYear.map(
         (item) => item.yearName
       );
       this.generateBarChart(
         "barChart2",
-        "Authors by Year",
-        Authorsyears,
+        this.translateService.instant("Info.AuthorsYear"),
+        this.Authorsyears,
         this.infoService.AuthorsByYear.map((item) => item.allAuthors)
       );
 
@@ -402,13 +540,13 @@ export class InfoComponent implements OnInit {
       this.loadingGraph5 = false;
 
       //Jorunals by Year
-      const JournalsYears = this.infoService.JournalsByYear.map(
+      this.JournalsYears = this.infoService.JournalsByYear.map(
         (item) => item.yearName
       );
       this.generateBarChart(
         "barChart3",
-        "Journals by Year",
-        JournalsYears,
+        this.translateService.instant("Info.JournalArticleYear"),
+        this.JournalsYears,
         this.infoService.JournalsByYear.map((item) => item.allJournals)
       );
 

@@ -8,10 +8,10 @@
   <div class="left-container">
     <!-- Total of Publications -->
     <ul>
-      <li class="click-element">Total of Publications: {{infoService.allPublications}}</li>
-      <li class="click-element">Total of Authors: {{infoService.allAuthors}}</li>
-      <li class="click-element">Total of Conferences: {{infoService.allConferences}}</li>
-      <li class="click-element">Total of Journals: {{infoService.allJournals}}</li>
+      <li class="click-element">{{ "Info.TotalPublications" | translate }} {{infoService.allPublications}}</li>
+      <li class="click-element">{{ "Info.TotalAuthors" | translate }} {{infoService.allAuthors}}</li>
+      <li class="click-element">{{ "Info.TotalConferences" | translate }} {{infoService.allConferences}}</li>
+      <li class="click-element">{{ "Info.TotalJournals" | translate }} {{infoService.allJournals}}</li>
     </ul>
     
     <!-- Total of Institutions -->
@@ -19,8 +19,8 @@
       <table id="tableInstitution">
         <thead>
           <tr>
-            <th>Institution</th>
-            <th>Number of Authors</th>
+            <th>{{ "Info.Institution" | translate }} </th>
+            <th>{{ "Info.NumberAuthors" | translate }} </th>
           </tr>
         </thead>
         <tbody>
@@ -38,7 +38,7 @@
   <div class="right-container">
     <!-- Chart: Number of Conferences by Year -->
     <div class="chart-container">
-      <h3>Number of Conferences by Year</h3>
+      <h3>{{ "Info.NumberConferencesYear" | translate }}</h3>
       <div class="canvas-container">
         <div class="overlay" *ngIf="loadingGraph1">
           <app-spinner></app-spinner>
@@ -51,7 +51,7 @@
 
     <!-- Chart: Number of Authors by Year -->
     <div class="chart-container">
-      <h3>Number of Authors by Year</h3>
+      <h3>{{ "Info.NumberAuthorsYear" | translate }}</h3>
       <div class="canvas-container">
         <div class="overlay" *ngIf="loadingGraph2">
           <app-spinner></app-spinner>
@@ -64,7 +64,7 @@
 
     <!-- Chart: Number of Journals by Year -->
     <div class="chart-container">
-      <h3>Number of Journals by Year</h3>
+      <h3>{{ "Info.NumberJournalsYear" | translate }}</h3>
       <div class="canvas-container">
         <div class="overlay" *ngIf="loadingGraph5">
           <app-spinner></app-spinner>
@@ -77,7 +77,7 @@
 
     <!-- Chart: Number of Conferences and Papers, Journal Articles and Thesis by Year -->
     <div class="chart-container">
-      <h3>Number of Conferences and Workshop Papers, Journal Articles and Book and Thesis by Year</h3>
+      <h3>{{ "Info.AllNumbers" | translate }}</h3>
       <div class="canvas-container">
         <div class="overlay" *ngIf="loadingGraph3">
           <app-spinner></app-spinner>

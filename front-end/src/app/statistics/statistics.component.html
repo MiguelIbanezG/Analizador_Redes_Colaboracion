@@ -1,12 +1,12 @@
 <div>
-  <h2>Statistics</h2>
+  <h2>{{ "Menu.Statistics" | translate }}</h2>
   <hr class="line_title">
 
 
-  <div class="flex-container" >
+  <div class="flex-container">
 
     <div class="flex-item">
-      <h3>Authors / Year</h3>
+      <h3>{{ "Statistics.Authors_Year" | translate }}</h3>
 
       <div class="canvas-container">
         <canvas id="lineChart6"></canvas>
@@ -14,13 +14,13 @@
     </div>
 
     <div class="flex-item" [hidden]="ConferencesAndJournalAuthors < 2">
-      <h3>Authors by Conference or Journal / Year</h3>
+      <h3>{{ "Statistics.Authors_Conference_Journal_Year" | translate }}</h3>
 
       <div class="canvas-container">
         <canvas id="lineChart1"></canvas>
       </div>
     </div>
-   
+
   </div>
 
   <hr class="line">
@@ -28,64 +28,64 @@
   <div class="flex-container">
 
     <div class="flex-item">
-      <h3>Conference Papers and Journal Articles / Year</h3>
+      <h3>{{ "Statistics.Conference_Papers_Journal_Articles_Year" | translate }}</h3>
 
-      <div class="canvas-container" >
+      <div class="canvas-container">
         <canvas id="lineChart7"></canvas>
       </div>
     </div>
 
-    <div class="flex-item"[hidden]="PapersAndArticles.length < 1 || ConferencesAndJournalCount < 2">
-      <h3>Papers and Articles by Conference and Jorunal / Year</h3>
+    <div class="flex-item" [hidden]="PapersAndArticles.length < 1 || ConferencesAndJournalCount < 2">
+      <h3>{{ "Statistics.Papers_Articles_Conference_Journal_Year" | translate }}</h3>
 
       <div class="canvas-container">
-        <canvas id="lineChart2" ></canvas>
+        <canvas id="lineChart2"></canvas>
       </div>
     </div>
-   
+
   </div>
 
-  <hr class="line" >
+  <hr class="line">
 
-  <div class="flex-container" >
+  <div class="flex-container">
 
     <div class="flex-item">
-      <h3>Density evolution over the years</h3>
+      <h3>{{ "Statistics.Density_Evolution_Years" | translate }}</h3>
 
       <div class="canvas-container">
         <div class="overlay2" *ngIf="loadingTable2">
-          <app-spinner ></app-spinner>
+          <app-spinner></app-spinner>
         </div>
         <canvas id="lineChart3"></canvas>
       </div>
     </div>
 
-    <div class="flex-item" >
-      <h3>Percentage of single-author publications / Year</h3>
+    <div class="flex-item">
+      <h3>{{ "Statistics.Single_Author_Publications_Percentage_Year" | translate }}</h3>
 
       <div class="canvas-container">
         <canvas id="barChart1"></canvas>
       </div>
     </div>
-   
+
   </div>
 
 
   <hr class="line">
 
-  <h3 class="special">Distributions of authors by paper and article and of papers and articles by author</h3>
+  <h3 class="special">{{ "Statistics.Distributions_Authors_Paper_Article" | translate }}</h3>
   <div class="container-table">
     <div class="table">
       <table id="authorsTable">
         <thead>
           <tr>
-            <th>Author</th>
-            <th>Papers/Articles (%)</th>
+            <th>{{ "Menu.Authors" | translate }}</th>
+            <th>{{ "Statistics.Papers_Percentage" | translate }}</th>
           </tr>
         </thead>
         <tbody>
           <div class="overlay3" *ngIf="loadingTable2">
-            <app-spinner ></app-spinner>
+            <app-spinner></app-spinner>
           </div>
         </tbody>
       </table>
@@ -95,13 +95,13 @@
       <table id="papersTable">
         <thead>
           <tr>
-            <th>Papers</th>
-            <th>Papers/Articles (%)</th>
+            <th>{{ "Statistics.Papers" | translate }}</th>
+            <th>{{ "Statistics.Authors_Percentage" | translate }}</th>
           </tr>
         </thead>
         <tbody>
           <div class="overlay3" *ngIf="loadingTable2">
-            <app-spinner ></app-spinner>
+            <app-spinner></app-spinner>
           </div>
         </tbody>
       </table>
@@ -110,19 +110,19 @@
 
   <hr class="line">
 
-  <h3 class="special"> Percentage of Publications Men-Women / Year</h3>
+  <h3 class="special">{{ "Statistics.Men_Women_Publications_Percentage_Year" | translate }}</h3>
   <div class="flex-container">
 
     <div class="graph-bars">
 
-        <div class="canvas-container1">
-          <div class="legend">
-            <div class="men"></div> Men
-            <div class="women"></div> Women
-          </div>
-          <canvas class="circular" id="lineChart4"></canvas>
+      <div class="canvas-container1">
+        <div class="legend">
+          <div class="men"></div> {{ "Statistics.Men" | translate }}
+          <div class="women"></div> {{ "Statistics.Women" | translate }}
         </div>
-        
+        <canvas class="circular" id="lineChart4"></canvas>
+      </div>
+
     </div>
 
     <div class="graph-bars">
@@ -134,9 +134,9 @@
 
   <hr class="line">
 
-  <h3> Percentage of publications by Country / Year</h3>
+  <h3>{{ "Statistics.Country_Publications_Percentage_Year" | translate }}</h3>
   <div class="flex-container">
-    <div class="flex-item"> 
+    <div class="flex-item">
       <div class="canvas-container">
         <canvas id="lineChart5"></canvas>
       </div>
@@ -145,84 +145,84 @@
 
   <hr class="line">
 
-  <h3 class="special">Most frequent Bigrams and Trigrams</h3>
+  <h3 class="special">{{ "Statistics.Most_Frequent_Bigrams_Trigrams" | translate }}</h3>
   <div class="container-table">
     <div class="table">
-        <table id="tableBigramas">
-          <thead>
-            <tr>
-              <th>Bigrams</th>
-              <th>Appearances</th>
-              <th>First <br> año</th>
-              <th>Recent <br> año</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <table id="tableBigramas">
+        <thead>
+          <tr>
+            <th>{{ "Statistics.Bigrams" | translate }}</th>
+            <th>{{ "Statistics.Appearances" | translate }}</th>
+            <th>{{ "Statistics.First" | translate }} <br> {{ "Statistics.Year" | translate }}</th>
+            <th>{{ "Statistics.Recent" | translate }} <br> {{ "Statistics.Year" | translate }}</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
 
     <div class="line2"></div>
-    
+
     <div class="table">
-        <table id="tableTrigramas">
-          <thead>
-            <tr>
-              <th>Trigrams</th>
-              <th>Appearances</th>
-              <th>First <br> año</th>
-              <th>Recent <br> año</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <table id="tableTrigramas">
+        <thead>
+          <tr>
+            <th>{{ "Statistics.Trigrams" | translate }}</th>
+            <th>{{ "Statistics.Appearances" | translate }}</th>
+            <th>{{ "Statistics.First" | translate }} <br> {{ "Statistics.Year" | translate }}</th>
+            <th>{{ "Statistics.Recent" | translate }} <br> {{ "Statistics.Year" | translate }}</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
 
   <hr class="line">
-  
-  <h3 class="special">Frequent terms from all titles of papers</h3>
+
+  <h3 class="special">{{ "Statistics.Frequent_Terms_All_Titles" | translate }}</h3>
   <div class="conceptual">
     <angular-tag-cloud [config]="options" [data]="cloudData"></angular-tag-cloud>
   </div>
 
   <hr class="line">
 
-  <h3 class="special">Most prolific authors according to their number of publications accumulated by decade</h3>
+  <h3 class="special">{{ "Statistics.Most_Prolific_Authors_Decade" | translate }}</h3>
   <div class="container-table">
     <div class="table">
-        <table id="table90">
-          <thead>
-            <tr>
-              <th colspan="2">
-                (a) 1989-1999
-              </th>
-            </tr>
-            <hr>
-            <tr>
-              <th>Author</th>
-              <th>#</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <table id="table90">
+        <thead>
+          <tr>
+            <th colspan="2">
+              (a) 1989-1999
+            </th>
+          </tr>
+          <hr>
+          <tr>
+            <th>{{ "Statistics.Author" | translate }}</th>
+            <th>#</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
     <div class="line2"></div>
     <div class="table">
-        <table id="table00">
-          <thead>
-            <tr>
-              <th colspan="2">
-                (b) 1999-2009
-              </th>
-            </tr>
-            <hr>
-            <tr>
-              <th>Author</th>
-              <th>#</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <table id="table00">
+        <thead>
+          <tr>
+            <th colspan="2">
+              (b) 1999-2009
+            </th>
+          </tr>
+          <hr>
+          <tr>
+            <th>{{ "Statistics.Author" | translate }}</th>
+            <th>#</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
     <div class="line2"></div>
     <div class="table">
@@ -235,15 +235,15 @@
           </tr>
           <hr>
           <tr>
-            <th>Author</th>
+            <th>{{ "Statistics.Author" | translate }}</th>
             <th>#</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
-  </div>
-  <div class="line2"></div>
-  <div class="table">
+    </div>
+    <div class="line2"></div>
+    <div class="table">
       <table id="table20" class="centered-table">
         <thead>
           <tr>
@@ -253,7 +253,7 @@
           </tr>
           <hr>
           <tr>
-            <th>Author</th>
+            <th>{{ "Statistics.Author" | translate }}</th>
             <th>#</th>
           </tr>
         </thead>
@@ -264,56 +264,48 @@
 
   <hr class="line">
 
-  <h3>Authors with their first and most recent year of publication</h3>
+  <h3>{{ "Statistics.Authors_First_Recent_Year" | translate }}</h3>
   <div class="container-table">
     <div class="table">
-        <table id="degree">
-          <thead>
-            <tr>
-              <th>Author</th>
-              <th>Degree</th>
-              <th>First <br> year</th>
-              <th>Recent <br> year</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-    </div>
-  </div>
-
-  <hr class="line" [hidden]="PapersAndArticles.length < 1">
-
-  <h3 [hidden]="PapersAndArticles.length < 1">Proceeding by Conference</h3>
-  <div class="container-table">
-   
-    <div class="table" [hidden]="PapersAndArticles.length < 1">
-      <table id="tableProceeding">
+      <table id="degree">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Location</th>
-            <th>Date</th>
-            <th>Year</th>
-            <th>numberOfInProceedings</th>
+            <th>{{ "Statistics.Author" | translate }}</th>
+            <th>{{ "Statistics.Degree" | translate }}</th>
+            <th>{{ "Statistics.First" | translate }} <br> {{ "Statistics.Year" | translate }}</th>
+            <th>{{ "Statistics.Recent" | translate }} <br> {{ "Statistics.Year" | translate }}</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
   </div>
-  <div class="overlay" [hidden]="PapersAndArticles.length < 1"*ngIf="loadingTable1">
-    <app-spinner ></app-spinner>
+
+  <hr class="line" [hidden]="PapersAndArticles.length < 1">
+
+  <h3 [hidden]="PapersAndArticles.length < 1">{{ "Statistics.Proceeding_by_Conference" | translate }}</h3>
+  <div class="container-table">
+
+    <div class="table" [hidden]="PapersAndArticles.length < 1">
+      <table id="tableProceeding">
+        <thead>
+          <tr>
+            <th>{{ "Statistics.Name" | translate }}</th>
+            <th>{{ "Statistics.Location" | translate }}</th>
+            <th>{{ "Common.Date" | translate }}</th>
+            <th>{{ "Statistics.Year" | translate }}</th>
+            <th>{{ "Statistics.numberOfInProceedings" | translate }}</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
-  
+  <div class="overlay" [hidden]="PapersAndArticles.length < 1" *ngIf="loadingTable1">
+    <app-spinner></app-spinner>
+  </div>
+
 
   <hr class="slim" [hidden]="PapersAndArticles.length < 1">
 
 </div>
-
-
-
-
-
- 
-
-

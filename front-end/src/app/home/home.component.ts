@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { StadisticsService } from '../services/stadistics.service';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { HomeService } from '../services/home.service';
-import { frases } from '../Common/Languages';
+
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 
 
@@ -15,8 +15,7 @@ import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 })
 export class HomeComponent implements OnInit {
 
-  fraseHome: string[] = [frases.es, frases.en];
-  idiomaPagina: String = "es";
+  languagePage: String = "es";
 
   filtersString: string = '';
   filtersBOX: string = '';
@@ -42,12 +41,12 @@ export class HomeComponent implements OnInit {
     private translate: TranslateService,
   ) {
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.idiomaPagina = event.lang
+      this.languagePage = event.lang
     });
   }
 
   ngOnInit(): void {
-    this.idiomaPagina = this.translate.currentLang;
+    this.languagePage = this.translate.currentLang;
   }
 
   // API CALL: Function to autocomplete the text box.
