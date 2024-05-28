@@ -117,7 +117,7 @@ router.post('/filterJournals', async (req, res) => {
 
 // Query to search the authors of the conferences by year
 router.post('/researchers', async (req, res) => {
-  const venueAndJournalNames = req.body.venue;
+  const venueAndJournalNames = req.body.venueOrJournal;
   const listOfyears = req.body.titulosSeleccionados;
   const session = driver.session({ database: 'neo4j' });
 
@@ -155,7 +155,7 @@ router.post('/researchers', async (req, res) => {
 // Query to find the papers by year
 router.post('/PapersAndArticles', async (req, res) => {
   const listOfyears = req.body.titulosSeleccionados;
-  const venueAndJournalNames = req.body.venue;
+  const venueAndJournalNames = req.body.venueOrJournal;
   const session = driver.session({ database: 'neo4j' });
 
   try {
@@ -193,7 +193,7 @@ router.post('/PapersAndArticles', async (req, res) => {
 // Query to find collaborations by year
 router.post('/collaborations', async (req, res) => {
   const listOfyears = req.body.titulosSeleccionados;
-  const venueAndJournalNames = req.body.venue;
+  const venueAndJournalNames = req.body.venueOrJournal;
   const session = driver.session({ database: 'neo4j' });
 
   try {
@@ -234,7 +234,7 @@ router.post('/collaborations', async (req, res) => {
 // Query to find the author of the papers by year
 router.post('/AuthorsPapersAndArticles', async (req, res) => {
   const listOfyears = req.body.titulosSeleccionados;
-  const venueAndJournalNames = req.body.venue;
+  const venueAndJournalNames = req.body.venueOrJournal;
   const session = driver.session({ database: 'neo4j' });
 
   try {
@@ -542,7 +542,7 @@ router.post('/allJournals', async (req, res) => {
 
 // Query to find the Conferencew by proceeding
 router.post('/ConferencebyProceeding', async (req, res) => {
-  const venueAndJournalNames = req.body.venue;
+  const venueAndJournalNames = req.body.venueOrJournal;
   const listOfyears = req.body.titulosSeleccionados;
   const session = driver.session({ database: 'neo4j' });
 
@@ -631,6 +631,43 @@ router.post('/networkAuthors', async (req, res) => {
       return {
         researcher: record.get('researcher'),
         publications: record.get('publications'),
+      }
+    });
+
+    res.json(titles);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error in filterConferences', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+
+
+router.post('/connectedComponets', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+  const venueAndJournalNames = req.body.venueOrJournal;
+  const listOfyears = req.body.titulosSeleccionados;
+
+  try {
+    const query = `
+    MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(:Inproceeding)-[:AUTHORED_BY]->(r:Researcher)
+    WHERE v.name IN $venueAndJournalNames and y.name IN $listOfyears
+    WITH v, y, COUNT(DISTINCT r) AS num_authors
+    OPTIONAL MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(i:Inproceeding)-[:AUTHORED_BY]->(r1:Researcher),
+                  (i)-[:AUTHORED_BY]->(r2:Researcher)
+    WHERE v.name IN $venueAndJournalNames AND r1 <> r2
+    WITH v, y, num_authors, COUNT(DISTINCT [r1, r2]) AS num_relationships
+    RETURN y.name AS year, num_authors, num_relationships
+    ORDER BY year;
+    `;
+    const result = await session.run(query, { listOfyears, venueAndJournalNames});
+    const titles = result.records.map(record => {
+      return {
+        year: record.get('year'),
+        num_authors: record.get('num_authors'),
+        num_relationships: record.get('num_relationships')
       }
     });
 

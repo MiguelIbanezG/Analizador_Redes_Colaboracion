@@ -12,6 +12,10 @@ import { DecadeStats } from '../models/statistics.model';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { LanguageService } from '../services/language.service';
 import { Subscription } from 'rxjs';
+import { NetworkService } from '../services/network.service';
+import { NetworkInitService } from '../services/network.init.service';
+import { Node } from '../models/network.model'
+import { Network, DataSet, Data, Edge } from 'vis';
 
 Chart.register(...registerables);
 
@@ -23,7 +27,8 @@ Chart.register(...registerables);
 
 export class StatisticsComponent implements OnInit {
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
-
+  @ViewChild('treeContainer', { static: true })
+  treeContainer!: ElementRef;
   selectedYears: any[] = [];
   PapersAndArticles: any[] = [];
   collaborations: any[] = [];
@@ -54,6 +59,11 @@ export class StatisticsComponent implements OnInit {
   organizedYears: string[] = [];
   countMen: number[] = [];
   countWomen: number[] = [];
+  private data: any = {};
+  private nodes: DataSet<Node> = new DataSet<Node>();
+  private edges: DataSet<Edge> = new DataSet<Edge>();
+  private network!: Network;
+
 
   options: CloudOptions = {
     width: 500,
@@ -72,7 +82,9 @@ export class StatisticsComponent implements OnInit {
     private http: HttpClient,
     private spinnerService: SpinnerService,
     private translateService: TranslateService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private networkService: NetworkService,
+    public networkInitService: NetworkInitService,
   ) {
     this.translateService.onLangChange.subscribe((event: LangChangeEvent) => {
       this.languagePage = event.lang
@@ -86,6 +98,19 @@ export class StatisticsComponent implements OnInit {
     this.languageChangeSubscription = this.languageService.languageChange$.subscribe(language => {
       this.changeLanguage(language);
     });
+
+    this.nodes = this.networkInitService.getNodesStats();
+    this.edges = this.networkInitService.getEdgesStats();
+    this.data = {
+      nodes: this.nodes,
+      edges: this.edges,
+    };
+
+    this.network = new Network(
+      this.treeContainer.nativeElement,
+      this.data,
+      this.networkService.getNetworkOptions()
+    );
   }
 
   ngOnDestroy() {
@@ -202,6 +227,20 @@ export class StatisticsComponent implements OnInit {
           this.singleAuthor = response;
           this.statsSingleAuthor();
           
+        },
+        error: (error: any) => {
+          console.error('Error in getAuthorsPapers:', error);
+        }
+      });
+  }
+
+  // API CALL: Function to find coonected Authors
+  getConnectedComponents() {
+    this.apiService.getConnectedComponents(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName)
+      .subscribe({
+        next: async (response: any) => {
+          this.networkInitService.authors = response;
+
         },
         error: (error: any) => {
           console.error('Error in getAuthorsPapers:', error);

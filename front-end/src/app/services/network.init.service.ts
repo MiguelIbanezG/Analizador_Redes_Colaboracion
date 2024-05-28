@@ -15,6 +15,9 @@ export class NetworkInitService {
   public cluster: { min: number, max: number} =  { min: 1, max: 100}
   private distances: { [key: string]: number } = {};
 
+  public connexions:any = [];
+  public authors:any = [];
+
   // Function to create Nodes
   getNodes(): DataSet<Node> {
 
@@ -231,7 +234,40 @@ export class NetworkInitService {
 
   }
 
+  getNodesStats(): DataSet<Node>{
+    const items: Node[] = Array.from(
+      { length: 5 },
+      (x: number, i: number) => ++i
+    ).map((value: number) => ({ id: value, label: `Node ${value}` }));
+    const nodes: DataSet<Node> = new DataSet(items);
+
+    return nodes;
+  }
+
+  getEdgesStats(): DataSet<Edge> {
+    const edges: DataSet<Edge> = new DataSet([
+      {
+        from: 1,
+        to: 3,
+      },
+      {
+        from: 1,
+        to: 2,
+      },
+      {
+        from: 2,
+        to: 4,
+      },
+      {
+        from: 2,
+        to: 5,
+      },
+    ]);
+    return edges;
+  }
+}
+
 
   
 
-}
+
