@@ -56,8 +56,6 @@ export class NetworksComponent implements OnInit, OnDestroy {
 
 
     const networkOptions = this.NetworkService.getNetworkOptions();
-    networkOptions.height = '800px';
-
 
     this.nodes = this.NetworkInitService.getNodes();
     this.edges = this.NetworkInitService.getEdges();

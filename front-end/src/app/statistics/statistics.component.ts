@@ -42,6 +42,7 @@ export class StatisticsComponent implements OnInit {
   lineChart1!: Chart;
   lineChart2!: Chart;
   lineChart3!: Chart;
+  lineChart4!: Chart;
   barChart!: Chart;
   totalAuthorsByYear: any[] = []
   PapersAndArticlesByYear: any[] = []
@@ -91,7 +92,7 @@ export class StatisticsComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.loadCommonNames();
     this.main();
     this.languagePage = this.translateService.currentLang;
@@ -99,18 +100,36 @@ export class StatisticsComponent implements OnInit {
       this.changeLanguage(language);
     });
 
-    this.nodes = this.networkInitService.getNodesStats();
-    this.edges = this.networkInitService.getEdgesStats();
-    this.data = {
-      nodes: this.nodes,
-      edges: this.edges,
-    };
+    this.getConnectedComponents();
 
-    this.network = new Network(
-      this.treeContainer.nativeElement,
-      this.data,
-      this.networkService.getNetworkOptions()
-    );
+    if(this.networkInitService.authorsRelations.length < 1){
+      await this.waitResearcherNoEmpty(); 
+      this.nodes = this.networkInitService.getNodesStats();
+      this.edges = this.networkInitService.getEdgesStats();
+      this.data = {
+        nodes: this.nodes,
+        edges: this.edges,
+      };
+  
+      this.network = new Network(
+        this.treeContainer.nativeElement,
+        this.data,
+        this.networkService.getNetworkOptionsStats()
+      );
+    } else{
+      this.nodes = this.networkInitService.getNodesStats();
+      this.edges = this.networkInitService.getEdgesStats();
+      this.data = {
+        nodes: this.nodes,
+        edges: this.edges,
+      };
+  
+      this.network = new Network(
+        this.treeContainer.nativeElement,
+        this.data,
+        this.networkService.getNetworkOptions()
+      );
+    }
   }
 
   ngOnDestroy() {
@@ -143,6 +162,7 @@ export class StatisticsComponent implements OnInit {
     this.generateCircularChart('lineChart4', this.organizedYears, [this.translateService.instant('Statistics.Men'), this.translateService.instant('Statistics.Men')], [this.countMen, this.countWomen]);
     this.generateMultipleChart('lineChart8', this.organizedYears, [this.translateService.instant('Statistics.Men'), this.translateService.instant('Statistics.Women')], [this.countMen, this.countWomen]);
     this.generateTotalAuthorsChart('lineChart7', 'Total Papers and Articles by Year', this.PapersAndArticlesByYear);
+    this.generateTotalAuthorsChart('lineChart9', 'Total Papers and Articles by Year', this.stadisticsService.connected);
   }
 
   // API CALL: Function to search for authors of conferences and journals
@@ -234,13 +254,27 @@ export class StatisticsComponent implements OnInit {
       });
   }
 
-  // API CALL: Function to find coonected Authors
+  // API CALL: Function to find Connected Authors
   getConnectedComponents() {
     this.apiService.getConnectedComponents(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName)
       .subscribe({
         next: async (response: any) => {
-          this.networkInitService.authors = response;
+          this.networkInitService.authorsRelations = response;
+          console.log(response)
+        },
+        error: (error: any) => {
+          console.error('Error in getAuthorsPapers:', error);
+        }
+      });
+  }
 
+  // API CALL: Function to find Connected Authors by year
+  getConnectedComponentsYears() {
+    this.apiService.getConnectedComponentsYears(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName)
+      .subscribe({
+        next: async (response: any) => {
+          this.stadisticsService.connected = response;
+          this.generateTotalAuthorsChart('lineChart9', this.translateService.instant('Statistics.Relations'), this.stadisticsService.connected);
         },
         error: (error: any) => {
           console.error('Error in getAuthorsPapers:', error);
@@ -1038,6 +1072,7 @@ export class StatisticsComponent implements OnInit {
     const totalAuthors = data.map(entry => entry.totalAuthors);
     const totalPapers = data.map(entry => entry.totalPapers);
     const totalArticles = data.map(entry => entry.totalArticles);
+    const relations = data.map(item => item.totalRelations ? item.totalRelations.low : 0);
 
     if(idChart == "lineChart6"){
       this.lineChart1 = new Chart(idChart, {
@@ -1094,6 +1129,43 @@ export class StatisticsComponent implements OnInit {
                       data: totalArticles,
                       fill: false,
                       borderColor: "rgba(255, 0, 0, 1)",
+                      borderWidth: 1
+                  }
+              ]
+          },
+          options: {
+              plugins: {
+                  legend: {
+                      labels: {
+                          color: 'black',
+                          font: {
+                              size: 18,
+                              family: 'Roboto',
+                          }
+                      }
+                  }
+              },
+              scales: {
+                  y: {
+                      type: 'linear',
+                      display: true
+                  }
+              },
+          }
+      });
+    }
+
+    if (idChart == "lineChart9") {
+      this.lineChart4 = new Chart(idChart, {
+          type: 'line',
+          data: {
+              labels: years,
+              datasets: [
+                  {
+                      label: this.translateService.instant('Statistics.Conexions'),
+                      data: relations,
+                      fill: false,
+                      borderColor: "rgb(0, 22, 68)",
                       borderWidth: 1
                   }
               ]
@@ -1427,6 +1499,12 @@ export class StatisticsComponent implements OnInit {
     }
   }
 
+  async waitNetwork(){
+    while (this.networkInitService.authorsRelations.length < 1) {
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+    }
+  }
+
   async main(){
     try {
 
@@ -1438,6 +1516,8 @@ export class StatisticsComponent implements OnInit {
       this.getResearchersConferenceAndJournals();
       this.getPapersAndArticles();
       this.getConferencebyProceeding();
+      this.getConnectedComponentsYears();
+
   
       if(this.researchers.length == 0){
         await this.waitResearcherNoEmpty(); 
@@ -1481,7 +1561,7 @@ export class StatisticsComponent implements OnInit {
       }
       this.statsDegreeAuthors(this.selectedYears);
  
-      while(this.stadisticsService.ConferenceOrJournalNames.length < 10){
+      while(this.stadisticsService.ConferenceOrJournalNames.length < 1){
         this.loadingTable1 = true;
         await new Promise(resolve => setTimeout(resolve, 100));
         this.spinnerService.show()

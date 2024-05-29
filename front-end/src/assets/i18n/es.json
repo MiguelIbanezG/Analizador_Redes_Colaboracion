@@ -70,7 +70,9 @@
         "TotalAuthors": "Total de autores por año",
         "Density":"Densidad",
         "Single":"Artículos de un solo autor y revistas de un solo autor",
-        "Connected":"Conexiones de autores"
+        "Connected":"Conexiones de autores",
+        "Relations":"Conexiones entre autores por año",
+        "Conexions":"Conexiones"
     },
     "Info":{
         "Information":"Información",

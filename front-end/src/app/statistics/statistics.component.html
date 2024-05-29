@@ -301,17 +301,28 @@
       </table>
     </div>
   </div>
+
   <div class="overlay" [hidden]="PapersAndArticles.length < 1" *ngIf="loadingTable1">
     <app-spinner></app-spinner>
   </div>
 
-
-  <hr class="slim" [hidden]="PapersAndArticles.length < 1">
-
+  <hr class="line" [hidden]="PapersAndArticles.length < 1">
 
   <h3>{{ "Statistics.Connected" | translate }}</h3>
-
-
   <div class="network" #treeContainer></div>
+
+  <hr class="line">
+
+  <div class="flex-container">
+
+    <div class="flex-item">
+      <h3>{{ "Statistics.Relations" | translate }}</h3>
+
+      <div class="canvas-container">
+        <canvas id="lineChart9"></canvas>
+      </div>
+    </div>
+
+  </div>
 
 </div>

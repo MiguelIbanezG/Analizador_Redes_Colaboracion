@@ -70,7 +70,9 @@
         "TotalAuthors": "Total Authors by Year",
         "Density":"Density",
         "Single":"Single Author Papers and Single Author Journals",
-        "Connected":"Author Connections"
+        "Connected":"Author Connections",
+        "Relations":"Author Connections by year",
+        "Conexions":"Conexions"
     },
     "Info": {
         "Information":"Information",

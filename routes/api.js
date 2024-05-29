@@ -644,7 +644,6 @@ router.post('/networkAuthors', async (req, res) => {
 });
 
 
-
 router.post('/connectedComponets', async (req, res) => {
   const session = driver.session({ database: 'neo4j' });
   const venueAndJournalNames = req.body.venueOrJournal;
@@ -652,29 +651,79 @@ router.post('/connectedComponets', async (req, res) => {
 
   try {
     const query = `
-    MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(:Inproceeding)-[:AUTHORED_BY]->(r:Researcher)
+    MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
     WHERE v.name IN $venueAndJournalNames and y.name IN $listOfyears
-    WITH v, y, COUNT(DISTINCT r) AS num_authors
-    OPTIONAL MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(i:Inproceeding)-[:AUTHORED_BY]->(r1:Researcher),
-                  (i)-[:AUTHORED_BY]->(r2:Researcher)
-    WHERE v.name IN $venueAndJournalNames AND r1 <> r2
-    WITH v, y, num_authors, COUNT(DISTINCT [r1, r2]) AS num_relationships
-    RETURN y.name AS year, num_authors, num_relationships
-    ORDER BY year;
+    MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
+    WHERE coAuthor <> r
+    WITH r, COUNT(DISTINCT coAuthor) AS relations
+    RETURN r.name AS author, relations
+
+    UNION 
+
+    MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_NUMBER]->(n:Number)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
+    WHERE j.name IN $venueAndJournalNames and y.name IN $listOfyears
+    MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
+    WHERE coAuthor <> r
+    WITH r, COUNT(DISTINCT coAuthor) AS relations
+    RETURN r.name AS author, relations
     `;
     const result = await session.run(query, { listOfyears, venueAndJournalNames});
     const titles = result.records.map(record => {
       return {
-        year: record.get('year'),
-        num_authors: record.get('num_authors'),
-        num_relationships: record.get('num_relationships')
+        author: record.get('author'),
+        relations: record.get('relations'),
       }
     });
 
     res.json(titles);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in filterConferences', details: error.message });
+    res.status(500).json({ error: 'Error in connectedComponets', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+router.post('/connectedComponetsYear', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+  const venueAndJournalNames = req.body.venueOrJournal;
+  const listOfyears = req.body.titulosSeleccionados;
+
+  try {
+    const query = `
+    MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
+    WHERE v.name IN $venueAndJournalNames AND y.name IN $listOfyears
+    MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
+    WHERE coAuthor <> r
+    WITH y.name AS year, r, COUNT(DISTINCT coAuthor) AS relations
+    RETURN year, COUNT(DISTINCT r) AS authorsCount, SUM(relations) AS totalRelations
+    ORDER BY year
+
+    UNION
+
+    MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_NUMBER]->(n:Number)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
+    WHERE j.name IN $venueAndJournalNames AND y.name IN $listOfyears
+    MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
+    WHERE coAuthor <> r
+    WITH y.name AS year, r, COUNT(DISTINCT coAuthor) AS relations
+    RETURN year, COUNT(DISTINCT r) AS authorsCount, SUM(relations) AS totalRelations
+    ORDER BY year
+    `;
+    const result = await session.run(query, { listOfyears, venueAndJournalNames});
+    const titles = result.records.map(record => {
+      return {
+        year: record.get('year'),
+        authorsCount: record.get('authorsCount'),
+        totalRelations: record.get('totalRelations')
+      }
+    });
+
+    console.log(titles)
+
+    res.json(titles);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error in connectedComponetsYear', details: error.message });
   } finally {
     session.close();
   }

@@ -101,4 +101,8 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/connectedComponets`, { titulosSeleccionados, venueOrJournal});
   }
 
+  getConnectedComponentsYears(titulosSeleccionados: any[], venueOrJournal: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/connectedComponetsYear`, { titulosSeleccionados, venueOrJournal});
+  }
+
 }

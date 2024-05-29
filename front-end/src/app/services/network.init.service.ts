@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DataSet, Edge } from 'vis';
 import { Node } from '../models/network.model';
-import { v4 as uuidv4 } from 'uuid';
+import { random } from 'lodash';
 
 
 @Injectable()
@@ -16,7 +16,7 @@ export class NetworkInitService {
   private distances: { [key: string]: number } = {};
 
   public connexions:any = [];
-  public authors:any = [];
+  public authorsRelations:any = [];
 
   // Function to create Nodes
   getNodes(): DataSet<Node> {
@@ -235,36 +235,50 @@ export class NetworkInitService {
   }
 
   getNodesStats(): DataSet<Node>{
-    const items: Node[] = Array.from(
-      { length: 5 },
-      (x: number, i: number) => ++i
-    ).map((value: number) => ({ id: value, label: `Node ${value}` }));
-    const nodes: DataSet<Node> = new DataSet(items);
+    const nodesArray: Node[] = this.authorsRelations.map((author: any, index: number) => ({
+      id: index + 1, 
+      label: "",
+      x: random(-1600, 1600), 
+      y: random(-1100, 1100), 
+    }));
 
-    return nodes;
+    console.log(nodesArray)
+
+    return new DataSet(nodesArray)
   }
 
   getEdgesStats(): DataSet<Edge> {
-    const edges: DataSet<Edge> = new DataSet([
-      {
-        from: 1,
-        to: 3,
-      },
-      {
-        from: 1,
-        to: 2,
-      },
-      {
-        from: 2,
-        to: 4,
-      },
-      {
-        from: 2,
-        to: 5,
-      },
-    ]);
-    return edges;
+    const edgesArray: Edge[] = [];
+
+    const authorIdMap: { [key: string]: number } = {};
+    this.authorsRelations.forEach((author: any, index: number) => {
+      authorIdMap[author.author] = index + 1;
+    });
+  
+    this.authorsRelations.forEach((author: any) => {
+      const fromId = authorIdMap[author.author];
+      const lowId = author.relations.low;
+      const highId = author.relations.high;
+      
+      if (fromId && lowId) {
+        edgesArray.push({
+          from: fromId,
+          to: lowId,
+        });
+      }
+
+      if (fromId && highId) {
+        edgesArray.push({
+          from: fromId,
+          to: highId,
+        });
+      }
+    });
+
+    return new DataSet(edgesArray);
   }
+
+
 }
 
 
