@@ -62,7 +62,7 @@ export class NetworkService {
   public getNetworkOptionsStats(): Options {
     return {
       autoResize: true,
-      height: "1200px",
+      height: "800px",
       width: "100%",
       physics: { enabled: false },
       layout: {

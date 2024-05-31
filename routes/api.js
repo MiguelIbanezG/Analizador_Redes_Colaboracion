@@ -655,8 +655,8 @@ router.post('/connectedComponets', async (req, res) => {
     WHERE v.name IN $venueAndJournalNames and y.name IN $listOfyears
     MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
     WHERE coAuthor <> r
-    WITH r, COUNT(DISTINCT coAuthor) AS relations
-    RETURN r.name AS author, relations
+    WITH r, COLLECT(DISTINCT coAuthor.name) AS coAuthors
+    RETURN r.name AS author, coAuthors
 
     UNION 
 
@@ -664,14 +664,14 @@ router.post('/connectedComponets', async (req, res) => {
     WHERE j.name IN $venueAndJournalNames and y.name IN $listOfyears
     MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
     WHERE coAuthor <> r
-    WITH r, COUNT(DISTINCT coAuthor) AS relations
-    RETURN r.name AS author, relations
+    WITH r, COLLECT(DISTINCT coAuthor.name) AS coAuthors
+    RETURN r.name AS author, coAuthors
     `;
     const result = await session.run(query, { listOfyears, venueAndJournalNames});
     const titles = result.records.map(record => {
       return {
         author: record.get('author'),
-        relations: record.get('relations'),
+        coAuthors: record.get('coAuthors'),
       }
     });
 
@@ -695,9 +695,9 @@ router.post('/connectedComponetsYear', async (req, res) => {
     WHERE v.name IN $venueAndJournalNames AND y.name IN $listOfyears
     MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
     WHERE coAuthor <> r
-    WITH y.name AS year, r, COUNT(DISTINCT coAuthor) AS relations
-    RETURN year, COUNT(DISTINCT r) AS authorsCount, SUM(relations) AS totalRelations
-    ORDER BY year
+    WITH y.name AS year, v.name AS venueORjournal, r, COUNT(DISTINCT coAuthor) AS relations
+    RETURN year, venueORjournal, SUM(relations) AS totalRelations
+    ORDER BY year, venueORjournal
 
     UNION
 
@@ -705,20 +705,18 @@ router.post('/connectedComponetsYear', async (req, res) => {
     WHERE j.name IN $venueAndJournalNames AND y.name IN $listOfyears
     MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
     WHERE coAuthor <> r
-    WITH y.name AS year, r, COUNT(DISTINCT coAuthor) AS relations
-    RETURN year, COUNT(DISTINCT r) AS authorsCount, SUM(relations) AS totalRelations
-    ORDER BY year
+    WITH y.name AS year, v.name AS venueORjournal, r, COUNT(DISTINCT coAuthor) AS relations
+    RETURN year, venueORjournal, SUM(relations) AS totalRelations
+    ORDER BY year, venueORjournal
     `;
     const result = await session.run(query, { listOfyears, venueAndJournalNames});
     const titles = result.records.map(record => {
       return {
         year: record.get('year'),
-        authorsCount: record.get('authorsCount'),
-        totalRelations: record.get('totalRelations')
+        totalRelations: record.get('totalRelations'),
+        venueORjournal: record.get('venueORjournal')
       }
     });
-
-    console.log(titles)
 
     res.json(titles);
   } catch (error) {

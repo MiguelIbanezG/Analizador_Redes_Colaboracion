@@ -235,48 +235,48 @@ export class NetworkInitService {
   }
 
   getNodesStats(): DataSet<Node>{
+
     const nodesArray: Node[] = this.authorsRelations.map((author: any, index: number) => ({
       id: index + 1, 
       label: "",
-      x: random(-1600, 1600), 
-      y: random(-1100, 1100), 
+      x: random(-1700, 1700), 
+      y: random(-900, 900), 
     }));
 
-    console.log(nodesArray)
 
     return new DataSet(nodesArray)
   }
 
-  getEdgesStats(): DataSet<Edge> {
-    const edgesArray: Edge[] = [];
+getEdgesStats(): DataSet<Edge> {
+  const edgesArray: Edge[] = [];
+  const authorIdMap: { [key: string]: number } = {};
 
-    const authorIdMap: { [key: string]: number } = {};
-    this.authorsRelations.forEach((author: any, index: number) => {
-      authorIdMap[author.author] = index + 1;
-    });
-  
-    this.authorsRelations.forEach((author: any) => {
-      const fromId = authorIdMap[author.author];
-      const lowId = author.relations.low;
-      const highId = author.relations.high;
-      
-      if (fromId && lowId) {
-        edgesArray.push({
-          from: fromId,
-          to: lowId,
-        });
-      }
+  this.authorsRelations.forEach((author: any, index: number) => {
+    const authorName = author.author;
+    authorIdMap[authorName] = index + 1;
 
-      if (fromId && highId) {
-        edgesArray.push({
-          from: fromId,
-          to: highId,
-        });
+    author.coAuthors.forEach((coAuthorName: string) => {
+      if (!authorIdMap[coAuthorName]) {
+        authorIdMap[coAuthorName] = Object.keys(authorIdMap).length + 1;
       }
     });
+  });
 
-    return new DataSet(edgesArray);
-  }
+  this.authorsRelations.forEach((author: any) => {
+    const fromId = authorIdMap[author.author];
+    author.coAuthors.forEach((coAuthorName: string) => {
+      const toId = authorIdMap[coAuthorName];
+      if (fromId && toId) {
+        edgesArray.push({
+          from: fromId,
+          to: toId,
+        });
+      }
+    });
+  });
+
+  return new DataSet(edgesArray);
+}
 
 
 }

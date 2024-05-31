@@ -489,6 +489,10 @@ export class HomeComponent implements OnInit {
 
   // Function to generate statistics.
   async generateStatistics() {
+    this.getFilteredNodesJournal();
+    this.getYearsConference();
+    this.waitTitlesNoEmpty();
+    this.toggleYears();
 
     const titles = this.homeService.filteredTitles.
       filter(titulo => titulo.selected).map(titulo => titulo.title);

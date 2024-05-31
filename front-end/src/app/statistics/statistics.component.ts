@@ -36,6 +36,7 @@ export class StatisticsComponent implements OnInit {
   statistics: any[] = [];
   statsAuthors: any[] = []
   statsPaperAndArticle: any[] = []
+  connectedYears: any[] = []
   ConferencesAndJournalCount: number = 0;
   ConferencesAndJournalAuthors: number = 0;
   lineChart!: Chart;
@@ -43,6 +44,7 @@ export class StatisticsComponent implements OnInit {
   lineChart2!: Chart;
   lineChart3!: Chart;
   lineChart4!: Chart;
+  lineChart5!: Chart;
   barChart!: Chart;
   totalAuthorsByYear: any[] = []
   PapersAndArticlesByYear: any[] = []
@@ -99,7 +101,7 @@ export class StatisticsComponent implements OnInit {
     this.languageChangeSubscription = this.languageService.languageChange$.subscribe(language => {
       this.changeLanguage(language);
     });
-
+    this.networkInitService.authorsRelations.length = 0;
     this.getConnectedComponents();
 
     if(this.networkInitService.authorsRelations.length < 1){
@@ -174,7 +176,7 @@ export class StatisticsComponent implements OnInit {
         this.statsResearchers();
         this.statsTotalAuthorsByYear();
         if(this.researchers.length > 1){
-          this.generateChartPapersAndArticles('lineChart1', this.statsAuthors);
+          this.generateChartJournalsAndVenue('lineChart1', this.statsAuthors);
           this.generateTotalAuthorsChart('lineChart6', this.translateService.instant('Statistics.TotalAuthors'), this.totalAuthorsByYear);
         }
       },
@@ -259,8 +261,8 @@ export class StatisticsComponent implements OnInit {
     this.apiService.getConnectedComponents(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName)
       .subscribe({
         next: async (response: any) => {
+          this.networkInitService.authorsRelations = 0;
           this.networkInitService.authorsRelations = response;
-          console.log(response)
         },
         error: (error: any) => {
           console.error('Error in getAuthorsPapers:', error);
@@ -272,14 +274,72 @@ export class StatisticsComponent implements OnInit {
   getConnectedComponentsYears() {
     this.apiService.getConnectedComponentsYears(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName)
       .subscribe({
-        next: async (response: any) => {
-          this.stadisticsService.connected = response;
-          this.generateTotalAuthorsChart('lineChart9', this.translateService.instant('Statistics.Relations'), this.stadisticsService.connected);
+        next: (response: any) => {
+
+          const { labels, datasets, venueYears } = this.statsData(response);
+          
+          const allYears = new Set<string>();
+          Object.values(venueYears).forEach(years => {
+            years.forEach(year => allYears.add(year));
+          });
+          const sortedAllYears = Array.from(allYears).sort();
+  
+          this.connectedYears = Object.keys(datasets).map(label => {
+            const years = venueYears[label];
+            const relations = datasets[label];
+  
+            const yearRelationMap: { [key: string]: number } = {};
+            years.forEach((year, index) => {
+              yearRelationMap[year] = relations[index];
+            });
+  
+            const filledRelations = sortedAllYears.map(year => yearRelationMap[year] || 0);
+  
+            return {
+              name: label,
+              years: sortedAllYears,
+              relations: filledRelations
+            };
+          });
+          console.log(this.connectedYears)
+  
+          this.generateChartJournalsAndVenue('lineChart9', this.connectedYears);
         },
         error: (error: any) => {
-          console.error('Error in getAuthorsPapers:', error);
+          console.error('Error in getConnectedComponentsYears:', error);
         }
       });
+  }
+  // Function to transform the response ConnectedComponentsYears
+  statsData(response: any) {
+    const globalYears: Set<string> = new Set();
+    const venueYears: { [key: string]: Set<string> } = {};
+    const datasets: { [key: string]: number[] } = {};
+
+    response.forEach((item: { year: string, totalRelations: { low: number, high: number }, venueORjournal: string }) => {
+      const { year, venueORjournal, totalRelations } = item;
+      globalYears.add(year);
+
+      if (!datasets[venueORjournal]) {
+        datasets[venueORjournal] = [];
+      }
+      if (!venueYears[venueORjournal]) {
+        venueYears[venueORjournal] = new Set();
+      }
+
+      venueYears[venueORjournal].add(year);
+      datasets[venueORjournal].push(totalRelations.low);
+    });
+
+    const venueYearsArray = Object.fromEntries(
+      Object.entries(venueYears).map(([key, value]) => [key, Array.from(value).sort()])
+    );
+
+    return {
+      labels: Array.from(globalYears).sort(),
+      datasets,
+      venueYears: venueYearsArray
+    };
   }
 
   // Function to save the total number of authors per year
@@ -710,7 +770,9 @@ export class StatisticsComponent implements OnInit {
       };
     });
 
-    this.generateChartPapersAndArticles('lineChart2', this.statsPaperAndArticle);
+    console.log(this.statsPaperAndArticle)
+
+    this.generateChartJournalsAndVenue('lineChart2', this.statsPaperAndArticle);
 
   }
 
@@ -872,6 +934,9 @@ export class StatisticsComponent implements OnInit {
     const datasetsData = countries.map((country) =>
       years.map((year) => mappingDate[year][country])
     );
+    console.log(datasetsData)
+    console.log(datasetsLabels)
+    console.log(years)
 
     this.generateMultipleChart('lineChart5', years, datasetsLabels, datasetsData);
     
@@ -1194,10 +1259,18 @@ export class StatisticsComponent implements OnInit {
   }
 
   // Function to generate charts of articles and papers
-  generateChartPapersAndArticles(idChart: string, data: any[]) {
+  generateChartJournalsAndVenue(idChart: string, data: any[]) {
     const datasets = data.map((entry, index) => ({
       label: entry.name,
       data: entry.numResearchers,
+      fill: false,
+      borderColor: this.getRandomColor(index),
+      borderWidth: 1
+    }));
+
+    const datasetsConnected = data.map((entry, index) => ({
+      label: entry.name,
+      data: entry.relations,
       fill: false,
       borderColor: this.getRandomColor(index),
       borderWidth: 1
@@ -1238,6 +1311,35 @@ export class StatisticsComponent implements OnInit {
         data: {
           labels: data[0].years,
           datasets: datasets
+        },
+        options: {
+          plugins: {
+            legend: {
+              labels: {
+                color: 'black',
+                font: {
+                  size: 18, 
+                  family: 'Roboto',
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true
+            }
+          },
+        }
+      });
+    }
+
+    if(idChart == "lineChart9"){
+      this.lineChart5 = new Chart(idChart, {
+        type: 'line',
+        data: {
+          labels: data[0].years,
+          datasets: datasetsConnected
         },
         options: {
           plugins: {
