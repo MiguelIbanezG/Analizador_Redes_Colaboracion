@@ -705,7 +705,7 @@ router.post('/connectedComponetsYear', async (req, res) => {
     WHERE j.name IN $venueAndJournalNames AND y.name IN $listOfyears
     MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
     WHERE coAuthor <> r
-    WITH y.name AS year, v.name AS venueORjournal, r, COUNT(DISTINCT coAuthor) AS relations
+    WITH y.name AS year, j.name AS venueORjournal, r, COUNT(DISTINCT coAuthor) AS relations
     RETURN year, venueORjournal, SUM(relations) AS totalRelations
     ORDER BY year, venueORjournal
     `;
@@ -715,6 +715,36 @@ router.post('/connectedComponetsYear', async (req, res) => {
         year: record.get('year'),
         totalRelations: record.get('totalRelations'),
         venueORjournal: record.get('venueORjournal')
+      }
+    });
+
+    res.json(titles);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error in connectedComponetsYear', details: error.message });
+  } finally {
+    session.close();
+  }
+});
+
+router.post('/newComers', async (req, res) => {
+  const session = driver.session({ database: 'neo4j' });
+  const venueAndJournalNames = req.body.venueOrJournal;
+  const listOfyears = req.body.titulosSeleccionados;
+
+  try {
+    const query = `
+    MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
+    WHERE v.name IN $venueAndJournalNames AND y.name IN $listOfyears
+    RETURN y.name AS year, COLLECT(DISTINCT r.name) as researchers, v.name as VenueOrJOurnal
+    ORDER BY y.name
+    `;
+    const result = await session.run(query, { listOfyears, venueAndJournalNames});
+    const titles = result.records.map(record => {
+      return {
+        year: record.get('year'),
+        researchers: record.get('researchers'),
+        VenueOrJOurnal: record.get('VenueOrJOurnal')
       }
     });
 

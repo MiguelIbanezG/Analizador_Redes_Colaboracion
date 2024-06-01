@@ -7,6 +7,7 @@ export class StadisticsService {
 
   public selectedTitles: any[] = [];
   public connected: any[] = [];
+  public newComers: any[] = [];
   public ConferenceOrJournalName: string[] = [];
   public ConferenceOrJournalConfirm: string[] = [];
   public ConferenceOrJournalNames: string[] = [];

@@ -16,6 +16,7 @@ import { NetworkService } from '../services/network.service';
 import { NetworkInitService } from '../services/network.init.service';
 import { Node } from '../models/network.model'
 import { Network, DataSet, Data, Edge } from 'vis';
+import {ProcessedData } from '../models/comers.model'
 
 Chart.register(...registerables);
 
@@ -45,6 +46,7 @@ export class StatisticsComponent implements OnInit {
   lineChart3!: Chart;
   lineChart4!: Chart;
   lineChart5!: Chart;
+  lineChart6!: Chart;
   barChart!: Chart;
   totalAuthorsByYear: any[] = []
   PapersAndArticlesByYear: any[] = []
@@ -101,37 +103,37 @@ export class StatisticsComponent implements OnInit {
     this.languageChangeSubscription = this.languageService.languageChange$.subscribe(language => {
       this.changeLanguage(language);
     });
-    this.networkInitService.authorsRelations.length = 0;
-    this.getConnectedComponents();
 
-    if(this.networkInitService.authorsRelations.length < 1){
-      await this.waitResearcherNoEmpty(); 
-      this.nodes = this.networkInitService.getNodesStats();
-      this.edges = this.networkInitService.getEdgesStats();
-      this.data = {
-        nodes: this.nodes,
-        edges: this.edges,
-      };
+    // this.getConnectedComponents();
+
+    // if(this.networkInitService.authorsRelations.length < 1){
+    //   await this.waitResearcherNoEmpty(); 
+    //   this.nodes = this.networkInitService.getNodesStats();
+    //   this.edges = this.networkInitService.getEdgesStats();
+    //   this.data = {
+    //     nodes: this.nodes,
+    //     edges: this.edges,
+    //   };
   
-      this.network = new Network(
-        this.treeContainer.nativeElement,
-        this.data,
-        this.networkService.getNetworkOptionsStats()
-      );
-    } else{
-      this.nodes = this.networkInitService.getNodesStats();
-      this.edges = this.networkInitService.getEdgesStats();
-      this.data = {
-        nodes: this.nodes,
-        edges: this.edges,
-      };
+    //   this.network = new Network(
+    //     this.treeContainer.nativeElement,
+    //     this.data,
+    //     this.networkService.getNetworkOptionsStats()
+    //   );
+    // } else{
+    //   this.nodes = this.networkInitService.getNodesStats();
+    //   this.edges = this.networkInitService.getEdgesStats();
+    //   this.data = {
+    //     nodes: this.nodes,
+    //     edges: this.edges,
+    //   };
   
-      this.network = new Network(
-        this.treeContainer.nativeElement,
-        this.data,
-        this.networkService.getNetworkOptions()
-      );
-    }
+    //   this.network = new Network(
+    //     this.treeContainer.nativeElement,
+    //     this.data,
+    //     this.networkService.getNetworkOptions()
+    //   );
+    // }
   }
 
   ngOnDestroy() {
@@ -164,7 +166,6 @@ export class StatisticsComponent implements OnInit {
     this.generateCircularChart('lineChart4', this.organizedYears, [this.translateService.instant('Statistics.Men'), this.translateService.instant('Statistics.Men')], [this.countMen, this.countWomen]);
     this.generateMultipleChart('lineChart8', this.organizedYears, [this.translateService.instant('Statistics.Men'), this.translateService.instant('Statistics.Women')], [this.countMen, this.countWomen]);
     this.generateTotalAuthorsChart('lineChart7', 'Total Papers and Articles by Year', this.PapersAndArticlesByYear);
-    this.generateTotalAuthorsChart('lineChart9', 'Total Papers and Articles by Year', this.stadisticsService.connected);
   }
 
   // API CALL: Function to search for authors of conferences and journals
@@ -310,6 +311,113 @@ export class StatisticsComponent implements OnInit {
         }
       });
   }
+
+    // API CALL: Function to find Connected Authors
+    getnewComers() {
+      this.apiService.getNewComers(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName)
+        .subscribe({
+          next: async (response: any) => {
+            const processedData = this.processData(response);
+            this.generateNewComers('lineChart10', processedData);
+          },
+          error: (error: any) => {
+            console.error('Error in getAuthorsPapers:', error);
+          }
+        });
+    }
+
+    processData(data: any[]): ProcessedData {
+      const processedData: ProcessedData = {};
+    
+      // Primero, asegurarse de que los años estén en orden
+      const sortedData = data.sort((a, b) => a.year - b.year);
+    
+      sortedData.forEach(entry => {
+        const year = entry.year;
+        const venue = entry.VenueOrJOurnal;
+        const researchers = entry.researchers;
+    
+        if (!processedData[venue]) {
+          processedData[venue] = { newComers: {}, LCC: {}, allResearchers: new Set<string>(), cumulativeNewComers: new Set<string>() };
+        }
+    
+        const venueData = processedData[venue];
+    
+        // Encontrar nuevos autores
+        const newComers = researchers.filter((r: string) => !venueData.allResearchers.has(r));
+        newComers.forEach((r: string) => venueData.allResearchers.add(r));
+    
+        // Calcular nuevos autores para el año actual
+        venueData.newComers[year] = newComers.length;
+    
+        if (Object.keys(venueData.LCC).length === 0) {
+          // Si es el primer año, LCC debe ser 0
+          venueData.LCC[year] = 0;
+          venueData.cumulativeNewComers = new Set([...newComers]);
+        } else {
+          // Para años posteriores, sumar el número de autores acumulados hasta el año anterior
+          const previousYear = Math.max(...Object.keys(venueData.LCC).map(Number)).toString();
+          venueData.LCC[year] = venueData.cumulativeNewComers.size;
+          venueData.cumulativeNewComers = new Set([...venueData.cumulativeNewComers, ...newComers]);
+        }
+      });
+    
+      return processedData;
+    }
+    
+    
+    
+    
+
+  generateNewComers(idChart: string, data: ProcessedData) {
+    const venues = Object.keys(data);
+    const years = Object.keys(data[venues[0]].newComers);
+  
+    const datasets = venues.flatMap((venue, index) => [
+      {
+        label: `NewComers-${venue}`,
+        data: years.map(year => data[venue].newComers[year] || 0),
+        fill: false,
+        borderColor: this.getRandomColor(index * 2),
+        borderWidth: 1
+      },
+      {
+        label: `LCC-${venue}`,
+        data: years.map(year => data[venue].LCC[year] || 0),
+        fill: false,
+        borderColor: this.getRandomColor(index * 2 + 1),
+        borderWidth: 1
+      }
+    ]);
+  
+    this.lineChart6 = new Chart(idChart, {
+      type: 'line',
+      data: {
+        labels: years,
+        datasets: datasets
+      },
+      options: {
+        plugins: {
+          legend: {
+            labels: {
+              color: 'black',
+              font: {
+                size: 18,
+                family: 'Roboto',
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            type: 'linear',
+            display: true
+          }
+        },
+      }
+    });
+  }
+
   // Function to transform the response ConnectedComponentsYears
   statsData(response: any) {
     const globalYears: Set<string> = new Set();
@@ -341,6 +449,7 @@ export class StatisticsComponent implements OnInit {
       venueYears: venueYearsArray
     };
   }
+
 
   // Function to save the total number of authors per year
   statsTotalAuthorsByYear() {
@@ -1619,6 +1728,7 @@ export class StatisticsComponent implements OnInit {
       this.getPapersAndArticles();
       this.getConferencebyProceeding();
       this.getConnectedComponentsYears();
+      this.getnewComers();
 
   
       if(this.researchers.length == 0){

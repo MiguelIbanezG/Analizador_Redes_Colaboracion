@@ -105,4 +105,8 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/connectedComponetsYear`, { titulosSeleccionados, venueOrJournal});
   }
 
+  getNewComers(titulosSeleccionados: any[], venueOrJournal: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/newComers`, { titulosSeleccionados, venueOrJournal});
+  }
+
 }
