@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class StadisticsService {
 
-  public selectedTitles: any[] = [];
+  public selectedYears: any[] = [];
   public connected: any[] = [];
   public newComers: any[] = [];
   public ConferenceOrJournalName: string[] = [];
@@ -15,15 +15,15 @@ export class StadisticsService {
   public inprocedings: number[] = [];
 
   addTitles(titles: any[]) {
-    this.selectedTitles = this.selectedTitles.concat(titles);
+    this.selectedYears = this.selectedYears.concat(titles);
 }
 
   cleanTitles(){
-    this.selectedTitles = [];
+    this.selectedYears = [];
   }
 
   getSelectedTitles() {
-    return this.selectedTitles;
+    return this.selectedYears;
   }
   
   flagConferenceOrJournalName(venue: string[]) {

@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs';
 import { NetworkService } from '../services/network.service';
 import { NetworkInitService } from '../services/network.init.service';
 import { Node } from '../models/network.model'
-import { Network, DataSet, Data, Edge } from 'vis';
+import { Network, DataSet, Edge } from 'vis';
 import {ProcessedData } from '../models/comers.model'
 
 Chart.register(...registerables);
@@ -170,8 +170,9 @@ export class StatisticsComponent implements OnInit {
 
   // API CALL: Function to search for authors of conferences and journals
   getResearchersConferenceAndJournals() {
-    this.apiService.getResearchersConferenceAndJournals(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName).subscribe({
+    this.apiService.getResearchersConferenceAndJournals(this.stadisticsService.selectedYears, this.stadisticsService.ConferenceOrJournalName).subscribe({
       next: (response: any) => {
+        console.log(this.stadisticsService.ConferenceOrJournalName)
         this.researchers = [];
         this.researchers = response;
         this.statsResearchers();
@@ -189,7 +190,7 @@ export class StatisticsComponent implements OnInit {
   
   // API CALL: Function to search for papers and articles of conferences and journals
   getPapersAndArticles() {
-    this.apiService.getPapersAndArticles(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName).subscribe({
+    this.apiService.getPapersAndArticles(this.stadisticsService.selectedYears, this.stadisticsService.ConferenceOrJournalName).subscribe({
       next: (response: any) => {
         this.PapersAndArticles = response;
         if(this.PapersAndArticles.length > 0){
@@ -206,7 +207,7 @@ export class StatisticsComponent implements OnInit {
 
   // API CALL: Function to find collaborations of journals and conferences
   getCollaborations() {
-    this.apiService.getCollaborations(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName).subscribe({
+    this.apiService.getCollaborations(this.stadisticsService.selectedYears, this.stadisticsService.ConferenceOrJournalName).subscribe({
       next: (response: any) => {
         this.collaborations = response;
         this.statsColaboraciones();
@@ -220,7 +221,7 @@ export class StatisticsComponent implements OnInit {
 
   // API CALL: Function to find the conference by proceeding
   getConferencebyProceeding(){
-    this.apiService.getConferencebyProceeding(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName).subscribe({
+    this.apiService.getConferencebyProceeding(this.stadisticsService.selectedYears, this.stadisticsService.ConferenceOrJournalName).subscribe({
       next: (response: any) => {
         this.stadisticsService.ConferenceOrJournalNames = [];
         this.stadisticsService.years = [];
@@ -244,7 +245,7 @@ export class StatisticsComponent implements OnInit {
 
   // API CALL: Function to find the authors of papers and articles
   getAuthorsPapersAndArticles() {
-    this.apiService.getAuthorsPapersAndArticles(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName)
+    this.apiService.getAuthorsPapersAndArticles(this.stadisticsService.selectedYears, this.stadisticsService.ConferenceOrJournalName)
       .subscribe({
         next: async (response: any) => {
           this.singleAuthor = response;
@@ -259,7 +260,7 @@ export class StatisticsComponent implements OnInit {
 
   // API CALL: Function to find Connected Authors
   getConnectedComponents() {
-    this.apiService.getConnectedComponents(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName)
+    this.apiService.getConnectedComponents(this.stadisticsService.selectedYears, this.stadisticsService.ConferenceOrJournalName)
       .subscribe({
         next: async (response: any) => {
           this.networkInitService.authorsRelations = 0;
@@ -273,7 +274,7 @@ export class StatisticsComponent implements OnInit {
 
   // API CALL: Function to find Connected Authors by year
   getConnectedComponentsYears() {
-    this.apiService.getConnectedComponentsYears(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName)
+    this.apiService.getConnectedComponentsYears(this.stadisticsService.selectedYears, this.stadisticsService.ConferenceOrJournalName)
       .subscribe({
         next: (response: any) => {
 
@@ -302,7 +303,6 @@ export class StatisticsComponent implements OnInit {
               relations: filledRelations
             };
           });
-          console.log(this.connectedYears)
   
           this.generateChartJournalsAndVenue('lineChart9', this.connectedYears);
         },
@@ -314,7 +314,7 @@ export class StatisticsComponent implements OnInit {
 
     // API CALL: Function to find Connected Authors
     getnewComers() {
-      this.apiService.getNewComers(this.stadisticsService.selectedTitles, this.stadisticsService.ConferenceOrJournalName)
+      this.apiService.getNewComers(this.stadisticsService.selectedYears, this.stadisticsService.ConferenceOrJournalName)
         .subscribe({
           next: async (response: any) => {
             const processedData = this.processData(response);
@@ -329,12 +329,11 @@ export class StatisticsComponent implements OnInit {
     processData(data: any[]): ProcessedData {
       const processedData: ProcessedData = {};
     
-      // Primero, asegurarse de que los años estén en orden
       const sortedData = data.sort((a, b) => a.year - b.year);
     
       sortedData.forEach(entry => {
         const year = entry.year;
-        const venue = entry.VenueOrJOurnal;
+        const venue = entry.VenueOrJournal;
         const researchers = entry.researchers;
     
         if (!processedData[venue]) {
@@ -343,20 +342,16 @@ export class StatisticsComponent implements OnInit {
     
         const venueData = processedData[venue];
     
-        // Encontrar nuevos autores
         const newComers = researchers.filter((r: string) => !venueData.allResearchers.has(r));
         newComers.forEach((r: string) => venueData.allResearchers.add(r));
     
-        // Calcular nuevos autores para el año actual
         venueData.newComers[year] = newComers.length;
     
         if (Object.keys(venueData.LCC).length === 0) {
-          // Si es el primer año, LCC debe ser 0
           venueData.LCC[year] = 0;
           venueData.cumulativeNewComers = new Set([...newComers]);
         } else {
-          // Para años posteriores, sumar el número de autores acumulados hasta el año anterior
-          const previousYear = Math.max(...Object.keys(venueData.LCC).map(Number)).toString();
+
           venueData.LCC[year] = venueData.cumulativeNewComers.size;
           venueData.cumulativeNewComers = new Set([...venueData.cumulativeNewComers, ...newComers]);
         }
@@ -366,58 +361,6 @@ export class StatisticsComponent implements OnInit {
     }
     
     
-    
-    
-
-  generateNewComers(idChart: string, data: ProcessedData) {
-    const venues = Object.keys(data);
-    const years = Object.keys(data[venues[0]].newComers);
-  
-    const datasets = venues.flatMap((venue, index) => [
-      {
-        label: `NewComers-${venue}`,
-        data: years.map(year => data[venue].newComers[year] || 0),
-        fill: false,
-        borderColor: this.getRandomColor(index * 2),
-        borderWidth: 1
-      },
-      {
-        label: `LCC-${venue}`,
-        data: years.map(year => data[venue].LCC[year] || 0),
-        fill: false,
-        borderColor: this.getRandomColor(index * 2 + 1),
-        borderWidth: 1
-      }
-    ]);
-  
-    this.lineChart6 = new Chart(idChart, {
-      type: 'line',
-      data: {
-        labels: years,
-        datasets: datasets
-      },
-      options: {
-        plugins: {
-          legend: {
-            labels: {
-              color: 'black',
-              font: {
-                size: 18,
-                family: 'Roboto',
-              }
-            }
-          }
-        },
-        scales: {
-          y: {
-            type: 'linear',
-            display: true
-          }
-        },
-      }
-    });
-  }
-
   // Function to transform the response ConnectedComponentsYears
   statsData(response: any) {
     const globalYears: Set<string> = new Set();
@@ -453,7 +396,7 @@ export class StatisticsComponent implements OnInit {
 
   // Function to save the total number of authors per year
   statsTotalAuthorsByYear() {
-    const years = this.stadisticsService.selectedTitles;
+    const years = this.stadisticsService.selectedYears;
     years.sort((a, b) => parseInt(a) - parseInt(b));
     this.totalAuthorsByYear = years.map(year => {
       const totalAuthors = this.researchers.reduce((total, researcher) => {
@@ -594,7 +537,7 @@ export class StatisticsComponent implements OnInit {
 
             if(isValidFormat){
 
-              if(parts[2].includes("ER")){
+              if (this.stadisticsService.ConferenceOrJournalName.some(name => parts[2].includes(name))) {
  
                 const rowData = {
                   name: parts[0] + ',' + parts[1].trim() + '-' +  parts[2] ,
@@ -835,7 +778,7 @@ export class StatisticsComponent implements OnInit {
     this.ConferencesAndJournalAuthors = names.size;
     this.statsAuthors = [];
     this.statsAuthors = Array.from(names).map(name => {
-      const years = this.stadisticsService.selectedTitles;
+      const years = this.stadisticsService.selectedYears;
       years.sort((a, b) => parseInt(a) - parseInt(b));
       this.selectedYears = years;
       const numResearchersPorAnio = years.map(anio =>
@@ -878,8 +821,6 @@ export class StatisticsComponent implements OnInit {
         numResearchers: numPapersAndArticlesPorAnio
       };
     });
-
-    console.log(this.statsPaperAndArticle)
 
     this.generateChartJournalsAndVenue('lineChart2', this.statsPaperAndArticle);
 
@@ -1043,9 +984,6 @@ export class StatisticsComponent implements OnInit {
     const datasetsData = countries.map((country) =>
       years.map((year) => mappingDate[year][country])
     );
-    console.log(datasetsData)
-    console.log(datasetsLabels)
-    console.log(years)
 
     this.generateMultipleChart('lineChart5', years, datasetsLabels, datasetsData);
     
@@ -1367,6 +1305,56 @@ export class StatisticsComponent implements OnInit {
     }
   }
 
+  generateNewComers(idChart: string, data: ProcessedData) {
+    const venues = Object.keys(data);
+    const years = Object.keys(data[venues[0]].newComers);
+  
+    const datasets = venues.flatMap((venue, index) => [
+      {
+        label: `NewComers-${venue}`,
+        data: years.map(year => data[venue].newComers[year] || 0),
+        fill: false,
+        borderColor: this.getRandomColor(index * 2),
+        borderWidth: 1
+      },
+      {
+        label: `LCC-${venue}`,
+        data: years.map(year => data[venue].LCC[year] || 0),
+        fill: false,
+        borderColor: this.getRandomColor(index * 2 + 1),
+        borderWidth: 1
+      }
+    ]);
+  
+    this.lineChart6 = new Chart(idChart, {
+      type: 'line',
+      data: {
+        labels: years,
+        datasets: datasets
+      },
+      options: {
+        plugins: {
+          legend: {
+            labels: {
+              color: 'black',
+              font: {
+                size: 18,
+                family: 'Roboto',
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            type: 'linear',
+            display: true
+          }
+        },
+      }
+    });
+  }
+
+
   // Function to generate charts of articles and papers
   generateChartJournalsAndVenue(idChart: string, data: any[]) {
     const datasets = data.map((entry, index) => ({
@@ -1554,7 +1542,7 @@ export class StatisticsComponent implements OnInit {
 
   //Function to generate a Circular Chart of Gender
   generateCircularChart(chartId: string, labels: string[], datasetsLabels: string[], datasetsData: number[][]) {
-    const colors = ['#FF5733', '#3399FF'];
+    const colors = ['#3399FF', '#FF5733'];
 
     const datasets = datasetsLabels.map((label, index) => ({
       label: label,

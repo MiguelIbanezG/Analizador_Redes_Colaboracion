@@ -42,9 +42,9 @@
         "Papers_Articles_Conference_Journal_Year": "Documentos por conferencia y Artículos por revista / año",
         "Density_Evolution_Years": "Evolución de la densidad a lo largo de los años",
         "Single_Author_Publications_Percentage_Year": "Porcentaje de publicaciones de un solo autor / año",
-        "Distributions_Authors_Paper_Article": "Distribuciones de autores por artículo y de artículos por autor",
+        "Distributions_Authors_Paper_Article": "Distribuciones de autores por documentos y de documentos por autor",
         "Author": "Autor",
-        "Papers_Percentage": "Documentos de conferencias (%)",
+        "Papers_Percentage": "Documentos (%)",
         "Papers": "Documentos",
         "Authors_Percentage": "Autores (%)",
         "Men_Women_Publications_Percentage_Year": "Porcentaje de publicaciones Hombres-Mujeres / Año",
@@ -69,10 +69,11 @@
         "Articles": "Artículos",
         "TotalAuthors": "Total de autores por año",
         "Density":"Densidad",
-        "Single":"Artículos de un solo autor y revistas de un solo autor",
+        "Single":"Artículos de un solo autor y documentos de un solo autor",
         "Connected":"Conexiones de autores",
         "Relations":"Conexiones entre autores por año",
-        "Conexions":"Conexiones"
+        "Conexions":"Conexiones",
+        "newComers":"Número de autores recien llegados"
     },
     "Info":{
         "Information":"Información",

@@ -736,7 +736,14 @@ router.post('/newComers', async (req, res) => {
     const query = `
     MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
     WHERE v.name IN $venueAndJournalNames AND y.name IN $listOfyears
-    RETURN y.name AS year, COLLECT(DISTINCT r.name) as researchers, v.name as VenueOrJOurnal
+    RETURN y.name AS year, COLLECT(DISTINCT r.name) as researchers, v.name as VenueOrJournal
+    ORDER BY y.name
+    
+    UNION
+    
+    MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_NUMBER]->(n:Number)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
+    WHERE j.name IN $venueAndJournalNames AND y.name IN $listOfyears
+    RETURN y.name AS year, COLLECT(DISTINCT r.name) as researchers, j.name as VenueOrJournal
     ORDER BY y.name
     `;
     const result = await session.run(query, { listOfyears, venueAndJournalNames});
@@ -744,7 +751,7 @@ router.post('/newComers', async (req, res) => {
       return {
         year: record.get('year'),
         researchers: record.get('researchers'),
-        VenueOrJOurnal: record.get('VenueOrJOurnal')
+        VenueOrJournal: record.get('VenueOrJournal')
       }
     });
 

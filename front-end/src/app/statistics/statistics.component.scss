@@ -188,6 +188,14 @@ div {
   box-shadow: 0px 0px 5px 2px rgba(0, 22, 68, 0.3);
 }
 
+.flex-container-last {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: auto;
+  margin-bottom: 30px;
+}
+
 
 @media (max-width: 768px) {
 

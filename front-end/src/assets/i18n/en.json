@@ -72,7 +72,8 @@
         "Single":"Single Author Papers and Single Author Journals",
         "Connected":"Author Connections",
         "Relations":"Author Connections by year",
-        "Conexions":"Conexions"
+        "Conexions":"Conexions",
+        "newComers":"Number of Newcomers"
     },
     "Info": {
         "Information":"Information",
