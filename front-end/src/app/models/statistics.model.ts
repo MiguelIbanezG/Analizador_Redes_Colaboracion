@@ -3,6 +3,7 @@ export interface Author {
     numPublications: number;
     researcher: string;
     year: string;
+    VenueOrJournal: string;
 }
   
 export interface DecadeStats {

@@ -6,6 +6,7 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { HomeService } from '../services/home.service';
 
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
+import { NetworkInitService } from '../services/network.init.service';
 
 
 @Component({
@@ -39,6 +40,7 @@ export class HomeComponent implements OnInit {
     private modalService: BsModalService,
     public homeService: HomeService,
     private translate: TranslateService,
+    private networkService: NetworkInitService,
   ) {
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.languagePage = event.lang

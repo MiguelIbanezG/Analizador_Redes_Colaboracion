@@ -243,16 +243,15 @@ router.post('/AuthorsPapersAndArticles', async (req, res) => {
     WHERE v.name IN $venueAndJournalNames
     MATCH (v)-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(ip:Inproceeding)-[:AUTHORED_BY]->(r1:Researcher)
     WHERE y.name IN $listOfyears AND p.bookTitle IN $venueAndJournalNames
-    WITH r1, y, collect(ip.title) AS ipNames, count(distinct ip) AS numPublications
-    RETURN r1.name AS researcher, numPublications AS numPublications, y.name AS year, ipNames AS ipNames
-
+    WITH r1, y, v.name AS VenueOrJournal, collect(ip.title) AS ipNames, count(distinct ip) AS numPublications
+    RETURN r1.name AS researcher, numPublications AS numPublications, y.name AS year, VenueOrJournal AS VenueOrJournal, ipNames AS ipNames
+    
     UNION
-
-
+    
     MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_NUMBER]->(n:Number)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r1:Researcher)
     WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
-    WITH r1, y, collect(p.title) AS ipNames, count(distinct p) AS numPublications
-    RETURN r1.name AS researcher, numPublications AS numPublications, y.name AS year, ipNames AS ipNames
+    WITH r1, y, j.name AS VenueOrJournal, collect(p.title) AS ipNames, count(distinct p) AS numPublications
+    RETURN r1.name AS researcher, numPublications AS numPublications, y.name AS year, VenueOrJournal AS VenueOrJournal, ipNames AS ipNames
     `;
 
     const result = await session.run(query, { listOfyears, venueAndJournalNames });
@@ -261,7 +260,8 @@ router.post('/AuthorsPapersAndArticles', async (req, res) => {
         researcher: record.get('researcher'),
         numPublications: record.get('numPublications').low,
         year: record.get('year'),
-        ipNames: record.get('ipNames')
+        ipNames: record.get('ipNames'),
+        VenueOrJournal: record.get('VenueOrJournal')
       };
     });
 

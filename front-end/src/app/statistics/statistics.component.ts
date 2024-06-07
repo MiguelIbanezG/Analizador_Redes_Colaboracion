@@ -97,6 +97,7 @@ export class StatisticsComponent implements OnInit {
   }
 
   async ngOnInit() {
+
     this.loadCommonNames();
     this.main();
     this.languagePage = this.translateService.currentLang;
@@ -104,36 +105,12 @@ export class StatisticsComponent implements OnInit {
       this.changeLanguage(language);
     });
 
-    // this.getConnectedComponents();
 
-    // if(this.networkInitService.authorsRelations.length < 1){
-    //   await this.waitResearcherNoEmpty(); 
-    //   this.nodes = this.networkInitService.getNodesStats();
-    //   this.edges = this.networkInitService.getEdgesStats();
-    //   this.data = {
-    //     nodes: this.nodes,
-    //     edges: this.edges,
-    //   };
+    this.getConnectedComponents();
   
-    //   this.network = new Network(
-    //     this.treeContainer.nativeElement,
-    //     this.data,
-    //     this.networkService.getNetworkOptionsStats()
-    //   );
-    // } else{
-    //   this.nodes = this.networkInitService.getNodesStats();
-    //   this.edges = this.networkInitService.getEdgesStats();
-    //   this.data = {
-    //     nodes: this.nodes,
-    //     edges: this.edges,
-    //   };
+
   
-    //   this.network = new Network(
-    //     this.treeContainer.nativeElement,
-    //     this.data,
-    //     this.networkService.getNetworkOptions()
-    //   );
-    // }
+      
   }
 
   ngOnDestroy() {
@@ -172,7 +149,6 @@ export class StatisticsComponent implements OnInit {
   getResearchersConferenceAndJournals() {
     this.apiService.getResearchersConferenceAndJournals(this.stadisticsService.selectedYears, this.stadisticsService.ConferenceOrJournalName).subscribe({
       next: (response: any) => {
-        console.log(this.stadisticsService.ConferenceOrJournalName)
         this.researchers = [];
         this.researchers = response;
         this.statsResearchers();
@@ -265,6 +241,18 @@ export class StatisticsComponent implements OnInit {
         next: async (response: any) => {
           this.networkInitService.authorsRelations = 0;
           this.networkInitService.authorsRelations = response;
+          this.nodes = this.networkInitService.getNodesStats();
+          this.edges = this.networkInitService.getEdgesStats();
+          this.data = {
+            nodes: this.nodes,
+            edges: this.edges,
+          };
+      
+          this.network = new Network(
+            this.treeContainer.nativeElement,
+            this.data,
+            this.networkService.getNetworkOptionsStats()
+          );
         },
         error: (error: any) => {
           console.error('Error in getAuthorsPapers:', error);
@@ -337,7 +325,7 @@ export class StatisticsComponent implements OnInit {
         const researchers = entry.researchers;
     
         if (!processedData[venue]) {
-          processedData[venue] = { newComers: {}, LCC: {}, allResearchers: new Set<string>(), cumulativeNewComers: new Set<string>() };
+          processedData[venue] = { newComers: {}, previusComers: {}, allResearchers: new Set<string>(), cumulativeNewComers: new Set<string>() };
         }
     
         const venueData = processedData[venue];
@@ -347,12 +335,12 @@ export class StatisticsComponent implements OnInit {
     
         venueData.newComers[year] = newComers.length;
     
-        if (Object.keys(venueData.LCC).length === 0) {
-          venueData.LCC[year] = 0;
+        if (Object.keys(venueData.previusComers).length === 0) {
+          venueData.previusComers[year] = 0;
           venueData.cumulativeNewComers = new Set([...newComers]);
         } else {
 
-          venueData.LCC[year] = venueData.cumulativeNewComers.size;
+          venueData.previusComers[year] = venueData.cumulativeNewComers.size;
           venueData.cumulativeNewComers = new Set([...venueData.cumulativeNewComers, ...newComers]);
         }
       });
@@ -1009,8 +997,10 @@ export class StatisticsComponent implements OnInit {
             ipNames: author.ipNames,
             numPublications: author.numPublications,
             researcher: author.researcher,
-            year: author.year
+            year: author.year,
+            VenueOrJournal: author.VenueOrJournal,
           });
+        
         }
       }
     });
@@ -1033,7 +1023,6 @@ export class StatisticsComponent implements OnInit {
       const decadeStartYear = decade;
       const decadeEndYear = decade + 9;
       const decadeAuthors = this.filterAuthorsByDecade(this.singleAuthor, decadeStartYear, decadeEndYear);
-  
       decades.push({
         label: decadeLabel,
         startYear: decadeStartYear,
@@ -1051,6 +1040,62 @@ export class StatisticsComponent implements OnInit {
   
     return decades;
   }
+
+  // Function to generate the Decades table
+  generateTablesDecades(decadeStats: any[]){
+    const tables: { [key: string]: HTMLElement | null } = {
+        '1990s': document.querySelector('#table90 tbody'),
+        '2000s': document.querySelector('#table00 tbody'),
+        '2010s': document.querySelector('#table10 tbody'),
+        '2020s': document.querySelector('#table20 tbody'),
+    };
+
+    // Obtenemos todos los VenueOrJournal únicos
+    let uniqueVenues: Set<string> = new Set();
+    decadeStats.forEach(decade => {
+        decade.authors.forEach((autor: { VenueOrJournal: any; }) => {
+            uniqueVenues.add(autor.VenueOrJournal);
+        });
+    });
+
+    for (const decade of decadeStats) {
+        const table = tables[decade.label];
+        if (table instanceof HTMLElement) {
+            // Creamos una fila de encabezado para la tabla
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML =`<th>Autor</th>`;
+
+            // Agregamos una columna para cada VenueOrJournal único
+            uniqueVenues.forEach(venue => {
+              const th = document.createElement('th');
+              th.textContent = venue;
+              th.style.padding = '10px'; // Añade un borde derecho
+              headerRow.appendChild(th);
+          });
+
+            headerRow.style.fontSize = '1.2em';
+            // Agregamos la fila de encabezado a la tabla
+            table.appendChild(headerRow);
+
+            decade.authors.slice(0, 100).forEach((autor: { researcher: any; numPublications: any; VenueOrJournal: any; }) => {
+                // Creamos una fila para cada autor
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${autor.researcher}</td>`;
+
+                // Para cada VenueOrJournal, determinamos el número de publicaciones del autor en ese VenueOrJournal
+                uniqueVenues.forEach(venue => {
+                    const numPublications = decade.authors.filter((a: { VenueOrJournal: any; }) => a.VenueOrJournal === venue)
+                        .reduce((acc: number, curr: { numPublications: number; }) => acc + curr.numPublications, 0);
+                    row.innerHTML += `<td>${autor.VenueOrJournal === venue ? autor.numPublications : 0}</td>`;
+                });
+
+                // Agregamos la fila a la tabla
+                table.appendChild(row);
+            });
+        }
+    }
+}
+  
 
   // Function to generate the Degree table and save the degree of authors
   statsDegreeAuthors(selectedYears: number[]) {
@@ -1155,27 +1200,6 @@ export class StatisticsComponent implements OnInit {
   }
 
 
-  // Function to generate the Decades table
-  generateTablesDecades(decadeStats: any[]){
-    const tables: { [key: string]: HTMLElement | null } = {
-      '1990s': document.querySelector('#table90 tbody'),
-      '2000s': document.querySelector('#table00 tbody'),
-      '2010s': document.querySelector('#table10 tbody'),
-      '2020s': document.querySelector('#table20 tbody'),
-    };
-    for (const decade of decadeStats) {
-      const table = tables[decade.label];
-  
-      if (table instanceof HTMLElement) {
-        decade.authors.slice(0, 20).forEach((autor: { researcher: any; numPublications: any; year: any; }) => {
-          const row = document.createElement('tr');
-          row.innerHTML = `<td>${autor.researcher}</td><td>${autor.numPublications}</td>`;
-  
-          table.appendChild(row);
-        });
-      }
-    }
-  }
 
   // Function to generate charts of authors
   generateTotalAuthorsChart(idChart: string, label: string, data: any[]) {
@@ -1318,8 +1342,8 @@ export class StatisticsComponent implements OnInit {
         borderWidth: 1
       },
       {
-        label: `LCC-${venue}`,
-        data: years.map(year => data[venue].LCC[year] || 0),
+        label: `PreviusComers-${venue}`,
+        data: years.map(year => data[venue].previusComers[year] || 0),
         fill: false,
         borderColor: this.getRandomColor(index * 2 + 1),
         borderWidth: 1
@@ -1694,12 +1718,6 @@ export class StatisticsComponent implements OnInit {
 
   async waitSingleAuthorsNoEmpty(){
     while (!this.singleAuthor || this.singleAuthor.length === 0) {
-      await new Promise(resolve => setTimeout(resolve, 100)); 
-    }
-  }
-
-  async waitNetwork(){
-    while (this.networkInitService.authorsRelations.length < 1) {
       await new Promise(resolve => setTimeout(resolve, 100)); 
     }
   }

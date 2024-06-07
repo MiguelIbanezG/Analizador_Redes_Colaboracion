@@ -84,9 +84,9 @@
         "Institution": "Institución",
         "NumberAuthors": "Número de Autores",
         "NumberConferencesYear": "Número de Conferencias por Año",
-        "NumberAuthorYear": "Número de Autores por Año",
+        "NumberAuthorsYear": "Número de Autores por Año",
         "NumberJournalsYear": "Número de Revistas por Año",
-        "AllNumbers": "Número de Conferencias y Artículos de Taller, Artículos de Revista y Libros y Tesis por Año",
+        "AllNumbers": "Número de Conferencias y Documentos de conferencia, Artículos de Revista y Libros y Tesis por Año",
         "JournalArticle":"Articulos de Revista",
         "Conferences":"Conferencias y documentos",
         "BookandThesis":"Libros y tesis",
@@ -98,10 +98,10 @@
         "NotFound":"Author not found",
         "AlreadySelected": "Este Autor ya está seleccionado",
         "JournalArticle": "Artículo de Revista",
-        "WorkshopPaper": "Artículo de Taller",
-        "PartinBooks": "Parte en Libros o Colección",
+        "WorkshopPaper": "Documentos de conferencia",
+        "PartinBooks": "Sección de un Libros o Colección",
         "Publications": "Publicaciones",
-        "AuthorsName": "Nombre de los Autores"
+        "AuthorsName": "Autores"
     },
     "Network": {
         "CollaborationNetwork": "Red de Colaboración",

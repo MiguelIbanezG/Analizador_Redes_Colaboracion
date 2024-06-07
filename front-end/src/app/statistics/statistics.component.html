@@ -190,73 +190,41 @@
   <h3 class="special">{{ "Statistics.Most_Prolific_Authors_Decade" | translate }}</h3>
   <div class="container-table">
     <div class="table">
+      <div class="tableDecades">  
+        1989-1999
+        <hr>
+      </div>
       <table id="table90">
-        <thead>
-          <tr>
-            <th colspan="2">
-              (a) 1989-1999
-            </th>
-          </tr>
-          <hr>
-          <tr>
-            <th>{{ "Statistics.Author" | translate }}</th>
-            <th>#</th>
-          </tr>
-        </thead>
         <tbody></tbody>
       </table>
     </div>
     <div class="line2"></div>
     <div class="table">
+      <div class="tableDecades">  
+        1999-2009
+        <hr>
+      </div>
       <table id="table00">
-        <thead>
-          <tr>
-            <th colspan="2">
-              (b) 1999-2009
-            </th>
-          </tr>
-          <hr>
-          <tr>
-            <th>{{ "Statistics.Author" | translate }}</th>
-            <th>#</th>
-          </tr>
-        </thead>
         <tbody></tbody>
       </table>
     </div>
     <div class="line2"></div>
     <div class="table">
-      <table id="table10" class="centered-table">
-        <thead>
-          <tr>
-            <th colspan="2">
-              (a) 2009-2019
-            </th>
-          </tr>
-          <hr>
-          <tr>
-            <th>{{ "Statistics.Author" | translate }}</th>
-            <th>#</th>
-          </tr>
-        </thead>
+      <div class="tableDecades">  
+        2009-2019
+        <hr>
+      </div>
+      <table id="table10">
         <tbody></tbody>
       </table>
     </div>
     <div class="line2"></div>
     <div class="table">
-      <table id="table20" class="centered-table">
-        <thead>
-          <tr>
-            <th colspan="2">
-              (a) 2019-2024
-            </th>
-          </tr>
-          <hr>
-          <tr>
-            <th>{{ "Statistics.Author" | translate }}</th>
-            <th>#</th>
-          </tr>
-        </thead>
+      <div class="tableDecades">  
+        2019-2024
+        <hr>
+      </div>
+      <table id="table20">
         <tbody></tbody>
       </table>
     </div>
@@ -309,7 +277,7 @@
   <hr class="line" [hidden]="PapersAndArticles.length < 1">
 
   <h3>{{ "Statistics.Connected" | translate }}</h3>
-  <!-- <div class="network" #treeContainer></div> -->
+  <div class="network" #treeContainer></div>
 
   <hr class="line">
 
