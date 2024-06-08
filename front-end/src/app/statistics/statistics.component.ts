@@ -16,7 +16,7 @@ import { NetworkService } from '../services/network.service';
 import { NetworkInitService } from '../services/network.init.service';
 import { Node } from '../models/network.model'
 import { Network, DataSet, Edge } from 'vis';
-import {ProcessedData } from '../models/comers.model'
+import {NewComersLCC } from '../models/comers.model'
 
 Chart.register(...registerables);
 
@@ -105,11 +105,9 @@ export class StatisticsComponent implements OnInit {
       this.changeLanguage(language);
     });
 
-
+    this.networkInitService.getLargestConnectedComponent();
+    this.getnewComers();
     this.getConnectedComponents();
-  
-
-  
       
   }
 
@@ -241,6 +239,7 @@ export class StatisticsComponent implements OnInit {
         next: async (response: any) => {
           this.networkInitService.authorsRelations = 0;
           this.networkInitService.authorsRelations = response;
+          // this.networkInitService.getLargestConnectedComponent();
           this.nodes = this.networkInitService.getNodesStats();
           this.edges = this.networkInitService.getEdgesStats();
           this.data = {
@@ -253,6 +252,7 @@ export class StatisticsComponent implements OnInit {
             this.data,
             this.networkService.getNetworkOptionsStats()
           );
+
         },
         error: (error: any) => {
           console.error('Error in getAuthorsPapers:', error);
@@ -266,7 +266,7 @@ export class StatisticsComponent implements OnInit {
       .subscribe({
         next: (response: any) => {
 
-          const { labels, datasets, venueYears } = this.statsData(response);
+          const { labels, datasets, venueYears } = this.statsConnectedComponets(response);
           
           const allYears = new Set<string>();
           Object.values(venueYears).forEach(years => {
@@ -305,8 +305,8 @@ export class StatisticsComponent implements OnInit {
       this.apiService.getNewComers(this.stadisticsService.selectedYears, this.stadisticsService.ConferenceOrJournalName)
         .subscribe({
           next: async (response: any) => {
-            const processedData = this.processData(response);
-            this.generateNewComers('lineChart10', processedData);
+            const newComersLCCdata = this.NewComersLCCstats(response);
+            this.generateNewComers('lineChart10', newComersLCCdata);
           },
           error: (error: any) => {
             console.error('Error in getAuthorsPapers:', error);
@@ -314,10 +314,10 @@ export class StatisticsComponent implements OnInit {
         });
     }
 
-    processData(data: any[]): ProcessedData {
-      const processedData: ProcessedData = {};
+    NewComersLCCstats(newComersLCCdata: any[]): NewComersLCC {
+      const processedData: NewComersLCC = {};
     
-      const sortedData = data.sort((a, b) => a.year - b.year);
+      const sortedData = newComersLCCdata.sort((a, b) => a.year - b.year);
     
       sortedData.forEach(entry => {
         const year = entry.year;
@@ -325,7 +325,7 @@ export class StatisticsComponent implements OnInit {
         const researchers = entry.researchers;
     
         if (!processedData[venue]) {
-          processedData[venue] = { newComers: {}, previusComers: {}, allResearchers: new Set<string>(), cumulativeNewComers: new Set<string>() };
+          processedData[venue] = { newComers: {}, LCC: {}, allResearchers: new Set<string>(), cumulativeNewComers: new Set<string>() };
         }
     
         const venueData = processedData[venue];
@@ -334,15 +334,23 @@ export class StatisticsComponent implements OnInit {
         newComers.forEach((r: string) => venueData.allResearchers.add(r));
     
         venueData.newComers[year] = newComers.length;
-    
-        if (Object.keys(venueData.previusComers).length === 0) {
-          venueData.previusComers[year] = 0;
-          venueData.cumulativeNewComers = new Set([...newComers]);
-        } else {
 
-          venueData.previusComers[year] = venueData.cumulativeNewComers.size;
-          venueData.cumulativeNewComers = new Set([...venueData.cumulativeNewComers, ...newComers]);
+        const yearRelations = this.connectedYears.find((connectedYear: any) => connectedYear.name === venue);
+
+        if (yearRelations) {
+            const yearIndex = yearRelations.years.indexOf(year.toString()); 
+            if (yearIndex !== -1 && yearIndex < yearRelations.relations.length) {
+                const relationsOfYear = yearRelations.relations[yearIndex];
+                const newComersInYear = venueData.newComers[year]; 
+                var LCCSize = relationsOfYear - newComersInYear;
+                if(LCCSize < 1){
+                  LCCSize = 0;
+                }
+                
+                venueData.LCC[year] = LCCSize;
+            }  
         }
+
       });
     
       return processedData;
@@ -350,7 +358,7 @@ export class StatisticsComponent implements OnInit {
     
     
   // Function to transform the response ConnectedComponentsYears
-  statsData(response: any) {
+  statsConnectedComponets(response: any) {
     const globalYears: Set<string> = new Set();
     const venueYears: { [key: string]: Set<string> } = {};
     const datasets: { [key: string]: number[] } = {};
@@ -1069,7 +1077,7 @@ export class StatisticsComponent implements OnInit {
             uniqueVenues.forEach(venue => {
               const th = document.createElement('th');
               th.textContent = venue;
-              th.style.padding = '10px'; // Añade un borde derecho
+              th.style.padding = '5px'; // Añade un borde derecho
               headerRow.appendChild(th);
           });
 
@@ -1122,9 +1130,11 @@ export class StatisticsComponent implements OnInit {
         row.innerHTML = `
   
                          <td >${author.researcher}</td>
-                         <td style="padding-left: 50px" >${author.numPublications}</td>
-                         <td style="padding-left: 50px">${minYear}</td> 
-                         <td style="padding-left: 80px">${maxYear}</td>`;
+                         <td >${author.numPublications}</td>
+                         <td >${minYear}</td> 
+                         <td >${maxYear}</td>
+                         <td >${author.VenueOrJournal}</td>`;
+        
   
         table.appendChild(row);
       }
@@ -1329,7 +1339,7 @@ export class StatisticsComponent implements OnInit {
     }
   }
 
-  generateNewComers(idChart: string, data: ProcessedData) {
+  generateNewComers(idChart: string, data: NewComersLCC) {
     const venues = Object.keys(data);
     const years = Object.keys(data[venues[0]].newComers);
   
@@ -1342,8 +1352,8 @@ export class StatisticsComponent implements OnInit {
         borderWidth: 1
       },
       {
-        label: `PreviusComers-${venue}`,
-        data: years.map(year => data[venue].previusComers[year] || 0),
+        label: `LCC-${venue}`,
+        data: years.map(year => data[venue].LCC[year] || 0),
         fill: false,
         borderColor: this.getRandomColor(index * 2 + 1),
         borderWidth: 1
@@ -1734,7 +1744,7 @@ export class StatisticsComponent implements OnInit {
       this.getPapersAndArticles();
       this.getConferencebyProceeding();
       this.getConnectedComponentsYears();
-      this.getnewComers();
+  
 
   
       if(this.researchers.length == 0){

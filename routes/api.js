@@ -274,35 +274,6 @@ router.post('/AuthorsPapersAndArticles', async (req, res) => {
   }
 });
 
-// Query to find the authors' degree by year
-router.post('/AuthorsDegree', async (req, res) => {
-  const listOfyears = req.body.titulosSeleccionados;
-  const session = driver.session({ database: 'neo4j' });
-
-  try {
-    const query = `
-        MATCH (y:Year)-[:HAS_PROCEEDING]->(p:Proceeding)-[:HAS_IN_PROCEEDING]->(ip:Inproceeding)-[:AUTHORED_BY]->(r:Researcher)
-        WHERE y.name IN $listOfyears
-        RETURN r.name AS researcher, degree(r) AS degree
-      `;
-
-    const result = await session.run(query, { listOfyears });
-    const autxgrade = result.records.map(record => {
-      return {
-        researcher: record.get('researcher'),
-        degree: record.get('degree').low,
-      };
-    });
-
-    res.json(autxgrade);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al obtener la centralidad de grado de los autores', details: error.message });
-  } finally {
-    session.close();
-  }
-});
-
 // Query to find the name and country of the institutions by author
 router.post('/schools', async (req, res) => {
   const session = driver.session({ database: 'neo4j' });

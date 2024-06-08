@@ -73,7 +73,8 @@
         "Connected":"Conexiones de autores",
         "Relations":"Conexiones entre autores por año",
         "Conexions":"Conexiones",
-        "newComers":"Número de autores recien llegados"
+        "newComers":"Número de autores recien llegados",
+        "VenueOrJournal":"Mayor número de publicaciones en"
     },
     "Info":{
         "Information":"Información",

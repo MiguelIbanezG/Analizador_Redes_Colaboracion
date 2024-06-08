@@ -15,8 +15,9 @@ export class NetworkInitService {
   public cluster: { min: number, max: number} =  { min: 1, max: 100}
   private distances: { [key: string]: number } = {};
 
-  public connexions:any = [];
+
   public authorsRelations:any = [];
+  public LCC:any = [];
 
   // Function to create Nodes
   getNodes(): DataSet<Node> {
@@ -236,48 +237,85 @@ export class NetworkInitService {
 
   getNodesStats(): DataSet<Node>{
 
-    const nodesArray: Node[] = this.authorsRelations.map((author: any, index: number) => ({
+    const nodesArray: Node[] = this.LCC.map((author: any, index: number) => ({
       id: index + 1, 
       label: "",
       x: random(-1700, 1700), 
       y: random(-900, 900), 
     }));
 
-
     return new DataSet(nodesArray)
   }
 
-getEdgesStats(): DataSet<Edge> {
-  const edgesArray: Edge[] = [];
-  const authorIdMap: { [key: string]: number } = {};
+  getEdgesStats(): DataSet<Edge> {
+    const edgesArray: Edge[] = [];
+    const authorIdMap: { [key: string]: number } = {};
 
-  this.authorsRelations.forEach((author: any, index: number) => {
-    const authorName = author.author;
-    authorIdMap[authorName] = index + 1;
+    this.LCC.forEach((author: any, index: number) => {
+      const authorName = author.author;
+      authorIdMap[authorName] = index + 1;
 
-    author.coAuthors.forEach((coAuthorName: string) => {
-      if (!authorIdMap[coAuthorName]) {
-        authorIdMap[coAuthorName] = Object.keys(authorIdMap).length + 1;
-      }
+      author.coAuthors.forEach((coAuthorName: string) => {
+        if (!authorIdMap[coAuthorName]) {
+          authorIdMap[coAuthorName] = Object.keys(authorIdMap).length + 1;
+        }
+      });
     });
-  });
 
-  this.authorsRelations.forEach((author: any) => {
-    const fromId = authorIdMap[author.author];
-    author.coAuthors.forEach((coAuthorName: string) => {
-      const toId = authorIdMap[coAuthorName];
-      if (fromId && toId) {
-        edgesArray.push({
-          from: fromId,
-          to: toId,
-        });
-      }
+    this.LCC.forEach((author: any) => {
+      const fromId = authorIdMap[author.author];
+      author.coAuthors.forEach((coAuthorName: string) => {
+        const toId = authorIdMap[coAuthorName];
+        if (fromId && toId) {
+          edgesArray.push({
+            from: fromId,
+            to: toId,
+          });
+        }
+      });
     });
-  });
 
-  return new DataSet(edgesArray);
-}
+    return new DataSet(edgesArray);
+  }
 
+  getLargestConnectedComponent(): any[] {
+    const authorMap: { [author: string]: Set<string> } = {};
+
+    for (const relation of  this.authorsRelations) {
+        authorMap[relation.author] = new Set(relation.coAuthors);
+        authorMap[relation.author].add(relation.author); 
+    }
+
+    function dfs(author: string, visited: Set<string>): string[] {
+        visited.add(author);
+        const connectedAuthors: string[] = [author];
+        for (const coAuthor of authorMap[author]) {
+            if (!visited.has(coAuthor)) {
+                connectedAuthors.push(...dfs(coAuthor, visited));
+            }
+        }
+        return connectedAuthors;
+    }
+
+    let largestComponent: string[] = [];
+    const visitedAuthors: Set<string> = new Set();
+
+    for (const author of Object.keys(authorMap)) {
+        if (!visitedAuthors.has(author)) {
+            const connectedComponent = dfs(author, new Set());
+            if (connectedComponent.length > largestComponent.length) {
+                largestComponent = connectedComponent;
+            }
+        }
+    }
+
+    this.LCC = this.authorsRelations.filter((relation: { author: string; coAuthors: any[]; }) =>
+        largestComponent.includes(relation.author) ||
+        relation.coAuthors.some(coAuthor => largestComponent.includes(coAuthor))
+    );
+
+    return this.LCC;
+  }
 
 }
 

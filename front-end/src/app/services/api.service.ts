@@ -45,10 +45,6 @@ export class ApiService {
      return this.http.post<any>(`${this.baseUrl}/AuthorsPapersAndArticles`, { titulosSeleccionados, venueOrJournal });
   }
 
-  getAuthorsDegree(titulosSeleccionados: any[], option: string, venueOrJournal: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/AuthorsDegree`, { titulosSeleccionados, option, venueOrJournal });
-  }
-
   getPublicationsbyYear(): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/searchPublications`, {});
   }
