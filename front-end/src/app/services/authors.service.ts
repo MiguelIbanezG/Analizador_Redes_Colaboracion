@@ -1,18 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: "root",
 })
 export class AuthorsService {
+  private authors: string[] = [];
 
-    private authors: string[] = []
+  get Authors() {
+    return this.authors;
+  }
 
-    get Authors() {
-        return this.authors;
-    }
-
-    set Authors(authors: string[]) {
-        this.authors = authors;
-    }
-
+  set Authors(authors: string[]) {
+    this.authors = authors;
+  }
 }

@@ -1,48 +1,81 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { Observable } from "rxjs";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class ApiService {
-  private baseUrl = 'http://localhost:3000/api';
+  private baseUrl = "http://localhost:3000/api";
 
   constructor(private http: HttpClient) {}
 
   autocompleteConferenceAndJournals(term: string): Observable<string[]> {
-    const params = new HttpParams().set('term', term);
-    return this.http.get<string[]>(`${this.baseUrl}/autocompleteConferenceAndJournals/${term}`, { params });
+    const params = new HttpParams().set("term", term);
+    return this.http.get<string[]>(
+      `${this.baseUrl}/autocompleteConferenceAndJournals/${term}`,
+      { params }
+    );
   }
 
   autocompleteAuthors(term: string): Observable<string[]> {
-    const params = new HttpParams().set('term', term);
-    return this.http.get<string[]>(`${this.baseUrl}/autocompleteAuthor/${term}`, { params });
+    const params = new HttpParams().set("term", term);
+    return this.http.get<string[]>(
+      `${this.baseUrl}/autocompleteAuthor/${term}`,
+      { params }
+    );
   }
 
   getFilteredNodesConference(filtros: string[]): Observable<string[]> {
-    return this.http.post<string[]>(`${this.baseUrl}/filterConferences`, { filterNames: filtros });
+    return this.http.post<string[]>(`${this.baseUrl}/filterConferences`, {
+      filterNames: filtros,
+    });
   }
 
   getFilteredNodesJournal(filtros: string[]): Observable<string[]> {
-    return this.http.post<string[]>(`${this.baseUrl}/filterJournals`, { filterNames: filtros });
+    return this.http.post<string[]>(`${this.baseUrl}/filterJournals`, {
+      filterNames: filtros,
+    });
   }
 
-  getResearchersConferenceAndJournals(titulosSeleccionados: any[], venueOrJournal: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/researchers`, { titulosSeleccionados, venueOrJournal});
+  getResearchersConferenceAndJournals(
+    titulosSeleccionados: any[],
+    venueOrJournal: string[]
+  ): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/researchers`, {
+      titulosSeleccionados,
+      venueOrJournal,
+    });
   }
 
-  getPapersAndArticles(titulosSeleccionados: any[], venueOrJournal: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/PapersAndArticles`, { titulosSeleccionados, venueOrJournal });
+  getPapersAndArticles(
+    titulosSeleccionados: any[],
+    venueOrJournal: string[]
+  ): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/PapersAndArticles`, {
+      titulosSeleccionados,
+      venueOrJournal,
+    });
   }
 
-  getCollaborations(titulosSeleccionados: any[], venueOrJournal: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/collaborations`, { titulosSeleccionados, venueOrJournal });
+  getCollaborations(
+    titulosSeleccionados: any[],
+    venueOrJournal: string[]
+  ): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/collaborations`, {
+      titulosSeleccionados,
+      venueOrJournal,
+    });
   }
 
-  getAuthorsPapersAndArticles(titulosSeleccionados: any[], venueOrJournal: string[]): Observable<any> {
-     return this.http.post<any>(`${this.baseUrl}/AuthorsPapersAndArticles`, { titulosSeleccionados, venueOrJournal });
+  getAuthorsPapersAndArticles(
+    titulosSeleccionados: any[],
+    venueOrJournal: string[]
+  ): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/AuthorsPapersAndArticles`, {
+      titulosSeleccionados,
+      venueOrJournal,
+    });
   }
 
   getPublicationsbyYear(): Observable<any> {
@@ -80,29 +113,56 @@ export class ApiService {
   getSchools(): Observable<any[]> {
     return this.http.post<any[]>(`${this.baseUrl}/schools`, {});
   }
-  
-  getConferencebyProceeding(titulosSeleccionados: any[], venueOrJournal: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/ConferencebyProceeding`, { titulosSeleccionados, venueOrJournal });
+
+  getConferencebyProceeding(
+    titulosSeleccionados: any[],
+    venueOrJournal: string[]
+  ): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/ConferencebyProceeding`, {
+      titulosSeleccionados,
+      venueOrJournal,
+    });
   }
 
   getAuthorsPublications(filterNames: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/filterAuthors`, { filterNames });
+    return this.http.post<any>(`${this.baseUrl}/filterAuthors`, {
+      filterNames,
+    });
   }
 
   getNetworksAuthor(filterNames: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/networkAuthors`, { filterNames });
+    return this.http.post<any>(`${this.baseUrl}/networkAuthors`, {
+      filterNames,
+    });
   }
 
-  getConnectedComponents(titulosSeleccionados: any[], venueOrJournal: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/connectedComponets`, { titulosSeleccionados, venueOrJournal});
+  getConnectedComponents(
+    titulosSeleccionados: any[],
+    venueOrJournal: string[]
+  ): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/connectedComponets`, {
+      titulosSeleccionados,
+      venueOrJournal,
+    });
   }
 
-  getConnectedComponentsYears(titulosSeleccionados: any[], venueOrJournal: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/connectedComponetsYear`, { titulosSeleccionados, venueOrJournal});
+  getConnectedComponentsYears(
+    titulosSeleccionados: any[],
+    venueOrJournal: string[]
+  ): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/connectedComponetsYear`, {
+      titulosSeleccionados,
+      venueOrJournal,
+    });
   }
 
-  getNewComers(titulosSeleccionados: any[], venueOrJournal: string[]): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/newComers`, { titulosSeleccionados, venueOrJournal});
+  getNewComers(
+    titulosSeleccionados: any[],
+    venueOrJournal: string[]
+  ): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/newComers`, {
+      titulosSeleccionados,
+      venueOrJournal,
+    });
   }
-
 }

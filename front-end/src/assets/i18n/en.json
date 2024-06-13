@@ -26,6 +26,7 @@
         "FilterYears":"Filter by years",
         "FilterDecades":"Filter by decades",
         "GenerateStats":"Generate Stats",
+        "Enter":"Enter the Conference or Journal",
         "HowGenerateStatistics":"How do I generate statistics for journals and conferences?",
         "CreateFirstStep":"First step: Write the conference or journal you want to search, then press the add button that appears next to the conference or journal you want.",
         "CreateSecondStep":"Second step: Click on the filter by years button or on the filter by decades button.",
@@ -78,10 +79,10 @@
     },
     "Info": {
         "Information":"Information",
-        "TotalPublications": "Total of Publications",
-        "TotalAuthors": "Total of Authors",
-        "TotalConferences": "Total of Conferences",
-        "TotalJournals": "Total of Journals",
+        "TotalPublications": "Nº Total of Publications",
+        "TotalAuthors": "Nº Total of Authors",
+        "TotalConferences": "Nº Total of Conferences",
+        "TotalJournals": "Nº Total of Journals",
         "Institution": "Institution",
         "NumberAuthors": "Number of Authors",
         "NumberConferencesYear": "Number of Conferences by Year",
@@ -102,7 +103,8 @@
         "WorkshopPaper": "Workshop Paper",
         "PartinBooks": "Part in Books or Collection",
         "Publications": "Publications",
-        "AuthorsName": "Authors Name"
+        "AuthorsName": "Authors Name",
+        "Enter":"Enter the Author"
     },
     "Network": {
         "CollaborationNetwork": "Collaboration Network",
@@ -112,8 +114,10 @@
         "Selections": "Selections",
         "Selected node": "Selected node",
         "CommonPublications": "Common publications of",
-        "TheseAuthors": "These authors have",
+        "These": "These",
+        "TheseAuthors": "authors have",
         "PublicationsInCommon": "publications in common with",
-        "SelectedEdge": "Selected edge"
+        "SelectedEdge": "Selected edge",
+        "from":"from"
     }
 }

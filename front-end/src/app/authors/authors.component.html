@@ -45,7 +45,7 @@
 
     <!-- Search Conference -->
     <div class="box-conference">
-      <input type="text" [(ngModel)]="filtersBOX" placeholder="Enter the Author" (input)="autocompleteAuthor(filtersBOX)">
+      <input type="text" [(ngModel)]="filtersBOX" [placeholder]="'Author.Enter' | translate" (input)="autocompleteAuthor(filtersBOX)">
       <button class="button-add" (click)="completeSuggestion(filtersBOX)" type="button">{{ "Common.Add" | translate }}</button>
       
       <!-- Not found result -->

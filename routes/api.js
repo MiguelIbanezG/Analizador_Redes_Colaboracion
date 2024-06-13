@@ -1,14 +1,16 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const neo4j = require('neo4j-driver');
+const neo4j = require("neo4j-driver");
 
-const driver = neo4j.driver('bolt://localhost:7687', neo4j.auth.basic('neo4j', 'Miki22santa'), { encrypted: 'ENCRYPTION_OFF' });
+const driver = neo4j.driver(
+  "bolt://localhost:7687",
+  neo4j.auth.basic("neo4j", "B6jh8J7OL0"),
+  { encrypted: "ENCRYPTION_OFF" }
+);
 
-
-// Query to autocomplete in search engine
-router.get('/autocompleteConferenceAndJournals/:term', async (req, res) => {
-  const searchTerm = req.params.term; 
-  const session = driver.session({ database: 'neo4j' });
+router.get("/autocompleteConferenceAndJournals/:term", async (req, res) => {
+  const searchTerm = req.params.term;
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -27,21 +29,27 @@ router.get('/autocompleteConferenceAndJournals/:term', async (req, res) => {
       LIMIT 3
     `;
     const result = await session.run(query, { searchTerm });
-    const venues = result.records.map(record => record.get('venueAndJournalNames'));
+    const venues = result.records.map((record) =>
+      record.get("venueAndJournalNames")
+    );
 
     res.json(venues);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in autocompleteConference', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error in autocompleteConference",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-// Query to autocomplete in search engine
-router.get('/autocompleteAuthor/:term', async (req, res) => {
-  const searchTerm = req.params.term; 
-  const session = driver.session({ database: 'neo4j' });
+router.get("/autocompleteAuthor/:term", async (req, res) => {
+  const searchTerm = req.params.term;
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -51,22 +59,25 @@ router.get('/autocompleteAuthor/:term', async (req, res) => {
     LIMIT 6
     `;
     const result = await session.run(query, { searchTerm });
-    const author = result.records.map(record => record.get('authorName'));
+    const author = result.records.map((record) => record.get("authorName"));
 
     res.json(author);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in autocompleteConference', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error in autocompleteConference",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-
-// Query to find the conferences
-router.post('/filterConferences', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
-  const filterNames = req.body.filterNames; 
+router.post("/filterConferences", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
+  const filterNames = req.body.filterNames;
 
   try {
     const query = `
@@ -75,25 +86,26 @@ router.post('/filterConferences', async (req, res) => {
       RETURN DISTINCT a.name as year
     `;
     const result = await session.run(query, { filterNames });
-    const years = result.records.map(record => {
-      const yearNode = record.get('year');
+    const years = result.records.map((record) => {
+      const yearNode = record.get("year");
       return yearNode;
     });
 
     res.json(years);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in filterConferences', details: error.message });
+    res
+      .status(500)
+      .json({ error: "Error in filterConferences", details: error.message });
   } finally {
     session.close();
   }
 });
 
-// Query to find the conferences
-router.post('/filterJournals', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
-  const filterNames = req.body.filterNames; 
- 
+router.post("/filterJournals", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
+  const filterNames = req.body.filterNames;
+
   try {
     const query = `
       MATCH (v:Journal)-[:PUBLISHED_IN]->(a:Year)
@@ -101,26 +113,26 @@ router.post('/filterJournals', async (req, res) => {
       RETURN DISTINCT a.name as year
     `;
     const result = await session.run(query, { filterNames });
-    const years = result.records.map(record => {
-      const yearNode = record.get('year');
+    const years = result.records.map((record) => {
+      const yearNode = record.get("year");
       return yearNode;
     });
 
     res.json(years);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in filterJournals', details: error.message });
+    res
+      .status(500)
+      .json({ error: "Error in filterJournals", details: error.message });
   } finally {
     session.close();
   }
 });
 
-// Query to search the authors of the conferences by year
-router.post('/researchers', async (req, res) => {
+router.post("/researchers", async (req, res) => {
   const venueAndJournalNames = req.body.venueOrJournal;
   const listOfyears = req.body.titulosSeleccionados;
-  const session = driver.session({ database: 'neo4j' });
-
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -135,28 +147,35 @@ router.post('/researchers', async (req, res) => {
     RETURN r AS researcher, COLLECT(DISTINCT y.name) AS years, j.name AS name
 
     `;
-    const result = await session.run(query, { listOfyears, venueAndJournalNames});
-    const researchers = result.records.map(record => {
+    const result = await session.run(query, {
+      listOfyears,
+      venueAndJournalNames,
+    });
+    const researchers = result.records.map((record) => {
       return {
-        researcher: record.get('researcher'),
-        years: record.get('years'),
-        name: record.get('name'),
+        researcher: record.get("researcher"),
+        years: record.get("years"),
+        name: record.get("name"),
       };
     });
     res.json(researchers);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener los Researchers', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error al obtener los Researchers",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-// Query to find the papers by year
-router.post('/PapersAndArticles', async (req, res) => {
+router.post("/PapersAndArticles", async (req, res) => {
   const listOfyears = req.body.titulosSeleccionados;
   const venueAndJournalNames = req.body.venueOrJournal;
-  const session = driver.session({ database: 'neo4j' });
+  const session = driver.session({ database: "neo4j" });
 
   try {
     query = `
@@ -170,31 +189,37 @@ router.post('/PapersAndArticles', async (req, res) => {
       WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
       RETURN toInteger(count(p)) AS numPapersAndArticles, y.name AS yearName, j.name AS name, "Article" AS type
       `;
-    const result = await session.run(query, { listOfyears, venueAndJournalNames });
-    const papersAndarticles = result.records.map(record => {
+    const result = await session.run(query, {
+      listOfyears,
+      venueAndJournalNames,
+    });
+    const papersAndarticles = result.records.map((record) => {
       return {
-        numPapersAndArticles: record.get('numPapersAndArticles'),
-        year: record.get('yearName'),
-        name: record.get('name'),
-        type: record.get('type'),
+        numPapersAndArticles: record.get("numPapersAndArticles"),
+        year: record.get("yearName"),
+        name: record.get("name"),
+        type: record.get("type"),
       };
     });
 
     res.json(papersAndarticles);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener las Publicaciones', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error al obtener las Publicaciones",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-
-// Query to find collaborations by year
-router.post('/collaborations', async (req, res) => {
+router.post("/collaborations", async (req, res) => {
   const listOfyears = req.body.titulosSeleccionados;
   const venueAndJournalNames = req.body.venueOrJournal;
-  const session = driver.session({ database: 'neo4j' });
+  const session = driver.session({ database: "neo4j" });
 
   try {
     let query = `
@@ -214,28 +239,32 @@ router.post('/collaborations', async (req, res) => {
     RETURN y.name AS year, toFloat(size(apoc.coll.flatten(collect(distinct(numpColaboraciones))))) AS totalColaboraciones
     
     `;
-    const result = await session.run(query, { listOfyears, venueAndJournalNames });
-    const colaboraciones = result.records.map(record => {
+    const result = await session.run(query, {
+      listOfyears,
+      venueAndJournalNames,
+    });
+    const colaboraciones = result.records.map((record) => {
       return {
-        numColabs: record.get('totalColaboraciones'),
-        year: record.get('year')
+        numColabs: record.get("totalColaboraciones"),
+        year: record.get("year"),
       };
     });
-  
+
     res.json(colaboraciones);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in Researchers', details: error.message });
+    res
+      .status(500)
+      .json({ error: "Error in Researchers", details: error.message });
   } finally {
     session.close();
   }
 });
 
-// Query to find the author of the papers by year
-router.post('/AuthorsPapersAndArticles', async (req, res) => {
+router.post("/AuthorsPapersAndArticles", async (req, res) => {
   const listOfyears = req.body.titulosSeleccionados;
   const venueAndJournalNames = req.body.venueOrJournal;
-  const session = driver.session({ database: 'neo4j' });
+  const session = driver.session({ database: "neo4j" });
 
   try {
     let query = ` 
@@ -254,29 +283,36 @@ router.post('/AuthorsPapersAndArticles', async (req, res) => {
     RETURN r1.name AS researcher, numPublications AS numPublications, y.name AS year, VenueOrJournal AS VenueOrJournal, ipNames AS ipNames
     `;
 
-    const result = await session.run(query, { listOfyears, venueAndJournalNames });
-    const autxpub = result.records.map(record => {
+    const result = await session.run(query, {
+      listOfyears,
+      venueAndJournalNames,
+    });
+    const autxpub = result.records.map((record) => {
       return {
-        researcher: record.get('researcher'),
-        numPublications: record.get('numPublications').low,
-        year: record.get('year'),
-        ipNames: record.get('ipNames'),
-        VenueOrJournal: record.get('VenueOrJournal')
+        researcher: record.get("researcher"),
+        numPublications: record.get("numPublications").low,
+        year: record.get("year"),
+        ipNames: record.get("ipNames"),
+        VenueOrJournal: record.get("VenueOrJournal"),
       };
     });
 
     res.json(autxpub);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in AuthorsPapersAndArticles', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error in AuthorsPapersAndArticles",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-// Query to find the name and country of the institutions by author
-router.post('/schools', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
+router.post("/schools", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -288,25 +324,26 @@ router.post('/schools', async (req, res) => {
     `;
 
     const result = await session.run(query);
-    const records = result.records.map(record => {
+    const records = result.records.map((record) => {
       return {
-        School: record.get('School'),
-        NumberOfAuthors: record.get('NumberOfAuthors').toNumber()
+        School: record.get("School"),
+        NumberOfAuthors: record.get("NumberOfAuthors").toNumber(),
       };
     });
 
     res.json(records);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener los datos', details: error.message });
+    res
+      .status(500)
+      .json({ error: "Error al obtener los datos", details: error.message });
   } finally {
     session.close();
   }
 });
 
-
-router.post('/searchPublications', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
+router.post("/searchPublications", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -319,26 +356,31 @@ router.post('/searchPublications', async (req, res) => {
     `;
 
     const result = await session.run(query);
-    const records = result.records.map(record => {
+    const records = result.records.map((record) => {
       return {
-        yearName: record.get('yearName'),
-        ConferencesAndPapers: record.get('ConferencesAndPapers').toNumber(),
-        JournalArticles: record.get('JournalArticles').toNumber(),
-        Thesis: record.get('Thesis').toNumber()
+        yearName: record.get("yearName"),
+        ConferencesAndPapers: record.get("ConferencesAndPapers").toNumber(),
+        JournalArticles: record.get("JournalArticles").toNumber(),
+        Thesis: record.get("Thesis").toNumber(),
       };
     });
 
     res.json(records);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener las publicaciones por año', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error al obtener las publicaciones por año",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-router.post('/allPublications', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
+router.post("/allPublications", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -346,23 +388,28 @@ router.post('/allPublications', async (req, res) => {
     `;
 
     const result = await session.run(query);
-    const records = result.records.map(record => {
+    const records = result.records.map((record) => {
       return {
-        all_publications: record.get('all_publications').toNumber(),
+        all_publications: record.get("all_publications").toNumber(),
       };
     });
 
     res.json(records);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener las publicaciones por año', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error al obtener las publicaciones por año",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-router.post('/searchAuthors', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
+router.post("/searchAuthors", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -371,24 +418,29 @@ router.post('/searchAuthors', async (req, res) => {
     `;
 
     const result = await session.run(query);
-    const records = result.records.map(record => {
+    const records = result.records.map((record) => {
       return {
-        yearName: record.get('yearName'),
-        allAuthors: record.get('total_authors').toNumber(),
+        yearName: record.get("yearName"),
+        allAuthors: record.get("total_authors").toNumber(),
       };
     });
 
     res.json(records);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener las publicaciones por año', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error al obtener las publicaciones por año",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-router.post('/allAuthors', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
+router.post("/allAuthors", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -396,23 +448,28 @@ router.post('/allAuthors', async (req, res) => {
     `;
 
     const result = await session.run(query);
-    const records = result.records.map(record => {
+    const records = result.records.map((record) => {
       return {
-        all_authors: record.get('all_authors').toNumber(),
+        all_authors: record.get("all_authors").toNumber(),
       };
     });
 
     res.json(records);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener las publicaciones por año', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error al obtener las publicaciones por año",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-router.post('/searchConference', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
+router.post("/searchConference", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -421,24 +478,29 @@ router.post('/searchConference', async (req, res) => {
     `;
 
     const result = await session.run(query);
-    const records = result.records.map(record => {
+    const records = result.records.map((record) => {
       return {
-        yearName: record.get('yearName'),
-        allConferences: record.get('total_conferences').toNumber(),
+        yearName: record.get("yearName"),
+        allConferences: record.get("total_conferences").toNumber(),
       };
     });
 
     res.json(records);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener las conferencias por', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error al obtener las conferencias por",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-router.post('/allConferences', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
+router.post("/allConferences", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -446,23 +508,28 @@ router.post('/allConferences', async (req, res) => {
     `;
 
     const result = await session.run(query);
-    const records = result.records.map(record => {
+    const records = result.records.map((record) => {
       return {
-        all_conferences: record.get('all_conferences').toNumber(),
+        all_conferences: record.get("all_conferences").toNumber(),
       };
     });
 
     res.json(records);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener el total de conferencias', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error al obtener el total de conferencias",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-router.post('/searchJournal', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
+router.post("/searchJournal", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -471,24 +538,29 @@ router.post('/searchJournal', async (req, res) => {
     `;
 
     const result = await session.run(query);
-    const records = result.records.map(record => {
+    const records = result.records.map((record) => {
       return {
-        yearName: record.get('yearName'),
-        allJournals: record.get('total_journals').toNumber(),
+        yearName: record.get("yearName"),
+        allJournals: record.get("total_journals").toNumber(),
       };
     });
 
     res.json(records);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener los journals por año', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error al obtener los journals por año",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-router.post('/allJournals', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
+router.post("/allJournals", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -496,26 +568,30 @@ router.post('/allJournals', async (req, res) => {
     `;
 
     const result = await session.run(query);
-    const records = result.records.map(record => {
+    const records = result.records.map((record) => {
       return {
-        all_journals: record.get('all_journals').toNumber(),
+        all_journals: record.get("all_journals").toNumber(),
       };
     });
 
     res.json(records);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener el total de journals', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error al obtener el total de journals",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-// Query to find the Conferencew by proceeding
-router.post('/ConferencebyProceeding', async (req, res) => {
+router.post("/ConferencebyProceeding", async (req, res) => {
   const venueAndJournalNames = req.body.venueOrJournal;
   const listOfyears = req.body.titulosSeleccionados;
-  const session = driver.session({ database: 'neo4j' });
+  const session = driver.session({ database: "neo4j" });
 
   try {
     const query = `
@@ -527,28 +603,35 @@ router.post('/ConferencebyProceeding', async (req, res) => {
     RETURN REPLACE(REPLACE(REPLACE(p.title, ", Proceedings", ""), y.name, ""), " - ", "") AS title, y.name AS year, numberOfInProceedings
     ORDER BY year
       `;
-    const result = await session.run(query, { listOfyears, venueAndJournalNames });
-    const proceedings = result.records.map(record => {
+    const result = await session.run(query, {
+      listOfyears,
+      venueAndJournalNames,
+    });
+    const proceedings = result.records.map((record) => {
       return {
-        title: record.get('title'),
-        year: record.get('year'),
-        numberOfInProceedings: record.get('numberOfInProceedings').low
+        title: record.get("title"),
+        year: record.get("year"),
+        numberOfInProceedings: record.get("numberOfInProceedings").low,
       };
     });
 
     res.json(proceedings);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in ConferencebyProceeding', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error in ConferencebyProceeding",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-// Query to find the publications of Authors
-router.post('/filterAuthors', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
-  const filterNames = req.body.filterNames; 
+router.post("/filterAuthors", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
+  const filterNames = req.body.filterNames;
 
   try {
     const query = `
@@ -567,28 +650,29 @@ router.post('/filterAuthors', async (req, res) => {
     ORDER BY DayOfPublication;
     `;
     const result = await session.run(query, { filterNames });
-    const titles = result.records.map(record => {
+    const titles = result.records.map((record) => {
       return {
-        title: record.get('title'),
-        DayOfPublication: record.get('DayOfPublication'),
-        AuthorName: record.get('AuthorName'),
-        PublicationType: record.get('PublicationType'),
-      }
+        title: record.get("title"),
+        DayOfPublication: record.get("DayOfPublication"),
+        AuthorName: record.get("AuthorName"),
+        PublicationType: record.get("PublicationType"),
+      };
     });
 
     res.json(titles);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in filterConferences', details: error.message });
+    res
+      .status(500)
+      .json({ error: "Error in filterConferences", details: error.message });
   } finally {
     session.close();
   }
 });
 
-// Query to find the publications of Authors
-router.post('/networkAuthors', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
-  const filterNames = req.body.filterNames; 
+router.post("/networkAuthors", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
+  const filterNames = req.body.filterNames;
 
   try {
     const query = `
@@ -598,25 +682,26 @@ router.post('/networkAuthors', async (req, res) => {
     RETURN r1.name AS researcher, COLLECT(p.title) AS publications
     `;
     const result = await session.run(query, { filterNames });
-    const titles = result.records.map(record => {
+    const titles = result.records.map((record) => {
       return {
-        researcher: record.get('researcher'),
-        publications: record.get('publications'),
-      }
+        researcher: record.get("researcher"),
+        publications: record.get("publications"),
+      };
     });
 
     res.json(titles);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in filterConferences', details: error.message });
+    res
+      .status(500)
+      .json({ error: "Error in filterConferences", details: error.message });
   } finally {
     session.close();
   }
 });
 
-
-router.post('/connectedComponets', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
+router.post("/connectedComponets", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
   const venueAndJournalNames = req.body.venueOrJournal;
   const listOfyears = req.body.titulosSeleccionados;
 
@@ -638,25 +723,30 @@ router.post('/connectedComponets', async (req, res) => {
     WITH r, COLLECT(DISTINCT coAuthor.name) AS coAuthors
     RETURN r.name AS author, coAuthors
     `;
-    const result = await session.run(query, { listOfyears, venueAndJournalNames});
-    const titles = result.records.map(record => {
+    const result = await session.run(query, {
+      listOfyears,
+      venueAndJournalNames,
+    });
+    const titles = result.records.map((record) => {
       return {
-        author: record.get('author'),
-        coAuthors: record.get('coAuthors'),
-      }
+        author: record.get("author"),
+        coAuthors: record.get("coAuthors"),
+      };
     });
 
     res.json(titles);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in connectedComponets', details: error.message });
+    res
+      .status(500)
+      .json({ error: "Error in connectedComponets", details: error.message });
   } finally {
     session.close();
   }
 });
 
-router.post('/connectedComponetsYear', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
+router.post("/connectedComponetsYear", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
   const venueAndJournalNames = req.body.venueOrJournal;
   const listOfyears = req.body.titulosSeleccionados;
 
@@ -680,26 +770,34 @@ router.post('/connectedComponetsYear', async (req, res) => {
     RETURN year, venueORjournal, SUM(relations) AS totalRelations
     ORDER BY year, venueORjournal
     `;
-    const result = await session.run(query, { listOfyears, venueAndJournalNames});
-    const titles = result.records.map(record => {
+    const result = await session.run(query, {
+      listOfyears,
+      venueAndJournalNames,
+    });
+    const titles = result.records.map((record) => {
       return {
-        year: record.get('year'),
-        totalRelations: record.get('totalRelations'),
-        venueORjournal: record.get('venueORjournal')
-      }
+        year: record.get("year"),
+        totalRelations: record.get("totalRelations"),
+        venueORjournal: record.get("venueORjournal"),
+      };
     });
 
     res.json(titles);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in connectedComponetsYear', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error in connectedComponetsYear",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
-router.post('/newComers', async (req, res) => {
-  const session = driver.session({ database: 'neo4j' });
+router.post("/newComers", async (req, res) => {
+  const session = driver.session({ database: "neo4j" });
   const venueAndJournalNames = req.body.venueOrJournal;
   const listOfyears = req.body.titulosSeleccionados;
 
@@ -717,24 +815,30 @@ router.post('/newComers', async (req, res) => {
     RETURN y.name AS year, COLLECT(DISTINCT r.name) as researchers, j.name as VenueOrJournal
     ORDER BY y.name
     `;
-    const result = await session.run(query, { listOfyears, venueAndJournalNames});
-    const titles = result.records.map(record => {
+    const result = await session.run(query, {
+      listOfyears,
+      venueAndJournalNames,
+    });
+    const titles = result.records.map((record) => {
       return {
-        year: record.get('year'),
-        researchers: record.get('researchers'),
-        VenueOrJournal: record.get('VenueOrJournal')
-      }
+        year: record.get("year"),
+        researchers: record.get("researchers"),
+        VenueOrJournal: record.get("VenueOrJournal"),
+      };
     });
 
     res.json(titles);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error in connectedComponetsYear', details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Error in connectedComponetsYear",
+        details: error.message,
+      });
   } finally {
     session.close();
   }
 });
 
 module.exports = router;
-  
-

@@ -1,46 +1,49 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable } from "@angular/core";
+import { BehaviorSubject, Observable } from "rxjs";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class HomeService {
-
-  private communities: { name: string, filtersList: string[], selected: boolean  }[] = [];
+  private communities: {
+    name: string;
+    filtersList: string[];
+    selected: boolean;
+  }[] = [];
   public filtersList: string[] = [];
   public currentConferences: string[] = [];
-  public showButtons = false
-  public filteredTitles: { title: string, selected: boolean }[] = [];
-  public filteredTitlesJournal: { title: string, selected: boolean }[] = [];
-  public filteredTitlesConference: { title: string, selected: boolean }[] = [];
-  private _activeLinkSubjectStatistics: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  private _activeLinkSubjectNetwork: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public showButtons = false;
+  public filteredTitles: { title: string; selected: boolean }[] = [];
+  public filteredTitlesJournal: { title: string; selected: boolean }[] = [];
+  public filteredTitlesConference: { title: string; selected: boolean }[] = [];
+  private activeLinkSubjectStatistics: BehaviorSubject<boolean> =
+    new BehaviorSubject<boolean>(false);
+  private activeLinkSubjectNetwork: BehaviorSubject<boolean> =
+    new BehaviorSubject<boolean>(false);
 
   get Communities() {
     return this.communities;
   }
 
-  set Communities( communities: { name: string, filtersList: string[], selected: boolean  }[] ) {
-     this.communities = communities;
+  set Communities(
+    communities: { name: string; filtersList: string[]; selected: boolean }[]
+  ) {
+    this.communities = communities;
   }
 
   get activeLinkStatistics$(): Observable<boolean> {
-    return this._activeLinkSubjectStatistics.asObservable();
+    return this.activeLinkSubjectStatistics.asObservable();
   }
 
   setActiveLinkStatistics(value: boolean) {
-    this._activeLinkSubjectStatistics.next(value);
+    this.activeLinkSubjectStatistics.next(value);
   }
 
   get activeLinkNetwork$(): Observable<boolean> {
-    return this._activeLinkSubjectNetwork.asObservable();
+    return this.activeLinkSubjectNetwork.asObservable();
   }
 
   setActiveLinkNetwork(value: boolean) {
-    this._activeLinkSubjectNetwork.next(value);
+    this.activeLinkSubjectNetwork.next(value);
   }
-
-
-
-
 }

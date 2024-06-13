@@ -19,9 +19,6 @@ export class InfoComponent implements OnInit {
   loadingGraph4 = true;
   loadingGraph5 = true;
   barChart!: Chart;
-  barChart1!: Chart;
-  barChart2!: Chart;
-  barChart3!: Chart;
   languagePage: String = "es";
   languageChangeSubscription: Subscription | undefined;
   Conferencesyears: string[] = [];
@@ -36,16 +33,17 @@ export class InfoComponent implements OnInit {
     private languageService: LanguageService
   ) {
     this.translateService.onLangChange.subscribe((event: LangChangeEvent) => {
-      this.languagePage = event.lang
+      this.languagePage = event.lang;
     });
   }
 
   ngOnInit() {
     this.main();
     this.languagePage = this.translateService.currentLang;
-    this.languageChangeSubscription = this.languageService.languageChange$.subscribe(language => {
-      this.changeLanguage(language);
-    });
+    this.languageChangeSubscription =
+      this.languageService.languageChange$.subscribe((language) => {
+        this.changeLanguage(language);
+      });
   }
 
   ngOnDestroy() {
@@ -54,16 +52,13 @@ export class InfoComponent implements OnInit {
     }
   }
 
-  changeLanguage(language: string){
+  changeLanguage(language: string) {
     this.languagePage = language;
     this.updateTranslations();
   }
 
-  updateTranslations(){
+  updateTranslations() {
     this.barChart.destroy();
-    this.barChart2.destroy();
-    this.barChart3.destroy();
-    this.barChart1.destroy();
     this.generateBarChartTriple(
       "tripleBarChart",
       this.infoService.PublicationsByYear.map((item) => item.yearName),
@@ -93,7 +88,6 @@ export class InfoComponent implements OnInit {
     );
   }
 
-  // API CALL: Function to get Publications by Year
   getPublicationsbyYear() {
     this.apiService.getPublicationsbyYear().subscribe({
       next: (response: any[]) => {
@@ -101,14 +95,13 @@ export class InfoComponent implements OnInit {
       },
       error: (error: any) => {
         console.error(
-          "Error al obtener las publicaciones en getPublicationsbyYear:",
+          "Error in getPublicationsbyYear:",
           error
         );
       },
     });
   }
 
-  // API CALL: Function to get Authors by Year
   getAuthorsbyYear() {
     this.apiService.getAuthorsbyYear().subscribe({
       next: (response: any[]) => {
@@ -119,14 +112,13 @@ export class InfoComponent implements OnInit {
       },
       error: (error: any) => {
         console.error(
-          "Error al obtener los autores en getAuthorsbyYear:",
+          "Error in get getAuthorsbyYear:",
           error
         );
       },
     });
   }
 
-  // API CALL: Function to get Journals by Year
   getJournalsbyYear() {
     this.apiService.getJournalsbyYear().subscribe({
       next: (response: any[]) => {
@@ -137,14 +129,13 @@ export class InfoComponent implements OnInit {
       },
       error: (error: any) => {
         console.error(
-          "Error al obtener las conferencias en getConferencesbyYear:",
+          "Error in getConferencesbyYear:",
           error
         );
       },
     });
   }
 
-  // API CALL: Function to get Conferences by Year
   getConferencesbyYear() {
     this.apiService.getConferencesbyYear().subscribe({
       next: (response: any[]) => {
@@ -155,14 +146,13 @@ export class InfoComponent implements OnInit {
       },
       error: (error: any) => {
         console.error(
-          "Error al obtener las conferencias en getConferencesbyYear:",
+          "Error in getConferencesbyYear:",
           error
         );
       },
     });
   }
 
-  // API CALL: Function to get All Publications
   getPublications() {
     this.apiService.getPublications().subscribe({
       next: (response: any[]) => {
@@ -174,7 +164,7 @@ export class InfoComponent implements OnInit {
       },
       error: (error: any) => {
         console.error(
-          "Error al obtener las publicaciones en getPublications:",
+          "Error in getPublications:",
           error
         );
       },
@@ -185,7 +175,6 @@ export class InfoComponent implements OnInit {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  // API CALL: Function to get All Conferences
   getConferences() {
     this.apiService.getConferences().subscribe({
       next: (response: any[]) => {
@@ -197,14 +186,13 @@ export class InfoComponent implements OnInit {
       },
       error: (error: any) => {
         console.error(
-          "Error al obtener las conferencias en getConferences:",
+          "Error in getConferences:",
           error
         );
       },
     });
   }
 
-  // API CALL: Function to get All Journals
   getJournals() {
     this.apiService.getJournals().subscribe({
       next: (response: any[]) => {
@@ -216,14 +204,13 @@ export class InfoComponent implements OnInit {
       },
       error: (error: any) => {
         console.error(
-          "Error al obtener las conferencias en getConferences:",
+          "Error in getJournals:",
           error
         );
       },
     });
   }
 
-  // API CALL: Function to get All Authors
   getAuthors() {
     this.apiService.getAuthors().subscribe({
       next: (response: any[]) => {
@@ -234,12 +221,11 @@ export class InfoComponent implements OnInit {
         }
       },
       error: (error: any) => {
-        console.error("Error al obtener las publicaciones en getBooks:", error);
+        console.error("Error in getAuthors:", error);
       },
     });
   }
 
-  // API CALL: Function to get All Schools
   getSchools() {
     this.apiService.getSchools().subscribe({
       next: (response: any[]) => {
@@ -252,7 +238,6 @@ export class InfoComponent implements OnInit {
     });
   }
 
-  // Function to generate table School
   generateTablesSchools(researchers: any[]) {
     const table = document.querySelector("#tableInstitution tbody");
     if (table instanceof HTMLElement) {
@@ -270,9 +255,8 @@ export class InfoComponent implements OnInit {
     }
   }
 
-  // Function to generate BarChart
   generateBarChart(idChart: string, label: string, labels: any[], data: any[]) {
-    if(idChart == "barChart"){
+    if (idChart == "barChart") {
       this.barChart = new Chart(idChart, {
         type: "bar",
         data: {
@@ -307,8 +291,8 @@ export class InfoComponent implements OnInit {
         },
       });
     }
-    if(idChart == "barChart3"){
-      this.barChart1 = new Chart(idChart, {
+    if (idChart == "barChart3") {
+      this.barChart = new Chart(idChart, {
         type: "bar",
         data: {
           labels: labels,
@@ -342,8 +326,8 @@ export class InfoComponent implements OnInit {
         },
       });
     }
-    if(idChart == "barChart2"){
-      this.barChart2 = new Chart(idChart, {
+    if (idChart == "barChart2") {
+      this.barChart = new Chart(idChart, {
         type: "bar",
         data: {
           labels: labels,
@@ -377,10 +361,8 @@ export class InfoComponent implements OnInit {
         },
       });
     }
-    
   }
 
-  // Function to generate Triple BarChart
   generateBarChartTriple(
     idChart: string,
     labels: any[],
@@ -388,7 +370,7 @@ export class InfoComponent implements OnInit {
     JournalArticles: any[],
     Thesis: any[]
   ) {
-    this.barChart3 = new Chart(idChart, {
+    this.barChart = new Chart(idChart, {
       type: "bar",
       data: {
         labels: labels,
@@ -440,7 +422,6 @@ export class InfoComponent implements OnInit {
     });
   }
 
-  // Function to wait Data
   async waitForData() {
     while (
       this.infoService.PublicationsByYear.length < 1 ||
@@ -503,7 +484,6 @@ export class InfoComponent implements OnInit {
       }
       this.loadingGraph1 = false;
 
-      //Conferences by Year
       this.Conferencesyears = this.infoService.ConferencesByYear.map(
         (item) => item.yearName
       );
@@ -521,7 +501,6 @@ export class InfoComponent implements OnInit {
       }
       this.loadingGraph2 = false;
 
-      //Authors by Year
       this.Authorsyears = this.infoService.AuthorsByYear.map(
         (item) => item.yearName
       );
@@ -539,7 +518,6 @@ export class InfoComponent implements OnInit {
       }
       this.loadingGraph5 = false;
 
-      //Jorunals by Year
       this.JournalsYears = this.infoService.JournalsByYear.map(
         (item) => item.yearName
       );
@@ -557,7 +535,6 @@ export class InfoComponent implements OnInit {
       }
       this.loadingGraph3 = false;
 
-      //Publications by Year
       this.generateBarChartTriple(
         "tripleBarChart",
         this.infoService.PublicationsByYear.map((item) => item.yearName),

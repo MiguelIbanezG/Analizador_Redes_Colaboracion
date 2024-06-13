@@ -26,6 +26,7 @@
         "FilterYears":"Filtrar por años",
         "FilterDecades":"Filtrar por decadas",
         "GenerateStats":"Generar Estadísticas",
+        "Enter":"Introduce la Conferencia o Revista",
         "HowGenerateStatistics":"¿Cómo genero estadísticas de revistas y conferencias?",
         "CreateFirstStep":"Primer paso: Escribe la conferencia o revista que deseas buscar, luego presione el botón agregar que aparece al lado de la conferencia o diario que quieras.",
         "CreateSecondStep":"Segundo paso: Pulsa en el botón filtrar por años o en el botón filtrar por décadas.",
@@ -69,7 +70,7 @@
         "Articles": "Artículos",
         "TotalAuthors": "Total de autores por año",
         "Density":"Densidad",
-        "Single":"Artículos de un solo autor y documentos de un solo autor",
+        "Single":"Artículos y documentos de un solo autor",
         "Connected":"Conexiones de autores",
         "Relations":"Conexiones entre autores por año",
         "Conexions":"Conexiones",
@@ -78,10 +79,10 @@
     },
     "Info":{
         "Information":"Información",
-        "TotalPublications": "Total de Publicaciones",
-        "TotalAuthors": "Total de Autores",
-        "TotalConferences": "Total de Conferencias",
-        "TotalJournals": "Total de Revistas",
+        "TotalPublications": "Nº Total de Publicaciones",
+        "TotalAuthors": "Nº Total de Autores",
+        "TotalConferences": "Nº Total de Conferencias",
+        "TotalJournals": "Nº Total de Revistas",
         "Institution": "Institución",
         "NumberAuthors": "Número de Autores",
         "NumberConferencesYear": "Número de Conferencias por Año",
@@ -96,13 +97,14 @@
         "AuthorsYear":"Autores por año"
     },
     "Author": {
-        "NotFound":"Author not found",
+        "NotFound":"Autor no encontrado",
         "AlreadySelected": "Este Autor ya está seleccionado",
         "JournalArticle": "Artículo de Revista",
         "WorkshopPaper": "Documentos de conferencia",
         "PartinBooks": "Sección de un Libros o Colección",
         "Publications": "Publicaciones",
-        "AuthorsName": "Autores"
+        "AuthorsName": "Autores",
+        "Enter":"Introduce el Autor"
     },
     "Network": {
         "CollaborationNetwork": "Red de Colaboración",
@@ -112,8 +114,10 @@
         "Selections": "Selecciones",
         "Selectednode": "Nodo seleccionado",
         "CommonPublications": "Publicaciones comunes de",
-        "TheseAuthors": "Estos autores tienen",
+        "TheseAuthors": "autores tienen",
+        "These": "Estos",
         "PublicationsInCommon": "publicaciones en común con",
-        "SelectedEdge": "Arista seleccionada"
+        "SelectedEdge": "Arista seleccionada",
+        "from":"-"
     }
 }

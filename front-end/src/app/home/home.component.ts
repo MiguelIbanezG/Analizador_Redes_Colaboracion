@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { StadisticsService } from '../services/stadistics.service';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { HomeService } from '../services/home.service';
-
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { NetworkInitService } from '../services/network.init.service';
 
@@ -40,7 +39,6 @@ export class HomeComponent implements OnInit {
     private modalService: BsModalService,
     public homeService: HomeService,
     private translate: TranslateService,
-    private networkService: NetworkInitService,
   ) {
     this.translate.onLangChange.subscribe((event: LangChangeEvent) => {
       this.languagePage = event.lang
@@ -51,7 +49,6 @@ export class HomeComponent implements OnInit {
     this.languagePage = this.translate.currentLang;
   }
 
-  // API CALL: Function to autocomplete the text box.
   autocompleteTextBox(term: string): void {
     this.apiService.autocompleteConferenceAndJournals(term).subscribe({
       next: (response: string[]) => {
@@ -63,7 +60,6 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // Function to check that the chosen journal or conference exists and is not duplicated
   completeSuggestion(suggestion: string) {
 
     if (suggestion.trim() !== '') {
@@ -156,12 +152,10 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // Function to select conference o jorunal
   selectSuggestion(suggestion: string) {
     this.filtersBOX = suggestion;
   }
 
-  // Function to delete the conference or journal
   deleteFilter(filter: string) {
     const i = this.homeService.filtersList.indexOf(filter);
     if (i !== -1) {
@@ -175,7 +169,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // Function to delete Community
   deleteCommunity(communityToDelete: { name: string, filtersList: string[], selected: boolean }) {
 
     this.homeService.Communities = this.homeService.Communities.filter(community => {
@@ -191,7 +184,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // Function to create Community
   createCommunity(filtersList: string[]) {
 
     this.homeService.Communities.push({ name: this.nameCommunity, filtersList: filtersList, selected: false });
@@ -202,14 +194,12 @@ export class HomeComponent implements OnInit {
 
   }
 
-  // Function to wait for the titles of Confrenece or Journal
   async waitTitlesNoEmpty() {
     while (!this.homeService.filteredTitles || this.homeService.filteredTitles.length === 0) {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
   }
 
-  // Function to search for the years of the selected conferences and journals
   execFunctionsYear() {
     this.homeService.filteredTitlesJournal = [];
     this.homeService.showButtons = false;
@@ -221,7 +211,6 @@ export class HomeComponent implements OnInit {
     this.toggleYears();
   }
 
-  // Function to search for the decades of the selected conferences and journals
   execFunctionsDecades() {
     this.homeService.showButtons = false;
     this.homeService.filteredTitlesJournal = [];
@@ -233,7 +222,6 @@ export class HomeComponent implements OnInit {
     this.toggleDecades();
   }
 
-  // Function to change the selection of years
   toggleYears() {
     this.showYears = !this.showYears;
     if (this.showDecades == true) {
@@ -241,7 +229,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // Function to change the selection of decades
   toggleDecades() {
     this.showDecades = !this.showDecades;
     if (this.showYears == true) {
@@ -249,8 +236,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // Function to clear all selections
-  clear() {
+  clean() {
     this.homeService.filteredTitles = [];
     this.homeService.filtersList = [];
     this.homeService.filteredTitlesConference = [];
@@ -262,7 +248,6 @@ export class HomeComponent implements OnInit {
     this.homeService.showButtons = false;
   }
 
-  // API CALL: Function to search for the years of the conferences
   getYearsConference() {
 
     this.homeService.Communities.forEach(community => {
@@ -323,12 +308,11 @@ export class HomeComponent implements OnInit {
         });
       },
       error: (error: any) => {
-        console.error('Error al obtener los resultados filtrados:', error);
+        console.error('Error in getFilteredNodesConference:', error);
       }
     });
   }
 
-  // API CALL: Function to search for the years of the Journals
   getFilteredNodesJournal() {
 
     this.homeService.Communities.forEach(community => {
@@ -391,12 +375,11 @@ export class HomeComponent implements OnInit {
         });
       },
       error: (error: any) => {
-        console.error('Error al obtener los resultados filtrados:', error);
+        console.error('Error in getFilteredNodesJournal:', error);
       }
     });
   }
 
-  // Function to check if there is any selected year
   existSelectTitle() {
     if (this.homeService.filteredTitles.some(titulo => titulo.selected)) {
       this.selectYears = true;
@@ -405,7 +388,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // Function to select all years
   selectAlls() {
 
     if (this.selectAll) {
@@ -421,7 +403,6 @@ export class HomeComponent implements OnInit {
     this.existSelectTitle();
   }
 
-  // Select the decade of the 1980s
   selectDecade1980() {
 
     for (let year of this.homeService.filteredTitles) {
@@ -434,7 +415,6 @@ export class HomeComponent implements OnInit {
     this.existSelectTitle()
   }
 
-  // Select the decade of the 1990s
   selectDecade1990() {
     for (let year of this.homeService.filteredTitles) {
       if (year.title == "1989" || year.title == "1990" || year.title == "1991" || year.title == "1992" ||
@@ -446,7 +426,6 @@ export class HomeComponent implements OnInit {
     this.existSelectTitle()
   }
 
-  // Select the decade of the 2000s
   selectDecade2000() {
 
     for (let year of this.homeService.filteredTitles) {
@@ -459,7 +438,6 @@ export class HomeComponent implements OnInit {
     this.existSelectTitle()
   }
 
-  // Select the decade of the 2010s
   selectDecade2010() {
 
     for (let year of this.homeService.filteredTitles) {
@@ -472,7 +450,6 @@ export class HomeComponent implements OnInit {
     this.existSelectTitle()
   }
 
-  // Select the decade of the 2020s
   selectDecade2020() {
 
     for (let year of this.homeService.filteredTitles) {
@@ -484,12 +461,10 @@ export class HomeComponent implements OnInit {
     this.existSelectTitle()
   }
 
-  // Function to activate the statistics link
   activateLink() {
     this.homeService.setActiveLinkStatistics(true);
   }
 
-  // Function to generate statistics.
   async generateStatistics() {
     this.getFilteredNodesJournal();
     this.getYearsConference();
@@ -508,15 +483,12 @@ export class HomeComponent implements OnInit {
     this.router.navigateByUrl('/statistics');
   }
 
-  // Function to open the modal
   openModal(template: TemplateRef<any>) {
     this.modalRef = this.modalService.show(template)
   }
 
-  // Function to close the modal
   closeModal() {
     this.modalRef?.hide();
   }
-
 
 }

@@ -1,10 +1,8 @@
 <div>
   <h2>{{ "Menu.Statistics" | translate }}</h2>
-  <hr class="line_title">
-
+  <hr class="line_title" />
 
   <div class="flex-container">
-
     <div class="flex-item">
       <h3>{{ "Statistics.Authors_Year" | translate }}</h3>
 
@@ -20,35 +18,38 @@
         <canvas id="lineChart1"></canvas>
       </div>
     </div>
-
   </div>
 
-  <hr class="line">
+  <hr class="line" />
 
   <div class="flex-container">
-
     <div class="flex-item">
-      <h3>{{ "Statistics.Conference_Papers_Journal_Articles_Year" | translate }}</h3>
+      <h3>
+        {{ "Statistics.Conference_Papers_Journal_Articles_Year" | translate }}
+      </h3>
 
       <div class="canvas-container">
         <canvas id="lineChart7"></canvas>
       </div>
     </div>
 
-    <div class="flex-item" [hidden]="PapersAndArticles.length < 1 || ConferencesAndJournalCount < 2">
-      <h3>{{ "Statistics.Papers_Articles_Conference_Journal_Year" | translate }}</h3>
+    <div
+      class="flex-item"
+      [hidden]="PapersAndArticles.length < 1 || ConferencesAndJournalCount < 2"
+    >
+      <h3>
+        {{ "Statistics.Papers_Articles_Conference_Journal_Year" | translate }}
+      </h3>
 
       <div class="canvas-container">
         <canvas id="lineChart2"></canvas>
       </div>
     </div>
-
   </div>
 
-  <hr class="line">
+  <hr class="line" />
 
   <div class="flex-container">
-
     <div class="flex-item">
       <h3>{{ "Statistics.Density_Evolution_Years" | translate }}</h3>
 
@@ -61,19 +62,23 @@
     </div>
 
     <div class="flex-item">
-      <h3>{{ "Statistics.Single_Author_Publications_Percentage_Year" | translate }}</h3>
+      <h3>
+        {{
+          "Statistics.Single_Author_Publications_Percentage_Year" | translate
+        }}
+      </h3>
 
       <div class="canvas-container">
         <canvas id="barChart1"></canvas>
       </div>
     </div>
-
   </div>
 
+  <hr class="line" />
 
-  <hr class="line">
-
-  <h3 class="special">{{ "Statistics.Distributions_Authors_Paper_Article" | translate }}</h3>
+  <h3 class="special">
+    {{ "Statistics.Distributions_Authors_Paper_Article" | translate }}
+  </h3>
   <div class="container-table">
     <div class="table">
       <table id="authorsTable">
@@ -108,21 +113,22 @@
     </div>
   </div>
 
-  <hr class="line">
+  <hr class="line" />
 
-  <h3 class="special">{{ "Statistics.Men_Women_Publications_Percentage_Year" | translate }}</h3>
+  <h3 class="special">
+    {{ "Statistics.Men_Women_Publications_Percentage_Year" | translate }}
+  </h3>
   <div class="flex-container">
-
     <div class="graph-bars">
-
       <div class="canvas-container1">
         <div class="legend">
-          <div class="men"></div> {{ "Statistics.Men" | translate }}
-          <div class="women"></div> {{ "Statistics.Women" | translate }}
+          <div class="men"></div>
+          {{ "Statistics.Men" | translate }}
+          <div class="women"></div>
+          {{ "Statistics.Women" | translate }}
         </div>
         <canvas class="circular" id="lineChart4"></canvas>
       </div>
-
     </div>
 
     <div class="graph-bars">
@@ -132,7 +138,7 @@
     </div>
   </div>
 
-  <hr class="line">
+  <hr class="line" />
 
   <h3>{{ "Statistics.Country_Publications_Percentage_Year" | translate }}</h3>
   <div class="flex-container">
@@ -143,9 +149,11 @@
     </div>
   </div>
 
-  <hr class="line">
+  <hr class="line" />
 
-  <h3 class="special">{{ "Statistics.Most_Frequent_Bigrams_Trigrams" | translate }}</h3>
+  <h3 class="special">
+    {{ "Statistics.Most_Frequent_Bigrams_Trigrams" | translate }}
+  </h3>
   <div class="container-table">
     <div class="table">
       <table id="tableBigramas">
@@ -153,8 +161,14 @@
           <tr>
             <th>{{ "Statistics.Bigrams" | translate }}</th>
             <th>{{ "Statistics.Appearances" | translate }}</th>
-            <th>{{ "Statistics.First" | translate }} <br> {{ "Statistics.Year" | translate }}</th>
-            <th>{{ "Statistics.Recent" | translate }} <br> {{ "Statistics.Year" | translate }}</th>
+            <th>
+              {{ "Statistics.First" | translate }} <br />
+              {{ "Statistics.Year" | translate }}
+            </th>
+            <th>
+              {{ "Statistics.Recent" | translate }} <br />
+              {{ "Statistics.Year" | translate }}
+            </th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -169,8 +183,14 @@
           <tr>
             <th>{{ "Statistics.Trigrams" | translate }}</th>
             <th>{{ "Statistics.Appearances" | translate }}</th>
-            <th>{{ "Statistics.First" | translate }} <br> {{ "Statistics.Year" | translate }}</th>
-            <th>{{ "Statistics.Recent" | translate }} <br> {{ "Statistics.Year" | translate }}</th>
+            <th>
+              {{ "Statistics.First" | translate }} <br />
+              {{ "Statistics.Year" | translate }}
+            </th>
+            <th>
+              {{ "Statistics.Recent" | translate }} <br />
+              {{ "Statistics.Year" | translate }}
+            </th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -178,21 +198,28 @@
     </div>
   </div>
 
-  <hr class="line">
+  <hr class="line" />
 
-  <h3 class="special">{{ "Statistics.Frequent_Terms_All_Titles" | translate }}</h3>
+  <h3 class="special">
+    {{ "Statistics.Frequent_Terms_All_Titles" | translate }}
+  </h3>
   <div class="conceptual">
-    <angular-tag-cloud [config]="options" [data]="cloudData"></angular-tag-cloud>
+    <angular-tag-cloud
+      [config]="options"
+      [data]="cloudData"
+    ></angular-tag-cloud>
   </div>
 
-  <hr class="line">
+  <hr class="line" />
 
-  <h3 class="special">{{ "Statistics.Most_Prolific_Authors_Decade" | translate }}</h3>
+  <h3 class="special">
+    {{ "Statistics.Most_Prolific_Authors_Decade" | translate }}
+  </h3>
   <div class="container-table">
     <div class="table">
-      <div class="tableDecades">  
+      <div class="tableDecades">
         1989-1999
-        <hr>
+        <hr />
       </div>
       <table id="table90">
         <tbody></tbody>
@@ -200,9 +227,9 @@
     </div>
     <div class="line2"></div>
     <div class="table">
-      <div class="tableDecades">  
+      <div class="tableDecades">
         1999-2009
-        <hr>
+        <hr />
       </div>
       <table id="table00">
         <tbody></tbody>
@@ -210,9 +237,9 @@
     </div>
     <div class="line2"></div>
     <div class="table">
-      <div class="tableDecades">  
+      <div class="tableDecades">
         2009-2019
-        <hr>
+        <hr />
       </div>
       <table id="table10">
         <tbody></tbody>
@@ -220,9 +247,9 @@
     </div>
     <div class="line2"></div>
     <div class="table">
-      <div class="tableDecades">  
+      <div class="tableDecades">
         2019-2024
-        <hr>
+        <hr />
       </div>
       <table id="table20">
         <tbody></tbody>
@@ -230,7 +257,7 @@
     </div>
   </div>
 
-  <hr class="line">
+  <hr class="line" />
 
   <h3>{{ "Statistics.Authors_First_Recent_Year" | translate }}</h3>
   <div class="container-table">
@@ -240,9 +267,15 @@
           <tr>
             <th>{{ "Statistics.Author" | translate }}</th>
             <th>{{ "Statistics.Degree" | translate }}</th>
-            <th>{{ "Statistics.First" | translate }} <br> {{ "Statistics.Year" | translate }}</th>
-            <th>{{ "Statistics.Recent" | translate }} <br> {{ "Statistics.Year" | translate }}</th>
-            <th>{{ "Statistics.VenueOrJournal" | translate }} </th>
+            <th>
+              {{ "Statistics.First" | translate }} <br />
+              {{ "Statistics.Year" | translate }}
+            </th>
+            <th>
+              {{ "Statistics.Recent" | translate }} <br />
+              {{ "Statistics.Year" | translate }}
+            </th>
+            <th>{{ "Statistics.VenueOrJournal" | translate }}</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -250,11 +283,12 @@
     </div>
   </div>
 
-  <hr class="line" [hidden]="PapersAndArticles.length < 1">
+  <hr class="line" [hidden]="PapersAndArticles.length < 1" />
 
-  <h3 [hidden]="PapersAndArticles.length < 1">{{ "Statistics.Proceeding_by_Conference" | translate }}</h3>
+  <h3 [hidden]="PapersAndArticles.length < 1">
+    {{ "Statistics.Proceeding_by_Conference" | translate }}
+  </h3>
   <div class="container-table">
-
     <div class="table" [hidden]="PapersAndArticles.length < 1">
       <table id="tableProceeding">
         <thead>
@@ -271,19 +305,22 @@
     </div>
   </div>
 
-  <div class="overlay" [hidden]="PapersAndArticles.length < 1" *ngIf="loadingTable1">
+  <div
+    class="overlay"
+    [hidden]="PapersAndArticles.length < 1"
+    *ngIf="loadingTable1"
+  >
     <app-spinner></app-spinner>
   </div>
 
-  <hr class="line" [hidden]="PapersAndArticles.length < 1">
+  <hr class="line" [hidden]="PapersAndArticles.length < 1" />
 
   <h3>{{ "Statistics.Connected" | translate }}</h3>
-  <div class="network" #treeContainer></div> 
+  <!-- <div class="network" #treeContainer></div> -->
 
-  <hr class="line">
+  <hr class="line" />
 
   <div class="flex-container-last">
-
     <div class="flex-item">
       <h3>{{ "Statistics.Relations" | translate }}</h3>
 
@@ -299,7 +336,5 @@
         <canvas id="lineChart10"></canvas>
       </div>
     </div>
-
   </div>
-
 </div>
