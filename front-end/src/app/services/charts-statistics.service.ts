@@ -255,7 +255,6 @@ export class ChartsStatisticsService {
     }
   }
 
-  // Function to generate the density chart
   generateChartDensity(
     idChart: string,
     label: string,
@@ -343,7 +342,6 @@ export class ChartsStatisticsService {
     new Chart(ctx, chartConfig);
   }
 
-  //Function to generate a Circular Chart of Gender
   generateCircularChart(
     chartId: string,
     labels: string[],
@@ -384,7 +382,6 @@ export class ChartsStatisticsService {
     new Chart(ctx, chartConfig);
   }
 
-  //Function to generate a Chart of SingleAuthors
   generateBarChart(idChart: string, label: string, labels: any[], data: any[]) {
     new Chart(idChart, {
       type: "bar",

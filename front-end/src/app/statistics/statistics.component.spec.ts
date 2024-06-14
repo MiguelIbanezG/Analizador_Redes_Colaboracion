@@ -20,7 +20,7 @@ describe('EstadisticasComponent', () => {
         },
       ],
       imports: [HttpClientModule],
-      schemas: [NO_ERRORS_SCHEMA], // Ignore unknown elements and attributes
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(StatisticsComponent);
