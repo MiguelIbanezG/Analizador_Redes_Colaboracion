@@ -700,51 +700,6 @@ router.post("/networkAuthors", async (req, res) => {
   }
 });
 
-router.post("/connectedComponets", async (req, res) => {
-  const session = driver.session({ database: "neo4j" });
-  const venueAndJournalNames = req.body.venueOrJournal;
-  const listOfyears = req.body.titulosSeleccionados;
-
-  try {
-    const query = `
-    MATCH (v:Venue)-[:CELEBRATED_IN]->(y:Year)-[:HAS_PROCEEDING]->(:Proceeding)-[:HAS_IN_PROCEEDING]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
-    WHERE v.name IN $venueAndJournalNames and y.name IN $listOfyears
-    MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
-    WHERE coAuthor <> r
-    WITH r, COLLECT(DISTINCT coAuthor.name) AS coAuthors
-    RETURN r.name AS author, coAuthors
-
-    UNION 
-
-    MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_NUMBER]->(n:Number)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
-    WHERE j.name IN $venueAndJournalNames and y.name IN $listOfyears
-    MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
-    WHERE coAuthor <> r
-    WITH r, COLLECT(DISTINCT coAuthor.name) AS coAuthors
-    RETURN r.name AS author, coAuthors
-    `;
-    const result = await session.run(query, {
-      listOfyears,
-      venueAndJournalNames,
-    });
-    const titles = result.records.map((record) => {
-      return {
-        author: record.get("author"),
-        coAuthors: record.get("coAuthors"),
-      };
-    });
-
-    res.json(titles);
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ error: "Error in connectedComponets", details: error.message });
-  } finally {
-    session.close();
-  }
-});
-
 router.post("/connectedComponetsYear", async (req, res) => {
   const session = driver.session({ database: "neo4j" });
   const venueAndJournalNames = req.body.venueOrJournal;

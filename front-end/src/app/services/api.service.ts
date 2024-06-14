@@ -136,16 +136,6 @@ export class ApiService {
     });
   }
 
-  getConnectedComponents(
-    titulosSeleccionados: any[],
-    venueOrJournal: string[]
-  ): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/connectedComponets`, {
-      titulosSeleccionados,
-      venueOrJournal,
-    });
-  }
-
   getConnectedComponentsYears(
     titulosSeleccionados: any[],
     venueOrJournal: string[]

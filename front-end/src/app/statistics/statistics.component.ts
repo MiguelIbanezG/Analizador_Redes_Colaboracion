@@ -57,7 +57,6 @@ export class StatisticsComponent implements OnInit {
   private data: any = {};
   private nodes: DataSet<Node> = new DataSet<Node>();
   private edges: DataSet<Edge> = new DataSet<Edge>();
-  private network!: Network;
 
   options: CloudOptions = {
     width: 500,
@@ -93,9 +92,8 @@ export class StatisticsComponent implements OnInit {
     this.languageChangeSubscription = this.languageService.languageChange$.subscribe((language) => {
       this.changeLanguage(language);
     });
-    this.networkInitService.getLargestConnectedComponent();
+
     this.getnewComers();
-    this.getConnectedComponents();
   }
 
   ngOnDestroy() {
@@ -205,32 +203,6 @@ export class StatisticsComponent implements OnInit {
         },
         error: (error: any) => {
           console.error("Error in getAuthorsPapers:", error);
-        },
-      });
-  }
-
-  getConnectedComponents() {
-    this.apiService.getConnectedComponents(this.stadisticsService.selectedYears, this.stadisticsService.ConferenceOrJournalName)
-      .subscribe({
-        next: async (response: any) => {
-          this.networkInitService.authorsRelations = 0;
-          this.networkInitService.authorsRelations = response;
-          // this.networkInitService.getLargestConnectedComponent();
-          this.nodes = this.networkInitService.getNodesStats();
-          this.edges = this.networkInitService.getEdgesStats();
-          this.data = {
-            nodes: this.nodes,
-            edges: this.edges,
-          };
-
-          this.network = new Network(
-            this.treeContainer.nativeElement,
-            this.data,
-            this.networkService.getNetworkOptionsStats()
-          );
-        },
-        error: (error: any) => {
-          console.error("Error in getConnectedComponents:", error);
         },
       });
   }
@@ -750,9 +722,7 @@ export class StatisticsComponent implements OnInit {
   }
 
   statsResearchers() {
-    const names = new Set(
-      this.researchers.map((researcher) => researcher.name)
-    );
+    const names = new Set(this.researchers.map((researcher) => researcher.name));
     this.ConferencesAndJournalAuthors = names.size;
     this.statsAuthors = [];
     this.statsAuthors = Array.from(names).map((name) => {
@@ -983,7 +953,6 @@ export class StatisticsComponent implements OnInit {
     this.statisticsChart.generateMultipleChart("lineChart5", years, datasetsLabels, datasetsData);
   }
 
-  // Function to filter authors by decades
   filterAuthorsByDecade(authors: Author[], startYear: number, endYear: number ): Author[] {
     const filteredAuthors: Author[] = [];
 
@@ -992,7 +961,7 @@ export class StatisticsComponent implements OnInit {
 
       if (authorYears.length > 0) {
         const existingAuthor = filteredAuthors.find(
-          (filteredAuthor) => filteredAuthor.researcher === author.researcher
+          (filteredAuthor) => filteredAuthor.researcher === author.researcher && filteredAuthor.VenueOrJournal === author.VenueOrJournal
         );
         if (existingAuthor) {
           existingAuthor.numPublications += author.numPublications;
@@ -1033,13 +1002,6 @@ export class StatisticsComponent implements OnInit {
       });
     }
 
-    decades.forEach((decade) => {
-      decade.authors.sort((a, b) => b.numPublications - a.numPublications);
-      if (decade.authors.length > 20) {
-        decade.authors = decade.authors.slice(0, 20);
-      }
-    });
-
     return decades;
   }
 
@@ -1050,58 +1012,58 @@ export class StatisticsComponent implements OnInit {
       "2010s": document.querySelector("#table10 tbody"),
       "2020s": document.querySelector("#table20 tbody"),
     };
-
+  
     let uniqueVenues: Set<string> = new Set();
     decadeStats.forEach((decade) => {
-      decade.authors.forEach((autor: { VenueOrJournal: any }) => {
+      decade.authors.forEach((autor: { VenueOrJournal: string }) => {
         uniqueVenues.add(autor.VenueOrJournal);
       });
     });
-
+  
     for (const decade of decadeStats) {
       const table = tables[decade.label];
       if (table instanceof HTMLElement) {
         const headerRow = document.createElement("tr");
         headerRow.innerHTML = `<th>Autor</th>`;
-
+  
         uniqueVenues.forEach((venue) => {
           const th = document.createElement("th");
           th.textContent = venue;
-          th.style.padding = "5px"; 
+          th.style.padding = "5px";
           headerRow.appendChild(th);
         });
-
+  
         headerRow.style.fontSize = "1.2em";
         table.appendChild(headerRow);
-
-        decade.authors
-          .slice(0, 100)
-          .forEach(
-            (autor: {
-              researcher: any;
-              numPublications: any;
-              VenueOrJournal: any;
-            }) => {
-              const row = document.createElement("tr");
-              row.innerHTML = `<td>${autor.researcher}</td>`;
-
-              uniqueVenues.forEach((venue) => {
-                const numPublications = decade.authors
-                  .filter(
-                    (a: { VenueOrJournal: any }) => a.VenueOrJournal === venue
-                  )
-                  .reduce(
-                    (acc: number, curr: { numPublications: number }) =>
-                      acc + curr.numPublications,
-                    0
-                  );
-                row.innerHTML += `<td>${autor.VenueOrJournal === venue ? autor.numPublications : 0
-                  }</td>`;
-              });
-
-              table.appendChild(row);
-            }
-          );
+  
+        const authorsMap = new Map<string, { [key: string]: number }>();
+  
+        decade.authors.forEach((autor: { researcher: string; numPublications: number; VenueOrJournal: string }) => {
+          if (!authorsMap.has(autor.researcher)) {
+            authorsMap.set(autor.researcher, {});
+          }
+          const authorVenues = authorsMap.get(autor.researcher)!;
+          authorVenues[autor.VenueOrJournal] = (authorVenues[autor.VenueOrJournal] || 0) + autor.numPublications;
+        });
+  
+        const sortedAuthors = Array.from(authorsMap.entries()).sort((a, b) => {
+          const totalA = Object.values(a[1]).reduce((sum, num) => sum + num, 0);
+          const totalB = Object.values(b[1]).reduce((sum, num) => sum + num, 0);
+          return totalB - totalA;
+        });
+  
+        const limitedAuthors = sortedAuthors.slice(0, 30);
+  
+        limitedAuthors.forEach(([researcher, authorVenues]) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${researcher}</td>`;
+  
+          uniqueVenues.forEach((venue) => {
+            row.innerHTML += `<td>${authorVenues[venue] || 0}</td>`;
+          });
+  
+          table.appendChild(row);
+        });
       }
     }
   }
@@ -1211,7 +1173,7 @@ export class StatisticsComponent implements OnInit {
           this.commonNames = this.parseCommonNames(data);
         },
         (error: any) => {
-          console.error("Error al cargar los datos:", error);
+          console.error("Error in get assets/common_names.txt", error);
         }
       );
   }

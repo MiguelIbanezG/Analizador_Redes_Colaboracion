@@ -9,10 +9,10 @@ services:
     environment:
       NEO4J_AUTH: "neo4j/B6jh8J7OL0"
     volumes:
-      - "/home/miguel/.config/Neo4j\ Destkop/Application/relate-data/dbmss/dbms-e5cf6b54-7044-4f66-9555-f0003a01d8a3/data:/data"
-      - "/home/miguel/.config/Neo4j\ Destkop/Application/relate-data/dbmss/dbms-e5cf6b54-7044-4f66-9555-f0003a01d8a3/conf:/conf"
-      - "/home/miguel/.config/Neo4j\ Destkop/Application/relate-data/dbmss/dbms-e5cf6b54-7044-4f66-9555-f0003a01d8a3/logs:/logs"
-      - "/home/miguel/.config/Neo4j\ Destkop/Application/relate-data/dbmss/dbms-e5cf6b54-7044-4f66-9555-f0003a01d8a3/plugins:/plugins"
+      - "/home/miguel/.config/Neo4j Destkop/Application/relate-data/dbmss/dbms-e5cf6b54-7044-4f66-9555-f0003a01d8a3/data:/data"
+      - "/home/miguel/.config/Neo4j Destkop/Application/relate-data/dbmss/dbms-e5cf6b54-7044-4f66-9555-f0003a01d8a3/conf:/conf"
+      - "/home/miguel/.config/Neo4j Destkop/Application/relate-data/dbmss/dbms-e5cf6b54-7044-4f66-9555-f0003a01d8a3/logs:/logs"
+      - "/home/miguel/.config/Neo4j Destkop/Application/relate-data/dbmss/dbms-e5cf6b54-7044-4f66-9555-f0003a01d8a3/plugins:/plugins"
 
   api:
     build: .
