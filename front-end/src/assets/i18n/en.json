@@ -62,7 +62,7 @@
         "Frequent_Terms_All_Titles": "Frequent terms from all titles of papers",
         "Most_Prolific_Authors_Decade": "Most prolific authors according to their number of publications accumulated by decade",
         "Authors_First_Recent_Year": "Authors with their first and most recent year of publication",
-        "Degree": "Degree",
+        "Degree": "Highest number of publications",
         "Name": "Name",
         "Location": "Location",
         "numberOfInProceedings": "Number of in proceedings",

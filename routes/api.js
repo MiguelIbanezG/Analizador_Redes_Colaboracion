@@ -805,6 +805,13 @@ router.post("/newComers", async (req, res) => {
     WHERE j.name IN $venueAndJournalNames AND y.name IN $listOfyears
     RETURN y.name AS year, COLLECT(DISTINCT r.name) as researchers, j.name as VenueOrJournal
     ORDER BY y.name
+
+     UNION
+    
+    MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
+    WHERE j.name IN $venueAndJournalNames AND y.name IN $listOfyears
+    RETURN y.name AS year, COLLECT(DISTINCT r.name) as researchers, j.name as VenueOrJournal
+    ORDER BY y.name
     `;
     const result = await session.run(query, {
       listOfyears,

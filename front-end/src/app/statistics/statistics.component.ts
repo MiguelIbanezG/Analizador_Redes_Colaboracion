@@ -123,7 +123,6 @@ export class StatisticsComponent implements OnInit {
         next: (response: any) => {
           this.researchers = [];
           this.researchers = response;
-          console.log(this.researchers)
           this.statsResearchers();
           this.statsTotalAuthorsByYear();
           if (this.researchers.length > 1) {
@@ -274,6 +273,7 @@ export class StatisticsComponent implements OnInit {
       .subscribe({
         next: async (response: any) => {
           const newComersLCCdata = this.NewComersLCCstats(response);
+          console.log(newComersLCCdata)
           this.statisticsChart.generateNewComers("lineChart10", newComersLCCdata);
         },
         error: (error: any) => {
@@ -814,8 +814,7 @@ export class StatisticsComponent implements OnInit {
         numResearchers: numPapersAndArticlesPorAnio,
       };
     });
-  
-    console.log(this.statsPaperAndArticle);
+
     this.statisticsChart.generateChartJournalsAndVenue("lineChart2", this.statsPaperAndArticle);
   }
   
@@ -1126,7 +1125,7 @@ export class StatisticsComponent implements OnInit {
     );
     const topAuthors = allAuthors
       .sort((a, b) => b.numPublications - a.numPublications)
-      .slice(0, 20);
+      .slice(0, 25);
 
     const tables = {
       degree: document.querySelector("#degree tbody"),
