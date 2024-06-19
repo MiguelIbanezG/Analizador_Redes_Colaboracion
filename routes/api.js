@@ -146,6 +146,12 @@ router.post("/researchers", async (req, res) => {
     WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
     RETURN r AS researcher, COLLECT(DISTINCT y.name) AS years, j.name AS name
 
+    UNION
+
+    MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
+    WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
+    RETURN r AS researcher, COLLECT(DISTINCT y.name) AS years, j.name AS name
+
     `;
     const result = await session.run(query, {
       listOfyears,
@@ -718,6 +724,16 @@ router.post("/connectedComponetsYear", async (req, res) => {
     UNION
 
     MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_NUMBER]->(n:Number)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
+    WHERE j.name IN $venueAndJournalNames AND y.name IN $listOfyears
+    MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
+    WHERE coAuthor <> r
+    WITH y.name AS year, j.name AS venueORjournal, r, COUNT(DISTINCT coAuthor) AS relations
+    RETURN year, venueORjournal, SUM(relations) AS totalRelations
+    ORDER BY year, venueORjournal
+
+      UNION
+
+    MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r:Researcher)
     WHERE j.name IN $venueAndJournalNames AND y.name IN $listOfyears
     MATCH (p)-[:AUTHORED_BY]->(coAuthor:Researcher)
     WHERE coAuthor <> r

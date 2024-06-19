@@ -93,7 +93,7 @@ export class StatisticsComponent implements OnInit {
       this.changeLanguage(language);
     });
 
-    this.getnewComers();
+
   }
 
   ngOnDestroy() {
@@ -123,6 +123,7 @@ export class StatisticsComponent implements OnInit {
         next: (response: any) => {
           this.researchers = [];
           this.researchers = response;
+          console.log(this.researchers)
           this.statsResearchers();
           this.statsTotalAuthorsByYear();
           if (this.researchers.length > 1) {
@@ -214,7 +215,6 @@ export class StatisticsComponent implements OnInit {
           const { labels, datasets, venueYears } = this.statsConnectedComponets(response);
           const allYears = new Set<string>();
   
-          // Unificar nombres de venues en labels y venueYears
           const unifiedVenueYears: { [key: string]: string[] } = {};
           const unifiedDatasets: { [key: string]: number[] } = {};
   
@@ -1336,6 +1336,7 @@ export class StatisticsComponent implements OnInit {
       } else {
         this.decadeStats = this.statsProlificAuthors(this.selectedYears);
         this.generateTablesDecades(this.decadeStats);
+        this.getnewComers();
       }
       this.statsDegreeAuthors(this.selectedYears);
 
