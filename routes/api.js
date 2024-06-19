@@ -194,6 +194,12 @@ router.post("/PapersAndArticles", async (req, res) => {
       MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_NUMBER]->(n:Number)-[:HAS_ARTICLE]->(p:Publication)
       WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
       RETURN toInteger(count(p)) AS numPapersAndArticles, y.name AS yearName, j.name AS name, "Article" AS type
+       
+      UNION 
+
+      MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_ARTICLE]->(p:Publication)
+      WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
+      RETURN toInteger(count(p)) AS numPapersAndArticles, y.name AS yearName, j.name AS name, "Article" AS type
       `;
     const result = await session.run(query, {
       listOfyears,
@@ -244,6 +250,13 @@ router.post("/collaborations", async (req, res) => {
     WITH y, collect(p) AS numpColaboraciones
     RETURN y.name AS year, toFloat(size(apoc.coll.flatten(collect(distinct(numpColaboraciones))))) AS totalColaboraciones
     
+    UNION
+
+    MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_ARTICLE]->(p:Publication)
+    WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
+    AND size((p)-[:AUTHORED_BY]->()) > 1
+    WITH y, collect(p) AS numpColaboraciones
+    RETURN y.name AS year, toFloat(size(apoc.coll.flatten(collect(distinct(numpColaboraciones))))) AS totalColaboraciones
     `;
     const result = await session.run(query, {
       listOfyears,
@@ -284,6 +297,13 @@ router.post("/AuthorsPapersAndArticles", async (req, res) => {
     UNION
     
     MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_NUMBER]->(n:Number)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r1:Researcher)
+    WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
+    WITH r1, y, j.name AS VenueOrJournal, collect(p.title) AS ipNames, count(distinct p) AS numPublications
+    RETURN r1.name AS researcher, numPublications AS numPublications, y.name AS year, VenueOrJournal AS VenueOrJournal, ipNames AS ipNames
+    
+    UNION
+    
+    MATCH (j:Journal)-[:PUBLISHED_IN]->(y:Year)-[:HAS_VOLUME]->(v:Volume)-[:HAS_ARTICLE]->(p:Publication)-[:AUTHORED_BY]->(r1:Researcher)
     WHERE y.name IN $listOfyears AND j.name IN $venueAndJournalNames
     WITH r1, y, j.name AS VenueOrJournal, collect(p.title) AS ipNames, count(distinct p) AS numPublications
     RETURN r1.name AS researcher, numPublications AS numPublications, y.name AS year, VenueOrJournal AS VenueOrJournal, ipNames AS ipNames
