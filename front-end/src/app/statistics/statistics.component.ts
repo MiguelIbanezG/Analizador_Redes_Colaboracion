@@ -208,30 +208,52 @@ export class StatisticsComponent implements OnInit {
   }
 
   getConnectedComponentsYears() {
-    this.apiService.getConnectedComponentsYears(this.stadisticsService.selectedYears,this.stadisticsService.ConferenceOrJournalName)
+    this.apiService.getConnectedComponentsYears(this.stadisticsService.selectedYears, this.stadisticsService.ConferenceOrJournalName)
       .subscribe({
         next: (response: any) => {
           const { labels, datasets, venueYears } = this.statsConnectedComponets(response);
           const allYears = new Set<string>();
-        
-          Object.values(venueYears).forEach((years) => {
+  
+          // Unificar nombres de venues en labels y venueYears
+          const unifiedVenueYears: { [key: string]: string[] } = {};
+          const unifiedDatasets: { [key: string]: number[] } = {};
+  
+          Object.keys(venueYears).forEach((venue) => {
+            let unifiedVenue = venue;
+            if (venue === "Business Process Management") {
+              unifiedVenue = "BPM";
+            }
+  
+            if (!unifiedVenueYears[unifiedVenue]) {
+              unifiedVenueYears[unifiedVenue] = [];
+            }
+            unifiedVenueYears[unifiedVenue].push(...venueYears[venue]);
+  
+            if (!unifiedDatasets[unifiedVenue]) {
+              unifiedDatasets[unifiedVenue] = [];
+            }
+            unifiedDatasets[unifiedVenue].push(...datasets[venue]);
+          });
+  
+          Object.values(unifiedVenueYears).forEach((years) => {
             years.forEach((year) => allYears.add(year));
           });
+  
           const sortedAllYears = Array.from(allYears).sort();
-
-          this.connectedYears = Object.keys(datasets).map((label) => {
-            const years = venueYears[label];
-            const relations = datasets[label];
-
+  
+          this.connectedYears = Object.keys(unifiedDatasets).map((label) => {
+            const years = unifiedVenueYears[label];
+            const relations = unifiedDatasets[label];
+  
             const yearRelationMap: { [key: string]: number } = {};
             years.forEach((year, index) => {
               yearRelationMap[year] = relations[index];
             });
-
+  
             const filledRelations = sortedAllYears.map(
               (year) => yearRelationMap[year] || 0
             );
-
+  
             return {
               name: label,
               years: sortedAllYears,
@@ -725,13 +747,22 @@ export class StatisticsComponent implements OnInit {
     const names = new Set(this.researchers.map((researcher) => researcher.name));
     this.ConferencesAndJournalAuthors = names.size;
     this.statsAuthors = [];
-    this.statsAuthors = Array.from(names).map((name) => {
+    const unifiedNames = new Set(
+      Array.from(names).map((name) => {
+        if (name === "Business Process Management") {
+          return "BPM";
+        }
+        return name;
+      })
+    );
+    
+    this.statsAuthors = Array.from(unifiedNames).map((name) => {
       const years = this.stadisticsService.selectedYears;
       years.sort((a, b) => parseInt(a) - parseInt(b));
       this.selectedYears = years;
       const numResearchersPorAnio = years.map((anio) =>
         this.researchers.reduce((total, researcher) => {
-          if (researcher.name === name && researcher.years.includes(anio)) {
+          if ((researcher.name === name || (name === "BPM" && researcher.name === "Business Process Management")) && researcher.years.includes(anio)) {
             return total + 1;
           }
           return total;
@@ -746,6 +777,20 @@ export class StatisticsComponent implements OnInit {
   }
 
   statsPapersAndArticles() {
+    // Preprocesamiento: Fusionar datos de "Business Process Management" en "BPM"
+    this.PapersAndArticles = this.PapersAndArticles.map(item => {
+      if (item.name === "Business Process Management") {
+        return { ...item, name: "BPM" };
+      }
+      return item;
+    });
+  
+    // Eliminar duplicados "Business Process Management"
+    this.PapersAndArticles = this.PapersAndArticles.filter(
+      item => item.name !== "Business Process Management"
+    );
+  
+    // Continuar con el procesamiento normal
     const names = new Set(this.PapersAndArticles.map((item) => item.name));
     this.ConferencesAndJournalCount = names.size;
     this.statsPaperAndArticle = Array.from(names).map((name) => {
@@ -769,9 +814,11 @@ export class StatisticsComponent implements OnInit {
         numResearchers: numPapersAndArticlesPorAnio,
       };
     });
-
+  
+    console.log(this.statsPaperAndArticle);
     this.statisticsChart.generateChartJournalsAndVenue("lineChart2", this.statsPaperAndArticle);
   }
+  
 
   statsColaboraciones() {
     let colabsXtotal: {year: number; numColabs: number; numPapersAndArticles: number;}[] = [];
